@@ -1,4 +1,6 @@
 ### Application
+.next/
+.next-*/
 
 ### Maven template
 target/
