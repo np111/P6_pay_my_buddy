@@ -1,0 +1,13 @@
+---
+server:
+  port: '${SERVER_PORT:8081}'
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: 'validate'
+    open-in-view: false
+  datasource:
+    url: 'jdbc:mariadb://${MYSQL_HOST:localhost}:${MYSQL_PORT:14373}/${MYSQL_DATABASE:pmb}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC'
+    username: '${MYSQL_USERNAME:pmb}'
+    password: '${MYSQL_PASSWORD:pmb}'
