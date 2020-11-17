@@ -7,13 +7,17 @@ require('antd/lib/button/style/index.less');
 
 require('../assets/css/app.scss');
 
-export function MainLayout(props) {
+export interface MainLayoutProps {
+    children: React.ReactNode;
+}
+
+export function MainLayout({children}: MainLayoutProps) {
     return (
         <>
             <Head>
                 <meta name='viewport' content='width=device-width, initial-scale=1'/>
             </Head>
-            {props.children}
+            {children}
         </>
     );
 }

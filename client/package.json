@@ -2,7 +2,7 @@
   "name": "paymybuddy-client",
   "private": true,
   "scripts": {
-    "lint": "tslint --project ./",
+    "lint": "eslint --ext '.ts,.tsx' src/",
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
@@ -27,14 +27,21 @@
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "sass": "^1.29.0",
-    "swr": "^0.3.8",
-    "tslint": "^6.1.3",
-    "tslint-react": "^5.0.0"
+    "swr": "^0.3.8"
   },
   "devDependencies": {
     "@types/antd": "^1.0.0",
     "@types/node": "^14.14.7",
     "@types/react": "^16.9.56",
+    "@typescript-eslint/eslint-plugin": "^4.8.1",
+    "@typescript-eslint/eslint-plugin-tslint": "^4.8.1",
+    "@typescript-eslint/parser": "^4.8.1",
+    "eslint": "^7.13.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jsdoc": "^30.7.8",
+    "eslint-plugin-no-null": "^1.0.2",
+    "eslint-plugin-react": "^7.21.5",
+    "tslint": "^6.1.3",
     "typescript": "^4.0.5"
   }
 }
