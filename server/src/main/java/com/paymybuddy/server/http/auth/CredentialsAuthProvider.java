@@ -19,7 +19,15 @@ public class CredentialsAuthProvider implements AuthenticationProvider {
     @Override
     public AuthToken authenticate(Authentication authentication) throws AuthenticationException {
         UsernamePasswordAuthenticationToken credentials = (UsernamePasswordAuthenticationToken) authentication;
-        return authService.login((String) credentials.getPrincipal(), (String) credentials.getCredentials());
+        return authService.login(determineEmail(credentials), determinePassword(credentials));
+    }
+
+    private String determineEmail(Authentication authentication) {
+        return authentication.getPrincipal() == null ? "NONE_PROVIDED" : authentication.getName();
+    }
+
+    private String determinePassword(Authentication authentication) {
+        return authentication.getCredentials().toString();
     }
 
     @Override

@@ -7,7 +7,7 @@ import com.paymybuddy.api.model.User;
 import com.paymybuddy.api.request.LoginRequest;
 import com.paymybuddy.api.request.RegisterRequest;
 import com.paymybuddy.api.response.LoginResponse;
-import com.paymybuddy.server.http.auth.Auth;
+import com.paymybuddy.server.http.auth.AuthGuard;
 import com.paymybuddy.server.http.auth.AuthToken;
 import com.paymybuddy.server.service.AuthService;
 import com.paymybuddy.server.util.spring.JsonRequestMapping;
@@ -56,7 +56,7 @@ public class AuthController {
 
     @PreAuthorize("isAuthenticated()")
     @JsonRequestMapping(method = RequestMethod.GET, value = "/me")
-    public User me(@AuthenticationPrincipal Auth auth) { // FIXME: remove (test only method)
+    public User me(@AuthenticationPrincipal AuthGuard auth) { // FIXME: remove (test only method)
         return auth.getUser();
     }
 

@@ -23,6 +23,7 @@
     <validation-api.version>2.0.1.Final</validation-api.version>
     <mapstruct.version>1.4.1.Final</mapstruct.version>
     <commons-validator.version>1.7</commons-validator.version>
+    <guava.version>30.0-jre</guava.version>
   </properties>
 
   <dependencyManagement>
@@ -133,18 +134,23 @@
       <artifactId>flyway-core</artifactId>
     </dependency>
 
-    <!-- Mapping Utils -->
+    <!-- MapStruct -->
     <dependency>
       <groupId>org.mapstruct</groupId>
       <artifactId>mapstruct</artifactId>
       <version>${mapstruct.version}</version>
     </dependency>
 
-    <!-- Apache Utils -->
+    <!-- Utils -->
     <dependency>
       <groupId>commons-validator</groupId>
       <artifactId>commons-validator</artifactId>
       <version>${commons-validator.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${guava.version}</version>
     </dependency>
   </dependencies>
 

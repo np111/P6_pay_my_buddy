@@ -28,10 +28,10 @@ public class TokenAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws ServletException, IOException {
-        String authToken = req.getHeader("x-auth-token");
-        if (authToken != null && !authToken.isEmpty()) {
+        String token = req.getHeader("x-auth-token");
+        if (token != null && !token.isEmpty()) {
             try {
-                Authentication authResult = authManager.authenticate(new AuthToken(authToken));
+                Authentication authResult = authManager.authenticate(AuthToken.unauthenticated(token));
                 SecurityContextHolder.getContext().setAuthentication(authResult);
             } catch (AuthenticationException ex) {
                 SecurityContextHolder.clearContext();
