@@ -1,5 +1,6 @@
-package com.paymybuddy.server.entity;
+package com.paymybuddy.server.jpa.entity;
 
+import com.paymybuddy.api.model.Currency;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import javax.persistence.Column;
@@ -33,7 +34,7 @@ public class UserBalanceEntity {
     @Id
     @Column(name = "currency", columnDefinition = "CHAR", length = 3)
     @Enumerated(EnumType.STRING)
-    private CurrencyEntity currency;
+    private Currency currency;
 
     @Column(name = "amount", precision = 40, scale = 20)
     private BigDecimal amount;
@@ -43,6 +44,6 @@ public class UserBalanceEntity {
     @Data
     public static final class Key implements Serializable {
         private Long userId;
-        private CurrencyEntity currency;
+        private Currency currency;
     }
 }

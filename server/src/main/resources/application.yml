@@ -11,3 +11,8 @@ spring:
     url: 'jdbc:mariadb://${MYSQL_HOST:localhost}:${MYSQL_PORT:14373}/${MYSQL_DATABASE:pmb}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC'
     username: '${MYSQL_USERNAME:pmb}'
     password: '${MYSQL_PASSWORD:pmb}'
+  redis:
+    database: '${REDIS_DATABASE:0}'
+    host: '${REDIS_HOST:localhost}'
+    port: '${REDIS_PORT:14374}'
+    password: '${REDIS_PASSWORD:pmb}'

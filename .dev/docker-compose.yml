@@ -10,3 +10,8 @@ services:
       MYSQL_USER: pmb
       MYSQL_PASSWORD: pmb
       MYSQL_DATABASE: pmb
+  redisdb:
+    image: redis:6.0
+    ports:
+      - '14374:6379'
+    command: redis-server --requirepass pmb

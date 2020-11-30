@@ -1,5 +1,6 @@
-package com.paymybuddy.server.entity;
+package com.paymybuddy.server.jpa.entity;
 
+import com.paymybuddy.api.model.Currency;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import javax.persistence.Column;
@@ -42,7 +43,7 @@ public class TransactionEntity {
 
     @Column(name = "currency", columnDefinition = "CHAR", length = 3)
     @Enumerated(EnumType.STRING)
-    private CurrencyEntity currency;
+    private Currency currency;
 
     @Column(name = "amount", precision = 40, scale = 20)
     private BigDecimal amount;

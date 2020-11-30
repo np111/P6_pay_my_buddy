@@ -1,4 +1,4 @@
-package com.paymybuddy.server.entity;
+package com.paymybuddy.server.jpa.entity;
 
 import java.io.Serializable;
 import javax.persistence.Column;

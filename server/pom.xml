@@ -21,6 +21,8 @@
     <lombok-maven-plugin.version>1.18.12.0</lombok-maven-plugin.version>
     <spring-boot.version>2.4.0</spring-boot.version>
     <validation-api.version>2.0.1.Final</validation-api.version>
+    <mapstruct.version>1.4.1.Final</mapstruct.version>
+    <commons-validator.version>1.7</commons-validator.version>
   </properties>
 
   <dependencyManagement>
@@ -90,6 +92,18 @@
       <artifactId>spring-boot-starter-jetty</artifactId>
     </dependency>
 
+    <!-- Spring Boot: Redis (for caching/auth) -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-redis</artifactId>
+    </dependency>
+
+    <!-- Spring Boot: Security -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+
     <!-- Spring Boot: Validation (JSR 380) -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -117,6 +131,20 @@
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-core</artifactId>
+    </dependency>
+
+    <!-- Mapping Utils -->
+    <dependency>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct</artifactId>
+      <version>${mapstruct.version}</version>
+    </dependency>
+
+    <!-- Apache Utils -->
+    <dependency>
+      <groupId>commons-validator</groupId>
+      <artifactId>commons-validator</artifactId>
+      <version>${commons-validator.version}</version>
     </dependency>
   </dependencies>
 
@@ -175,6 +203,25 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <!---->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.projectlombok</groupId>
+              <artifactId>lombok</artifactId>
+              <version>${lombok.version}</version>
+            </path>
+            <path>
+              <groupId>org.mapstruct</groupId>
+              <artifactId>mapstruct-processor</artifactId>
+              <version>${mapstruct.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
       </plugin>
     </plugins>
   </build>

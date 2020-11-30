@@ -1,6 +1,6 @@
-package com.paymybuddy.server.repository;
+package com.paymybuddy.server.jpa.repository;
 
-import com.paymybuddy.server.entity.UserBalanceEntity;
+import com.paymybuddy.server.jpa.entity.UserBalanceEntity;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;

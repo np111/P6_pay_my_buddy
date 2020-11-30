@@ -1,6 +1,6 @@
-package com.paymybuddy.server.repository;
+package com.paymybuddy.server.jpa.repository;
 
-import com.paymybuddy.server.entity.TransactionEntity;
+import com.paymybuddy.server.jpa.entity.TransactionEntity;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
