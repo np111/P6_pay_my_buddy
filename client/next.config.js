@@ -51,4 +51,10 @@ module.exports = withBundleAnalyzer(withSass(withLess(withCss({
         return conf;
     },
     rewrites: async () => nextI18NextRewrites(i18nLocaleSubpaths),
+    serverRuntimeConfig: {
+        apiUrl: process.env.SERVER_API_URL || undefined,
+    },
+    publicRuntimeConfig: {
+        apiUrl: process.env.CLIENT_API_URL || 'http://127.0.0.1:8081/',
+    },
 }))));

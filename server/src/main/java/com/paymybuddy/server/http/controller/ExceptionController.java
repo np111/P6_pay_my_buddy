@@ -27,9 +27,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.csrf.InvalidCsrfTokenException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -222,23 +223,11 @@ public class ExceptionController implements AccessDeniedHandler {
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseBody
     public ResponseEntity<ApiError> handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest req) {
-        ErrorType type;
-        ErrorCode code;
-        String message;
-        if (ex instanceof InvalidCsrfTokenException) {
-            type = ErrorType.CLIENT;
-            code = ErrorCode.INVALID_CSRF;
-            message = "Invalid CSRF token";
-        } else {
-            type = ErrorType.SERVICE;
-            code = ErrorCode.ACCESS_DENIED;
-            message = "Access is denied";
-        }
         return errorToResponse(ApiError.builder()
-                .type(type)
+                .type(ErrorType.CLIENT)
                 .status(HttpStatus.FORBIDDEN.value())
-                .code(code)
-                .message(message)
+                .code(ErrorCode.ACCESS_DENIED)
+                .message("Access is denied")
                 .build());
     }
 
@@ -248,12 +237,22 @@ public class ExceptionController implements AccessDeniedHandler {
     @ExceptionHandler(AuthenticationException.class)
     @ResponseBody
     public ResponseEntity<ApiError> handleAuthenticationException(AuthenticationException ex, HttpServletRequest req) {
-        return errorToResponse(ApiError.builder()
-                .type(ErrorType.SERVICE)
-                .status(HttpStatus.FORBIDDEN.value())
-                .code(ErrorCode.INVALID_CREDENTIALS)
-                .message("Authentication failed: " + ex.getMessage())
-                .build());
+        if (ex instanceof BadCredentialsException) {
+            return errorToResponse(ApiError.builder()
+                    .type(ErrorType.SERVICE)
+                    .status(HttpStatus.FORBIDDEN.value())
+                    .code(ErrorCode.INVALID_CREDENTIALS)
+                    .message("Authentication failed: " + ex.getMessage())
+                    .build());
+        } else {
+            return errorToResponse(ApiError.builder()
+                    .type(ErrorType.CLIENT)
+                    .status(HttpStatus.FORBIDDEN.value())
+                    .code(ErrorCode.ACCESS_DENIED)
+                    .message("Authentication failed: " + ex.getMessage())
+                    .metadata("invalidToken", ex instanceof CredentialsExpiredException)
+                    .build());
+        }
     }
 
     /**

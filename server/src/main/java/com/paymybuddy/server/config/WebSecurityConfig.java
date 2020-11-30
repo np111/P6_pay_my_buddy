@@ -14,7 +14,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Configuration
@@ -26,7 +25,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().csrfTokenRepository(new CookieCsrfTokenRepository());
+        http.csrf().disable(); // no cookie = no csrf (https://security.stackexchange.com/a/166798) ; we currently only use a session-storage header to authenticate
+        http.cors();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.authorizeRequests().anyRequest().permitAll();
         http.formLogin().disable();

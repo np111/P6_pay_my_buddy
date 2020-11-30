@@ -1,5 +1,6 @@
 package com.paymybuddy.api.response;
 
+import com.paymybuddy.api.model.User;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,5 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Data
 public class LoginResponse {
-    private String authToken;
+    private String token;
+    private User user;
 }

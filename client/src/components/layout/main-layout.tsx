@@ -4,8 +4,9 @@ import React from 'react';
 require('antd/lib/style/color/colorPalette.less'); // required by @ant-design/dark-theme
 require('antd/lib/style/index.less'); // antd theme and core
 require('antd/lib/button/style/index.less');
+require('antd/lib/skeleton/style/index.less');
 
-require('../assets/css/app.scss');
+require('../../assets/css/app.scss');
 
 export interface MainLayoutProps {
     children: React.ReactNode;

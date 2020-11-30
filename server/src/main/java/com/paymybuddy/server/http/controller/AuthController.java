@@ -3,7 +3,6 @@ package com.paymybuddy.server.http.controller;
 import com.paymybuddy.api.model.ApiError;
 import com.paymybuddy.api.model.ApiError.ErrorCode;
 import com.paymybuddy.api.model.ApiError.ErrorType;
-import com.paymybuddy.api.model.User;
 import com.paymybuddy.api.request.LoginRequest;
 import com.paymybuddy.api.request.RegisterRequest;
 import com.paymybuddy.api.response.LoginResponse;
@@ -51,13 +50,20 @@ public class AuthController {
     ) {
         AuthToken authResult = authService.login(body.getEmail(), body.getPassword());
         SecurityContextHolder.getContext().setAuthentication(authResult);
-        return LoginResponse.builder().authToken(authResult.getCredentials()).build();
+        return buildLoginResponse(authResult.getCredentials(), authResult.getPrincipal());
     }
 
     @PreAuthorize("isAuthenticated()")
-    @JsonRequestMapping(method = RequestMethod.GET, value = "/me")
-    public User me(@AuthenticationPrincipal AuthGuard auth) { // FIXME: remove (test only method)
-        return auth.getUser();
+    @JsonRequestMapping(method = RequestMethod.GET, value = "/remember")
+    public LoginResponse me(@AuthenticationPrincipal AuthGuard auth) {
+        return buildLoginResponse(null, auth);
+    }
+
+    private LoginResponse buildLoginResponse(String token, AuthGuard auth) {
+        return LoginResponse.builder()
+                .token(token)
+                .user(auth.getUser())
+                .build();
     }
 
     @ExceptionHandler(AuthService.EmailAlreadyRegisteredException.class)

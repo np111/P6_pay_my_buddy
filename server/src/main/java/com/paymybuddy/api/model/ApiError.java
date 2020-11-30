@@ -64,14 +64,19 @@ public class ApiError {
     }
 
     public enum ErrorCode {
+        // Type: UNKNOWN
+
         SERVER_EXCEPTION,
 
+        // Type: CLIENT
+
         BAD_REQUEST,
-        INVALID_CSRF,
         VALIDATION_FAILED,
+        ACCESS_DENIED,
+
+        // Type: SERVICE
 
         EMAIL_ALREADY_EXISTS,
         INVALID_CREDENTIALS,
-        ACCESS_DENIED,
     }
 }
