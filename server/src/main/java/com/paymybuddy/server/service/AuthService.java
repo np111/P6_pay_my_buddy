@@ -115,6 +115,17 @@ public class AuthService implements InitializingBean {
         throw new CredentialsExpiredException("Invalid or expired auth token");
     }
 
+    public void destroyAuthToken(AuthToken token) {
+        if (token.getCredentials().length() <= AUTH_TOKEN_MAX_LEN) {
+            String[] tokenParts = token.getCredentials().split("\\.", 2);
+            if (tokenParts.length == 2) {
+                String userId = tokenParts[0];
+                String sessionId = tokenParts[1];
+                authSessHashOps.delete(AUTH_SESS_BY_ID_HASH_KEY + userId, sessionId);
+            }
+        }
+    }
+
     @Transactional
     public User register(String name, String email, String password, Currency defaultCurrency) throws IllegalNameException, IllegalEmailException, EmailAlreadyRegisteredException {
         name = validateAndNormalizeNewName(name);
