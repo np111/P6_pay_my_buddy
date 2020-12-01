@@ -1,7 +1,6 @@
-.is-loaded {
-  #header {
-    transition: background-color 0.33s linear,
-    box-shadow 0.33s linear;
+body:not(.is-loaded) #header {
+  &, *, *::before, *::after {
+    transition: none !important;
   }
 }
 
@@ -11,6 +10,7 @@
   z-index: 5;
   width: 100%;
   background: $header-bg-color;
+  transition: background-color 0.33s linear, box-shadow 0.33s linear;
   @include mdElevation(4);
 
   &.header-top {
@@ -59,6 +59,10 @@
     .ant-menu-submenu-title {
       padding: 5px 10px;
     }
+  }
+
+  .ant-menu-horizontal > .ant-menu-item a {
+    color: inherit;
   }
 
   .ant-menu-overflowed-submenu.ant-menu-submenu-selected:first-child {

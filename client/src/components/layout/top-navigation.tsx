@@ -22,7 +22,7 @@ interface MenuEntry {
 }
 
 const renderMenuItems = (t: TFunction, menu: MenuEntry[]) => {
-    return menu.map(({id, link, onClick}) => {
+    return menu.filter(e => e !== undefined).map(({id, link, onClick}) => {
         let content = <a onClick={onClick}>{t('common:page.' + id)}</a>;
         if (link) {
             content = <Link {...link}>{content}</Link>;
@@ -45,12 +45,12 @@ export const TopNavigation = withAuth()(withTranslation('common')(function ({t, 
     let menu;
     if (authGuard.authenticated) {
         menu = [
-            {id: 'index', link: index},
+            currentPage !== 'index' ? {id: 'index', link: index} : undefined,
             {id: 'logout', onClick: () => authGuard.logout().then(() => AppRouter.push(index))}, // TODO: page loading animation during the whole process
         ];
     } else {
         menu = [
-            {id: 'index', link: index},
+            currentPage !== 'index' ? {id: 'index', link: index} : undefined,
             {id: 'login', link: routes.login()},
             {id: 'register', link: routes.register()},
         ];

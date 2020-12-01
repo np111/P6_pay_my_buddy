@@ -3,6 +3,10 @@ html, body {
   height: auto; // antd set height to 100%, this is useless and cause bugs
 }
 
+body {
+  overflow-y: scroll; // always keep the scrollbar visible
+}
+
 .page {
   display: flex;
   flex-direction: column;

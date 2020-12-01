@@ -25,6 +25,10 @@ class MyApp extends React.Component<AppProps> {
         return {pageProps};
     }
 
+    public componentDidMount() {
+        setTimeout(() => document.body.classList.add('is-loaded'), 0); // used to skip some transitions on page load
+    }
+
     public render() {
         return (
             <>

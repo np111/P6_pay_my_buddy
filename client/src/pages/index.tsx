@@ -11,7 +11,16 @@ export default withAuth()(pageWithTranslation()(function Index({t, authGuard}: W
             fullTitle={true}
             topNavigation={{transparent: true}}
         >
-            {/* TODO */}
+            <section className='home-hero'>
+                {/* TODO */}
+            </section>
+            <section>
+                <div className='container sm-t'>
+                    {/* TODO */}
+                    {authGuard.authenticated ? 'Hello ' + authGuard.user.name + ' ! (' + authGuard.user.email + ')' : null}
+                    <div dangerouslySetInnerHTML={{__html: 'Test<br/>'.repeat(50)}}/>
+                </div>
+            </section>
         </MainLayout>
     );
 }));

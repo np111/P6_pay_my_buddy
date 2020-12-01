@@ -1,0 +1,18 @@
+#header.header-top {
+  .logo img {
+    filter: brightness(0) invert(1);
+  }
+
+  .ant-menu {
+    color: $bg-color;
+  }
+
+  .ant-menu-item:hover a, .ant-menu-item-selected a {
+    color: transparentize($bg-color, .2);
+  }
+}
+
+.home-hero {
+  background: linear-gradient(-6deg, #4171FF, #8f48fe);
+  min-height: 600px;
+}
