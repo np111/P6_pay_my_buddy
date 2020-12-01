@@ -1,6 +1,8 @@
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import NextI18Next, {WithTranslation as NextI18WithTranslation} from 'next-i18next';
-import React from 'react';
+import {LinkProps as NextLinkProps} from 'next/dist/client/link';
+import React, {memo} from 'react';
+import {i18nNextInstance} from '../i18n-instance';
 
 const i18NextInstance: NextI18Next = require('../i18n-instance').i18nNextInstance;
 
@@ -46,3 +48,17 @@ export function translationProps(props) {
 
 export const Trans = i18NextInstance.Trans;
 export const Router = i18NextInstance.Router;
+
+export type LinkProps = NextLinkProps;
+export const Link = memo(function (props: LinkProps & { children: React.ReactNode }) {
+    const {children} = props;
+    let {passHref} = props;
+    if (passHref === undefined && isButton(children)) {
+        passHref = true;
+    }
+    return <i18nNextInstance.Link {...props} passHref={passHref}/>;
+});
+
+function isButton(children: any) {
+    return !!(children && children.type && children.type.__ANT_BUTTON);
+}

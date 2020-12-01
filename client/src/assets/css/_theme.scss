@@ -15,3 +15,7 @@ $footer-bg-color: #f7f5fa;
 $container-margin: 16px;
 $section-margin: 24px;
 $paragraph-margin: .5em;
+
+// Include mixins
+@import 'mixins/antd';
+@import 'mixins/md-material-shadows';

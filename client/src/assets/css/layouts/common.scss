@@ -1,3 +1,5 @@
+@import '../_theme';
+
 html, body {
   background: $bg-color;
   height: auto; // antd set height to 100%, this is useless and cause bugs
@@ -101,3 +103,7 @@ a {
 
 @include margin-preset('sm', 'margin', $section-margin);
 @include margin-preset('pm', 'margin', $paragraph-margin);
+
+.ant-form .ant-form-item:last-child {
+  margin-bottom: 0;
+}

@@ -1,3 +1,5 @@
+@import '../_theme';
+
 body:not(.is-loaded) #header {
   &, *, *::before, *::after {
     transition: none !important;

@@ -1,6 +1,5 @@
-import {LinkProps} from 'next/link';
 import {parse, UrlObject} from 'url';
-import {Router} from '../components/i18n';
+import {LinkProps, Router} from '../components/i18n';
 
 export const routes = {
     index: () => ({href: '/'}),

@@ -1,12 +1,12 @@
-import Menu from 'antd/lib/menu';
 import {TFunction, WithTranslation} from 'next-i18next';
 import React, {useEffect, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {AppRouter, routes} from '../../utils/routes';
 import {WithAuth, withAuth} from '../auth/with-auth';
-import {withTranslation} from '../i18n';
-import {Link, LinkProps} from '../link';
+import {Link, LinkProps, withTranslation} from '../i18n';
+import {Menu} from '../ui/menu';
 
+require('../../assets/css/layouts/header.scss');
 const logo = require('../../assets/img/logo_32.png');
 const logo2x = require('../../assets/img/logo_32@2x.png');
 

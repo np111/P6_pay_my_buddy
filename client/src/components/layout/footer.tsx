@@ -1,6 +1,8 @@
-import {Col, Row} from 'antd/lib/grid';
 import React from 'react';
 import {Trans, withTranslation, WithTranslation} from '../i18n';
+import {Col, Row} from '../ui/grid';
+
+require('../../assets/css/layouts/footer.scss');
 
 export const Footer = withTranslation('common')(function ({t}: WithTranslation) {
     const copyYear = Math.max(2020, new Date().getFullYear());

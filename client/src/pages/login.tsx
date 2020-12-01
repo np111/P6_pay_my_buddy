@@ -5,6 +5,8 @@ import {pageWithTranslation, WithTranslation} from '../components/i18n';
 import {MainLayout} from '../components/layout/main-layout';
 import {routes} from '../utils/routes';
 
+require('../assets/css/pages/login.scss');
+
 export default withAuth()(pageWithTranslation()(function Login({t, authGuard}: WithAuth & WithTranslation) {
     return (
         <MainLayout id='login' title={t('common:page.login')}>

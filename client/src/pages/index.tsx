@@ -3,6 +3,8 @@ import {WithAuth, withAuth} from '../components/auth/with-auth';
 import {pageWithTranslation, WithTranslation} from '../components/i18n';
 import {MainLayout} from '../components/layout/main-layout';
 
+require('../assets/css/pages/index.scss');
+
 export default withAuth()(pageWithTranslation()(function Index({t, authGuard}: WithAuth & WithTranslation) {
     return (
         <MainLayout

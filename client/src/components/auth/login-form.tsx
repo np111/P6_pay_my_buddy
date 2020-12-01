@@ -1,15 +1,13 @@
-import Button from 'antd/lib/button';
-import Form from 'antd/lib/form';
-import {useForm} from 'antd/lib/form/Form';
-import Input from 'antd/lib/input';
-import Skeleton from 'antd/lib/skeleton';
-import Spin from 'antd/lib/spin';
 import React, {useState} from 'react';
 import {setFormError} from '../../utils/form-utils';
 import {useCatchAsyncError} from '../../utils/react-utils';
 import {AppRouter, routes} from '../../utils/routes';
-import {WithTranslation, withTranslation} from '../i18n';
-import {Link, LinkProps} from '../link';
+import {Link, LinkProps, WithTranslation, withTranslation} from '../i18n';
+import {Button} from '../ui/button';
+import {Form, useForm} from '../ui/form';
+import {Input} from '../ui/input';
+import {Skeleton} from '../ui/skeleton';
+import {Spin} from '../ui/spin';
 import {Autofocus} from '../utils/autofocus';
 import {WithAuth, withAuth} from './with-auth';
 

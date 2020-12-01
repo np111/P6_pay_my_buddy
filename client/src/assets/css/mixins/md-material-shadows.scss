@@ -212,34 +212,3 @@ $materialElements: (
     @include mdElevation(nth($attr, 1), nth($attr, 2), nth($attr, 3));
   }
 }
-
-
-/**
-* CSS md-elevation-z# classes
-*/
-@for $zValue from 0 through 24 {
-  .md-elevation-z#{$zValue} {
-    @include mdElevation($zValue);
-  }
-}
-
-/**
-* CSS transistion class
-*/
-md-elevation-transition {
-  transition: box-shadow 280ms cubic-bezier(.4, 0, .2, 1);
-}
-
-
-/**
-* CSS classes for Material Design elements
-*/
-@each $element, $attr in $materialElements {
-  .md-elevation-#{$element} {
-    @if length($attr) == 1 {
-      @include mdElevation(nth($attr, 1));
-    } @else {
-      @include mdElevation(nth($attr, 1), nth($attr, 2), nth($attr, 3));
-    }
-  }
-}
