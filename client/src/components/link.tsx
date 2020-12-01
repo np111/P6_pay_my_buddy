@@ -1,6 +1,6 @@
 import {LinkProps as NextLinkProps} from 'next/link';
 import React from 'react';
-import {i18nNextInstance} from '../i18n';
+import {i18nNextInstance} from '../i18n-instance';
 
 const I18nNextLink = i18nNextInstance.Link;
 

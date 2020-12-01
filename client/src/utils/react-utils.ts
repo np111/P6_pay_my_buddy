@@ -1,4 +1,6 @@
-export const handleAsyncError = (component: React.Component, err: any) => {
+import React, {useState} from 'react';
+
+export function catchAsyncError(component: React.Component, err: any) {
     component.setState(() => {
         /*
         if (component.componentDidCatch) {
@@ -8,4 +10,13 @@ export const handleAsyncError = (component: React.Component, err: any) => {
         */
         throw err;
     });
-};
+}
+
+export function useCatchAsyncError() {
+    const [/* state */, setState] = useState();
+    return (err) => {
+        setState(() => {
+            throw err;
+        });
+    };
+}

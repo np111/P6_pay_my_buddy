@@ -1,3 +1,9 @@
 {
-  "hello-world": "Bonjour monde !"
+  "name": "PayMyBuddy",
+  "logo_tag": "Logo PayMyBuddy",
+  "page": {
+    "index": "Accueil",
+    "login": "Connecion",
+    "register": "Ouvrir un compte"
+  }
 }

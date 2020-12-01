@@ -1,6 +1,6 @@
 const {ContextReplacementPlugin} = require('webpack');
 const {nextI18NextRewrites} = require('next-i18next/rewrites');
-const {i18nLocaleSubpaths} = require('./src/i18n');
+const {i18nLocaleSubpaths} = require('./src/i18n-instance');
 const withCss = require('@zeit/next-css');
 const withSass = require('@zeit/next-sass');
 const withLess = require('@zeit/next-less');

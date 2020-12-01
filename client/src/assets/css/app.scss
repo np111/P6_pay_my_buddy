@@ -1,7 +1,11 @@
 @import '_theme';
 
 // Libs
+@import 'libs/md-material-shadows';
 @import 'libs/nprogress';
+@import 'libs/antd';
 
 // Layout
-// TODO
+@import 'layouts/common';
+@import 'layouts/header';
+@import 'layouts/footer';

@@ -1,0 +1,25 @@
+// Antd utils
+
+@mixin ant-hidden-links() {
+  a, a:hover, a:active {
+    color: inherit;
+  }
+}
+
+@mixin ant-btn-size($size) {
+  height: #{32px * $size};
+  padding: #{1px + 3px * $size} #{3.75px + 11.25px * $size};
+  font-size: #{14px * $size};
+}
+
+@mixin ant-row-gutter($size) {
+  .ant-row {
+    margin-left: -$size;
+    margin-right: -$size;
+  }
+
+  .ant-col {
+    padding-left: $size;
+    padding-right: $size;
+  }
+}

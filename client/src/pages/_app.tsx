@@ -2,9 +2,8 @@ import {AppContext, AppProps} from 'next/app';
 import {Router} from 'next/router';
 import NProgress from 'nprogress';
 import React, {Component} from 'react';
-import {ApiClient, FetchParams, HttpResponse} from '../api/api-fetch';
 import {appWithAuth} from '../components/auth/app-with-auth';
-import {appWithTranslation} from '../i18n';
+import {appWithTranslation} from '../components/i18n';
 
 if (typeof window !== 'undefined') {
     // Global: Progress

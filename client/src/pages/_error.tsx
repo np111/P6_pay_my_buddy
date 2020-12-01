@@ -8,7 +8,7 @@ import React from 'react';
 
 const bgColor = '#fff';
 const textColor = '#111';
-const btnBgColor = '#1890ff';
+const btnBgColor = '#4669f7';
 const btnTextColor = '#fff';
 const style = `
 @import url('https://fonts.googleapis.com/css?family=Montserrat:200,400&display=swap');

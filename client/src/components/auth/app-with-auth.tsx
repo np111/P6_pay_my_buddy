@@ -5,7 +5,7 @@ import React from 'react';
 import {AccessDeniedError, UnhandledApiError} from '../../api/api-exception';
 import {apiFetch} from '../../api/api-fetch';
 import {browserLocalStorage} from '../../utils/browser-storage';
-import {handleAsyncError} from '../../utils/react-utils';
+import {catchAsyncError} from '../../utils/react-utils';
 import {AuthGuard, ClientAuthGuard, SerializedAuthGuard} from './auth';
 import {AuthContext} from './auth-context';
 
@@ -81,7 +81,7 @@ export function appWithAuth() { // wrap everything into a function in the case w
                             this.authStore.authGuard.update({});
                         } else {
                             this.forceUpdate();
-                            handleAsyncError(this, err);
+                            catchAsyncError(this, err);
                         }
                     });
                 } else {
@@ -143,9 +143,18 @@ export function appWithAuth() { // wrap everything into a function in the case w
             };
 
             logout = () => {
-                // TODO: try to delete the remote session
-                this.authStore.authGuard.update({});
-                return Promise.resolve();
+                return apiFetch({
+                    url: 'auth/logout',
+                    body: {},
+                }).then((res) => {
+                    if (res.success == false) {
+                        throw new UnhandledApiError(res.error);
+                    }
+                    this.authStore.authGuard.update({});
+                }).catch((err) => {
+                    // the remote session deletion failed, but only removing the local state is enough
+                    this.authStore.authGuard.update({});
+                });
             };
 
             render() {
@@ -161,28 +170,26 @@ export function appWithAuth() { // wrap everything into a function in the case w
     };
 }
 
-export const authTokenKey = 'auth.token';
+const authTokenKey = 'auth.token';
 const authSyncKey = 'sync:auth.update';
 
-const setGlobalAuthToken = (value: string | undefined) => {
+function setGlobalAuthToken(value: string | undefined) {
     browserLocalStorage.set(authTokenKey, value);
-};
-const getGlobalAuthToken = () => {
-    return browserLocalStorage.getChecked(authTokenKey, 'string');
-};
+}
 
-const setGlobalAuthGuard = (authGuard: AuthGuard) => {
+function getGlobalAuthToken() {
+    return browserLocalStorage.getChecked(authTokenKey, 'string');
+}
+
+function setGlobalAuthGuard(authGuard: AuthGuard) {
     if (typeof window === 'undefined') throw new Error('Global AuthGuard is client-side only');
     // @ts-ignore
     global.__AUTH_GUARD = authGuard;
-};
-export const getGlobalAuthGuard = (): AuthGuard => {
+}
+
+export function getGlobalAuthGuard(): AuthGuard {
     // @ts-ignore
-    if (!global.__AUTH_GUARD) throw new Error('AuthGuard is not defined');
+    if (!global.__AUTH_GUARD) throw new Error('Global AuthGuard is not defined');
     // @ts-ignore
     return global.__AUTH_GUARD;
-};
-
-export interface WithAuthPageContext {
-    authGuard: AuthGuard;
 }

@@ -1,0 +1,39 @@
+#footer {
+  background: $footer-bg-color;
+  padding: $section-margin 0;
+  margin-top: $container-margin;
+
+  @include ant-hidden-links();
+
+  .links {
+    .title {
+      font-size: 0.9375em;
+      padding: 5px 0;
+      text-transform: uppercase;
+      color: $text-color-secondary;
+    }
+
+    @include ant-row-gutter($container-margin);
+
+    .ant-col {
+      padding-bottom: $section-margin;
+    }
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+  }
+
+  .copyright {
+    color: $text-color-secondary;
+    font-size: 0.875em;
+
+    .right {
+      @media (min-width: $screen-sm-min) {
+        text-align: right;
+      }
+    }
+  }
+}
