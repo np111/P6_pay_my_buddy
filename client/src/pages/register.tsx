@@ -65,7 +65,7 @@ const RegisterForm = withAuth()(withTranslation()(function ({t, authenticating}:
         }).then((res): void | Promise<any> => {
             if (res.success == false) {
                 if (res.error.code === 'EMAIL_ALREADY_EXISTS') {
-                    return setFormError(form, 'email', t('common:register.email_already_registered'));
+                    return setFormError(form, 'email', t('register:email_already_registered'));
                 }
                 // TODO: catch all errors
                 throw new UnhandledApiError(res.error);
@@ -86,9 +86,9 @@ const RegisterForm = withAuth()(withTranslation()(function ({t, authenticating}:
             >
                 <Form.Item
                     name='name'
-                    label={t('common:register.name')}
+                    label={t('register:name')}
                     validateTrigger='onBlur'
-                    rules={[{required: true, message: t('common:register.require_name')}]}
+                    rules={[{required: true, message: t('register:require_name')}]}
                 >
                     <Autofocus>
                         <Input maxLength={255}/>
@@ -96,24 +96,24 @@ const RegisterForm = withAuth()(withTranslation()(function ({t, authenticating}:
                 </Form.Item>
                 <Form.Item
                     name='email'
-                    label={t('common:register.email')}
+                    label={t('register:email')}
                     validateTrigger='onBlur'
-                    rules={[{required: true, pattern: /^[^@]+@[^@]+$/, message: t('common:register.require_email')}]}
+                    rules={[{required: true, pattern: /^[^@]+@[^@]+$/, message: t('register:require_email')}]}
                 >
                     <Input maxLength={255}/>
                 </Form.Item>
                 <Form.Item
                     name='password'
-                    label={t('common:register.password')}
+                    label={t('register:password')}
                     validateTrigger='onBlur'
-                    rules={[{required: true, message: t('common:register.require_password')}]}
+                    rules={[{required: true, message: t('register:require_password')}]}
                 >
                     <Input.Password maxLength={255}/>
                 </Form.Item>
                 <Form.Item
                     name='passwordConfirmation'
                     dependencies={['password']}
-                    label={t('common:register.password_confirmation')}
+                    label={t('register:password_confirmation')}
                     validateTrigger='onBlur'
                     rules={[
                         ({getFieldValue}) => ({
@@ -121,7 +121,7 @@ const RegisterForm = withAuth()(withTranslation()(function ({t, authenticating}:
                             validator(rule, value) {
                                 return getFieldValue('password') === value
                                     ? Promise.resolve()
-                                    : Promise.reject(t('common:register.invalid_password_confirmation'));
+                                    : Promise.reject(t('register:invalid_password_confirmation'));
                             },
                         }),
                     ]}
@@ -130,7 +130,7 @@ const RegisterForm = withAuth()(withTranslation()(function ({t, authenticating}:
                 </Form.Item>
                 <Form.Item {...tailLayout}>
                     <Button type='primary' htmlType='submit' size='large'>
-                        {t('common:auth.register')}
+                        {t('register:register')}
                     </Button>
                 </Form.Item>
             </Form>

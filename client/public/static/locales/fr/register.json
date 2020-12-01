@@ -1,0 +1,12 @@
+{
+  "name": "Prénom et nom",
+  "email": "Email",
+  "password": "Mot de passe",
+  "password_confirmation": "Confirmation",
+  "register": "S'inscrire",
+  "require_name": "Veuillez entrer votre nom.",
+  "require_email": "Veuillez entrer votre email.",
+  "require_password": "Veuillez entrer votre mot de passe.",
+  "invalid_password_confirmation": "Les mots de passes ne correspondent pas.",
+  "email_already_registered": "Cet email est déjà enregistré."
+}
