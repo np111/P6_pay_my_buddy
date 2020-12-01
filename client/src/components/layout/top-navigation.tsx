@@ -31,7 +31,7 @@ const renderMenuItems = (t: TFunction, menu: MenuEntry[]) => {
     });
 };
 
-export const TopNavigation = withAuth()(withTranslation('common')(function ({t, authMethods, authGuard, currentPage, transparent}: TopNavigationProps & WithAuth & WithTranslation) {
+export const TopNavigation = withAuth()(withTranslation('common')(function ({t, authGuard, currentPage, transparent}: TopNavigationProps & WithAuth & WithTranslation) {
     const [top, setTop] = useState(true);
 
     useEffect(() => {
@@ -46,7 +46,7 @@ export const TopNavigation = withAuth()(withTranslation('common')(function ({t, 
     if (authGuard.authenticated) {
         menu = [
             {id: 'index', link: index},
-            {id: 'logout', onClick: () => authMethods.logout().then(() => AppRouter.push(index))}, // TODO: page loading animation during the whole process
+            {id: 'logout', onClick: () => authGuard.logout().then(() => AppRouter.push(index))}, // TODO: page loading animation during the whole process
         ];
     } else {
         menu = [

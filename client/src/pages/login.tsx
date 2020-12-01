@@ -5,7 +5,7 @@ import {pageWithTranslation, WithTranslation} from '../components/i18n';
 import {MainLayout} from '../components/layout/main-layout';
 import {routes} from '../utils/routes';
 
-export default withAuth()(pageWithTranslation()(function Login({t, authMethods, authGuard}: WithAuth & WithTranslation) {
+export default withAuth()(pageWithTranslation()(function Login({t, authGuard}: WithAuth & WithTranslation) {
     return (
         <MainLayout id='login' title={t('common:page.login')}>
             <div className='container sm-t'>

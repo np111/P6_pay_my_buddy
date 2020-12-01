@@ -1,17 +1,18 @@
 import EventEmitter from 'wolfy87-eventemitter';
+import {AccessDeniedError, UnhandledApiError} from '../../api/api-exception';
+import {apiFetch} from '../../api/api-fetch';
+import {ApiResponse} from '../../api/api-response';
 
 export interface AuthGuard {
     readonly authenticated: boolean;
     readonly token?: string;
     readonly user?: AuthUser;
-
-    serialize(): SerializedAuthGuard;
 }
 
 export interface AuthUser {
     id: number;
-    email: string;
     name: string;
+    email: string;
 }
 
 export interface SerializedAuthGuard {
@@ -44,14 +45,66 @@ export class ClientAuthGuard extends EventEmitter implements AuthGuard {
         }
     }
 
-    serialize() {
+    serialize(): SerializedAuthGuard {
         return {token: this.token, user: this.user};
+    }
+
+    login(email: string, password: string): Promise<boolean> {
+        return apiFetch({
+            authToken: false,
+            url: 'auth/login',
+            body: {email, password},
+        }).then((res) => {
+            if (res.success == false) {
+                if (res.error.code === 'INVALID_CREDENTIALS') {
+                    return false;
+                }
+                throw new UnhandledApiError(res.error);
+            } else {
+                this.update(res.result);
+                return true;
+            }
+        });
+    }
+
+    remember(token: string): Promise<boolean> {
+        return apiFetch({
+            url: 'auth/remember',
+            authToken: token,
+        }).then((res: ApiResponse<{}>) => {
+            if (res.success === false) {
+                throw new UnhandledApiError(res.error);
+            }
+            this.update({token, ...res.result});
+            return true;
+        }).catch((err) => {
+            if (err instanceof AccessDeniedError && err.invalidToken) {
+                this.update({});
+                return false;
+            }
+            throw err;
+        });
+    }
+
+    logout(): Promise<void> {
+        return apiFetch({
+            url: 'auth/logout',
+            body: {},
+        }).then((res) => {
+            if (res.success == false) {
+                throw new UnhandledApiError(res.error);
+            }
+            this.update({});
+        }).catch((err) => {
+            // the remote session deletion failed, but only removing the local state is enough (and secure)
+            this.update({});
+        });
     }
 }
 
 /**
  * Server-side implementation of the AuthGuard.
- * Currently the client is never authenticated in SSR.
+ * Currently the client is never authenticated during SSR.
  */
 export class ServerAuthGuard implements AuthGuard {
     get authenticated() {
@@ -61,10 +114,4 @@ export class ServerAuthGuard implements AuthGuard {
     serialize() {
         return {};
     }
-}
-
-export interface ClientAuthMethods {
-    login(email: string, password: string): Promise<boolean>;
-
-    logout(): Promise<void>;
 }

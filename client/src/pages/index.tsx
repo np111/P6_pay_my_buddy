@@ -3,7 +3,7 @@ import {WithAuth, withAuth} from '../components/auth/with-auth';
 import {pageWithTranslation, WithTranslation} from '../components/i18n';
 import {MainLayout} from '../components/layout/main-layout';
 
-export default withAuth()(pageWithTranslation()(function Index({t, authMethods, authGuard}: WithAuth & WithTranslation) {
+export default withAuth()(pageWithTranslation()(function Index({t, authGuard}: WithAuth & WithTranslation) {
     return (
         <MainLayout
             id='index'

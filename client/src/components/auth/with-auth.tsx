@@ -1,11 +1,10 @@
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import React from 'react';
-import {ClientAuthGuard, ClientAuthMethods} from './auth';
+import {ClientAuthGuard} from './auth';
 import {AuthContext} from './auth-context';
 
 export interface WithAuth {
     authenticating: boolean;
-    authMethods: ClientAuthMethods;
     authGuard: ClientAuthGuard;
 }
 
@@ -20,7 +19,6 @@ export function withAuth() { // wrap everything into a function in the case we a
                             <WrappedComponent
                                 {...this.props}
                                 authenticating={authCtx.authenticating}
-                                authMethods={authCtx.authMethods}
                                 authGuard={authCtx.authGuard}
                             />
                         );

@@ -15,7 +15,7 @@ import {setFormError} from '../utils/form-utils';
 import {useCatchAsyncError} from '../utils/react-utils';
 import {AppRouter, routes} from '../utils/routes';
 
-export default withAuth()(pageWithTranslation('register')(function Login({t, authMethods, authGuard}: WithAuth & WithTranslation) {
+export default withAuth()(pageWithTranslation('register')(function Login({t, authGuard}: WithAuth & WithTranslation) {
     return (
         <MainLayout id='register' title={t('common:page.register')}>
             <div className='container sm-t'>

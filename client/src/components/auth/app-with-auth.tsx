@@ -2,11 +2,9 @@ import hoistNonReactStatics from 'hoist-non-react-statics';
 import {WithRouterProps} from 'next/dist/client/with-router';
 import {withRouter} from 'next/router';
 import React from 'react';
-import {AccessDeniedError, UnhandledApiError} from '../../api/api-exception';
-import {apiFetch} from '../../api/api-fetch';
 import {browserLocalStorage} from '../../utils/browser-storage';
 import {catchAsyncError} from '../../utils/react-utils';
-import {AuthGuard, ClientAuthGuard, SerializedAuthGuard} from './auth';
+import {AuthGuard, ClientAuthGuard, SerializedAuthGuard, ServerAuthGuard} from './auth';
 import {AuthContext} from './auth-context';
 
 interface AppWithAuthProps {
@@ -18,12 +16,12 @@ export function appWithAuth() { // wrap everything into a function in the case w
         class AppWithAuth extends React.Component<AppWithAuthProps & WithRouterProps> {
             static async getInitialProps(ctx) {
                 const {req} = ctx.ctx;
-                let authGuard;
+                let ssrAuthGuard;
                 if (req) {
                     // server-side auth guard initialization can be done here if needed later
                     // eg. authGuard = await fetchAuthByCookie();
-                    authGuard = {};
-                    ctx.ctx.authGuard = authGuard;
+                    ssrAuthGuard = new ServerAuthGuard();
+                    ctx.ctx.authGuard = ssrAuthGuard;
                 } else {
                     ctx.ctx.authGuard = getGlobalAuthGuard();
                 }
@@ -34,7 +32,7 @@ export function appWithAuth() { // wrap everything into a function in the case w
                 }
 
                 return {
-                    authGuard,
+                    authGuard: ssrAuthGuard ? ssrAuthGuard.serialize() : undefined,
                     ...wrappedComponentProps,
                 };
             }
@@ -42,14 +40,11 @@ export function appWithAuth() { // wrap everything into a function in the case w
             authSync = false;
             authStore = {
                 authenticating: true,
-                authMethods: {login: undefined, logout: undefined},
                 authGuard: new ClientAuthGuard(),
             };
 
             constructor(props: AppWithAuthProps & WithRouterProps, ctx: any) {
                 super(props, ctx);
-                this.authStore.authMethods.login = this.login;
-                this.authStore.authMethods.logout = this.logout;
                 if (props.authGuard) {
                     if (typeof window !== 'undefined') {
                         setGlobalAuthGuard(this.authStore.authGuard);
@@ -63,30 +58,17 @@ export function appWithAuth() { // wrap everything into a function in the case w
                 window.addEventListener('storage', this.onAuthSync);
 
                 const token = getGlobalAuthToken();
-                if (token) {
-                    apiFetch({
-                        url: 'auth/remember',
-                        authToken: token,
-                    }).then((res) => {
-                        if (res.success == false) {
-                            throw new UnhandledApiError(res.error);
-                        } else {
-                            this.authStore.authenticating = false;
-                            this.authStore.authGuard.update({token, ...res.result});
-                        }
-                    }).catch((err) => {
-                        this.authStore.authenticating = false;
-                        if (err instanceof AccessDeniedError && err.invalidToken) {
-                            this.authStore.authenticating = false;
-                            this.authStore.authGuard.update({});
-                        } else {
-                            this.forceUpdate();
-                            catchAsyncError(this, err);
-                        }
-                    });
-                } else {
+                const noRemember = () => {
                     this.authStore.authenticating = false;
                     this.forceUpdate();
+                };
+                if (token) {
+                    this.authStore.authGuard.remember(token).catch((err) => {
+                        noRemember();
+                        catchAsyncError(this, err);
+                    });
+                } else {
+                    noRemember();
                 }
             }
 
@@ -96,6 +78,7 @@ export function appWithAuth() { // wrap everything into a function in the case w
             }
 
             onAuthUpdated = (s: SerializedAuthGuard) => {
+                this.authStore.authenticating = false;
                 if (window.localStorage && !this.authSync) {
                     this.authSync = true;
                     try {
@@ -122,39 +105,6 @@ export function appWithAuth() { // wrap everything into a function in the case w
                         this.authSync = false;
                     }
                 }
-            };
-
-            login = (email: string, password: string) => {
-                return apiFetch({
-                    authToken: false,
-                    url: 'auth/login',
-                    body: {email, password},
-                }).then((res) => {
-                    if (res.success == false) {
-                        if (res.error.code === 'INVALID_CREDENTIALS') {
-                            return false;
-                        }
-                        throw new UnhandledApiError(res.error);
-                    } else {
-                        this.authStore.authGuard.update(res.result);
-                        return true;
-                    }
-                });
-            };
-
-            logout = () => {
-                return apiFetch({
-                    url: 'auth/logout',
-                    body: {},
-                }).then((res) => {
-                    if (res.success == false) {
-                        throw new UnhandledApiError(res.error);
-                    }
-                    this.authStore.authGuard.update({});
-                }).catch((err) => {
-                    // the remote session deletion failed, but only removing the local state is enough
-                    this.authStore.authGuard.update({});
-                });
             };
 
             render() {

@@ -17,13 +17,13 @@ export interface LoginFormProps {
     redirect?: LinkProps;
 }
 
-export const LoginForm = withAuth()(withTranslation('common')(function ({t, authenticating, authMethods, authGuard, redirect}: LoginFormProps & WithAuth & WithTranslation) {
+export const LoginForm = withAuth()(withTranslation('common')(function ({t, authenticating, authGuard, redirect}: LoginFormProps & WithAuth & WithTranslation) {
     const catchAsyncError = useCatchAsyncError();
     const [loading, setLoading] = useState(false);
     const [form] = useForm();
     const login = ({email, password}) => {
         setLoading(true);
-        return authMethods
+        return authGuard
             .login(email, password)
             .then((logged) => {
                 if (!logged) {
