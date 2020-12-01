@@ -44,7 +44,7 @@ export const Footer = withTranslation('common')(function ({t}: WithTranslation) 
                     <Row>
                         <Col xs={24} sm={12}>
                             <Trans i18nKey='common:footer.copyright'>
-                                {'2011-' + copyYear}
+                                {copyYear}
                                 <a href='/'/>
                             </Trans>
                         </Col>

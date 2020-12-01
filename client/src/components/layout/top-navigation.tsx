@@ -2,38 +2,36 @@ import Menu from 'antd/lib/menu';
 import {TFunction, WithTranslation} from 'next-i18next';
 import React, {useEffect, useState} from 'react';
 import ReactDOM from 'react-dom';
-import {routes} from '../../utils/routes';
+import {AppRouter, routes} from '../../utils/routes';
+import {WithAuth, withAuth} from '../auth/with-auth';
 import {withTranslation} from '../i18n';
-import {Link} from '../link';
+import {Link, LinkProps} from '../link';
 
-const logo = '';
-const logo2x = '';
+const logo = require('../../assets/img/logo_32.png');
+const logo2x = require('../../assets/img/logo_32@2x.png');
 
 export interface TopNavigationProps {
     currentPage?: string;
     transparent?: boolean;
 }
 
-const index = routes.index();
-const menus = [
-    {id: 'index', link: index},
-    {id: 'login', link: routes.login()},
-    {id: 'register', link: routes.register()},
-];
+interface MenuEntry {
+    id: string;
+    link?: LinkProps;
+    onClick?: () => void;
+}
 
-const renderMenuItems = (t: TFunction) => {
-    return menus.map((menu) => (
-        <Menu.Item key={menu.id}>
-            <Link {...menu.link}>
-                <a>
-                    {t('common:page.' + menu.id)}
-                </a>
-            </Link>
-        </Menu.Item>
-    ));
+const renderMenuItems = (t: TFunction, menu: MenuEntry[]) => {
+    return menu.map(({id, link, onClick}) => {
+        let content = <a onClick={onClick}>{t('common:page.' + id)}</a>;
+        if (link) {
+            content = <Link {...link}>{content}</Link>;
+        }
+        return <Menu.Item key={id}>{content}</Menu.Item>;
+    });
 };
 
-export const TopNavigation = withTranslation('common')(function ({t, currentPage, transparent}: TopNavigationProps & WithTranslation) {
+export const TopNavigation = withAuth()(withTranslation('common')(function ({t, authMethods, authGuard, currentPage, transparent}: TopNavigationProps & WithAuth & WithTranslation) {
     const [top, setTop] = useState(true);
 
     useEffect(() => {
@@ -42,6 +40,21 @@ export const TopNavigation = withTranslation('common')(function ({t, currentPage
         onScroll();
         return () => window.removeEventListener('scroll', onScroll);
     }, [setTop]);
+
+    const index = routes.index();
+    let menu;
+    if (authGuard.authenticated) {
+        menu = [
+            {id: 'index', link: index},
+            {id: 'logout', onClick: () => authMethods.logout().then(() => AppRouter.push(index))}, // TODO: page loading animation during the whole process
+        ];
+    } else {
+        menu = [
+            {id: 'index', link: index},
+            {id: 'login', link: routes.login()},
+            {id: 'register', link: routes.register()},
+        ];
+    }
 
     const render = (
         <>
@@ -53,8 +66,8 @@ export const TopNavigation = withTranslation('common')(function ({t, currentPage
                                 <a>
                                     <img
                                         alt={t('common:logo_tag')}
-                                        width='144px'
-                                        height='48px'
+                                        width='217px'
+                                        height='32px'
                                         src={logo}
                                         srcSet={logo + ' 1x, ' + logo2x + ' 2x'}
                                     />
@@ -65,7 +78,7 @@ export const TopNavigation = withTranslation('common')(function ({t, currentPage
                             mode='horizontal'
                             selectedKeys={currentPage ? [currentPage] : []}
                         >
-                            {renderMenuItems(t)}
+                            {renderMenuItems(t, menu)}
                         </Menu>
                     </div>
                 </div>
@@ -79,4 +92,4 @@ export const TopNavigation = withTranslation('common')(function ({t, currentPage
             {transparent ? undefined : <div id='header-ph'/>}
         </>
     );
-});
+}));

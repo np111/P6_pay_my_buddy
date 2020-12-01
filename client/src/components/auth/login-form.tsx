@@ -7,19 +7,17 @@ import Spin from 'antd/lib/spin';
 import React, {useState} from 'react';
 import {setFormError} from '../../utils/form-utils';
 import {useCatchAsyncError} from '../../utils/react-utils';
+import {AppRouter, routes} from '../../utils/routes';
 import {WithTranslation, withTranslation} from '../i18n';
+import {Link, LinkProps} from '../link';
+import {Autofocus} from '../utils/autofocus';
 import {WithAuth, withAuth} from './with-auth';
 
-const layout = {
-    labelCol: {span: 8},
-    wrapperCol: {span: 16},
-};
-const tailLayout = {
-    wrapperCol: {xs: 24, sm: {offset: 8, span: 16}},
-};
+export interface LoginFormProps {
+    redirect?: LinkProps;
+}
 
-// TODO: i18n
-export const LoginForm = withAuth()(withTranslation('common')(function ({t, authenticating, authMethods, authGuard}: WithAuth & WithTranslation) {
+export const LoginForm = withAuth()(withTranslation('common')(function ({t, authenticating, authMethods, authGuard, redirect}: LoginFormProps & WithAuth & WithTranslation) {
     const catchAsyncError = useCatchAsyncError();
     const [loading, setLoading] = useState(false);
     const [form] = useForm();
@@ -29,7 +27,9 @@ export const LoginForm = withAuth()(withTranslation('common')(function ({t, auth
             .login(email, password)
             .then((logged) => {
                 if (!logged) {
-                    setFormError(form, 'email', 'Invalid credentials');
+                    setFormError(form, 'email', t('common:auth.invalid_credentials'));
+                } else if (redirect) {
+                    return AppRouter.push(redirect);
                 }
             })
             .catch(catchAsyncError)
@@ -43,33 +43,38 @@ export const LoginForm = withAuth()(withTranslation('common')(function ({t, auth
     }
     return (
         <Spin spinning={loading}>
-            <Form
-                {...layout}
-                form={form}
-                onFinish={login}
-            >
-                <Form.Item
-                    label='Email'
-                    name='email'
-                    validateTrigger='onBlur'
-                    rules={[{required: true, pattern: /^[^@]+@[^@]+$/, message: 'Please input your email!'}]}
+            <div className='login-form'>
+                <Form
+                    form={form}
+                    onFinish={login}
                 >
-                    <Input/>
-                </Form.Item>
-                <Form.Item
-                    label='Password'
-                    name='password'
-                    validateTrigger='onBlur'
-                    rules={[{required: true, message: 'Please input your password!'}]}
-                >
-                    <Input.Password/>
-                </Form.Item>
-                <Form.Item {...tailLayout}>
-                    <Button type='primary' htmlType='submit'>
-                        Login
-                    </Button>
-                </Form.Item>
-            </Form>
+                    <Form.Item
+                        name='email'
+                        validateTrigger='onBlur'
+                        rules={[{required: true, pattern: /^[^@]+@[^@]+$/, message: t('common:auth.require_email')}]}
+                    >
+                        <Autofocus>
+                            <Input placeholder={t('common:auth.email')} maxLength={255} size='large'/>
+                        </Autofocus>
+                    </Form.Item>
+                    <Form.Item
+                        name='password'
+                        validateTrigger='onBlur'
+                        rules={[{required: true, message: t('common:auth.require_password')}]}
+                    >
+                        <Input.Password placeholder={t('common:auth.password')} maxLength={255} size='large'/>
+                    </Form.Item>
+                    <Form.Item>
+                        <Button type='primary' htmlType='submit' size='large' block={true}>
+                            {t('common:auth.login')}
+                        </Button>
+                    </Form.Item>
+                </Form>
+                <div className='separator'><span>{t('common:auth.or')}</span></div>
+                <Link {...routes.register()}>
+                    <Button size='large' block={true}>{t('common:page.register')}</Button>
+                </Link>
+            </div>
         </Spin>
     );
 }));

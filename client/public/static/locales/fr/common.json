@@ -1,9 +1,20 @@
 {
   "name": "PayMyBuddy",
+  "tag": "Transferts d'argent",
   "logo_tag": "Logo PayMyBuddy",
   "page": {
     "index": "Accueil",
-    "login": "Connecion",
-    "register": "Ouvrir un compte"
+    "login": "Connexion",
+    "register": "Ouvrir un compte",
+    "logout": "Déconnexion"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Mot de passe",
+    "login": "Se connecter",
+    "or": "ou",
+    "require_email": "Veuillez entrer votre email.",
+    "require_password": "Veuillez entrer votre mot de passe.",
+    "invalid_credentials": "Vos identifiants sont incorrects. Réessayez."
   }
 }

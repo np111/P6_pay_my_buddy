@@ -62,3 +62,38 @@ a {
   margin: auto;
   padding: 0 $container-margin;
 }
+
+@mixin margin-preset($name, $property, $value) {
+  .#{$name}-h {
+    #{$property}-left: $value;
+    #{$property}-right: $value;
+  }
+
+  .#{$name}-v {
+    #{$property}-top: $value;
+    #{$property}-bottom: $value;
+  }
+
+  .#{$name}-l {
+    #{$property}-left: $value;
+  }
+
+  .#{$name}-t {
+    #{$property}-top: $value;
+  }
+
+  .#{$name}-r {
+    #{$property}-right: $value;
+  }
+
+  .#{$name}-b {
+    #{$property}-bottom: $value;
+  }
+
+  .#{$name}-nb {
+    #{$property}-bottom: -$value;
+  }
+}
+
+@include margin-preset('sm', 'margin', $section-margin);
+@include margin-preset('pm', 'margin', $paragraph-margin);

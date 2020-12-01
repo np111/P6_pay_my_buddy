@@ -1,7 +1,7 @@
 #footer {
   background: $footer-bg-color;
   padding: $section-margin 0;
-  margin-top: $container-margin;
+  margin-top: $section-margin;
 
   @include ant-hidden-links();
 

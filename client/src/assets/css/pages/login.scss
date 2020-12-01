@@ -1,0 +1,19 @@
+.login-form {
+  margin: auto;
+  max-width: 420px;
+
+  .separator {
+    border-top: 1px solid $separator-color;
+    margin: #{$section-margin * 1.5} 0;
+    height: 0;
+    text-align: center;
+
+    > span {
+      display: inline-block;
+      transform: translateY(-50%);
+      padding: 0 .75em;
+      background: $bg-color;
+      color: $text-color-secondary;
+    }
+  }
+}
