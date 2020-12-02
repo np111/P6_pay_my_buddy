@@ -1,5 +1,5 @@
 import Skeleton from 'antd/lib/skeleton';
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {apiClient} from '../api/api-client';
 import {UnhandledApiError} from '../api/api-exception';
 import {WithAuth, withAuth} from '../components/auth/with-auth';
@@ -49,8 +49,7 @@ const RegisterForm = withAuth()(withTranslation()(function ({t, authenticating}:
     const catchAsyncError = useCatchAsyncError();
     const [loading, setLoading] = useState(false);
     const [form] = useForm();
-    const register = ({name, email, password}) => {
-        console.log({name, email, password});
+    const register = useCallback(({name, email, password}) => {
         setLoading(true);
         return apiClient.fetch({
             authToken: false,
@@ -62,7 +61,7 @@ const RegisterForm = withAuth()(withTranslation()(function ({t, authenticating}:
                 defaultCurrency: 'EUR',
             },
         }).then((res): void | Promise<any> => {
-            if (res.success == false) {
+            if (res.success === false) {
                 if (res.error.code === 'EMAIL_ALREADY_EXISTS') {
                     return setFormError(form, 'email', t('register:email_already_registered'));
                 }
@@ -72,7 +71,7 @@ const RegisterForm = withAuth()(withTranslation()(function ({t, authenticating}:
             // TODO: display a confirmation notification
             return AppRouter.push(routes.login());
         }).catch(catchAsyncError).finally(() => setLoading(false));
-    };
+    }, [t, catchAsyncError, form]);
     if (authenticating) {
         return <Skeleton loading={true}/>;
     }

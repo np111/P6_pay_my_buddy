@@ -24,16 +24,16 @@ export class ApiClient {
     }
 
     fetch<T = any>({ctx, authToken, method, url, body, neverCancel}: ApiFetchRequest): Promise<ApiResponse<T>> {
-        if (typeof window === 'undefined' && !ctx) {
-            throw new ApiException('ctx is missing in SSR context');
-        }
         const headers: any = {};
 
         // Resolve auth token
-        if (authToken !== false && authToken == undefined) {
+        if (authToken !== false && authToken === undefined) {
             if (typeof window !== 'undefined') {
                 authToken = getGlobalAuthGuard().token;
             } else {
+                if (!ctx) {
+                    throw new ApiException('ctx is missing in SSR context');
+                }
                 authToken = ctx.authGuard.token;
             }
         }
@@ -112,7 +112,7 @@ export const apiClient = (() => {
     const apiUrl = serverRuntimeConfig.apiUrl || publicRuntimeConfig.apiUrl;
     let abortSignal;
     if (typeof window !== 'undefined' && typeof AbortController !== 'undefined') {
-        let signal: AbortSignal = undefined;
+        let signal: AbortSignal;
         let controller: AbortController;
         const initController = () => {
             controller = new AbortController();

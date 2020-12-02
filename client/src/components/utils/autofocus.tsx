@@ -1,30 +1,28 @@
-import React, {useMemo} from 'react';
+import React from 'react';
 
 export interface AutofocusProps {
-    autoFocus?: boolean;
-    children?: React.ReactNode;
+    children: React.ReactElement;
 }
 
-export function Autofocus({children, autoFocus, ...inputProps}: AutofocusProps) {
-    autoFocus = autoFocus !== false;
-    const state = useMemo(() => ({applied: false}), [children, autoFocus]);
-    const renderChildren = (child: React.ReactElement) => {
-        (inputProps as any).ref = (input: HTMLElement) => {
-            if (!state.applied && autoFocus && input && typeof input.focus === 'function') {
-                state.applied = true;
+export class Autofocus extends React.PureComponent<AutofocusProps> {
+    private _focused = false;
+
+    render() {
+        const {children, ...inputProps} = this.props;
+        const {ref: originalRef} = children as any;
+        const ref = (input: HTMLElement) => {
+            if (!this._focused && input && typeof input.focus === 'function') {
+                this._focused = true;
                 input.focus();
             }
-            // @ts-ignore
-            const {ref} = child;
-            if (ref) {
-                if (typeof ref === 'function') {
-                    ref(input);
+            if (originalRef) {
+                if (typeof originalRef === 'function') {
+                    originalRef(input);
                 } else {
-                    ref.current = input;
+                    originalRef.current = input;
                 }
             }
         };
-        return React.cloneElement(child, {...inputProps, autoFocus});
-    };
-    return React.Children.map(children as any, renderChildren);
+        return React.cloneElement(children, {...inputProps, ref, autoFocus: true});
+    }
 }

@@ -50,7 +50,7 @@ export const Trans = i18NextInstance.Trans;
 export const Router = i18NextInstance.Router;
 
 export type LinkProps = NextLinkProps;
-export const Link = memo(function (props: LinkProps & { children: React.ReactNode }) {
+export const Link = memo(function Link(props: LinkProps & { children: React.ReactNode }) {
     const {children} = props;
     let {passHref} = props;
     if (passHref === undefined && isButton(children)) {

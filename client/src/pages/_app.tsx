@@ -32,7 +32,7 @@ class MyApp extends React.Component<AppProps> {
     public render() {
         return (
             <>
-                {this.renderPage()}
+                {this._renderPage()}
 
                 {/* Fix Chromium FOUC https://github.com/zeit/next-plugins/issues/455 */}
                 <script>{' '}</script>
@@ -40,7 +40,7 @@ class MyApp extends React.Component<AppProps> {
         );
     }
 
-    private renderPage = () => {
+    private _renderPage = () => {
         const {Component, pageProps} = this.props;
         return <Component {...pageProps} />;
     };

@@ -16,6 +16,7 @@ module.exports = {
         'eslint-plugin-no-null',
         'eslint-plugin-import',
         'eslint-plugin-react',
+        'eslint-plugin-react-hooks',
         '@typescript-eslint',
         '@typescript-eslint/tslint',
     ],
@@ -83,6 +84,17 @@ module.exports = {
             {
                 selector: 'default',
                 format: ['camelCase', 'UPPER_CASE', 'PascalCase'],
+            },
+            {
+                selector: 'default',
+                modifiers: ['private'],
+                format: ['camelCase', 'UPPER_CASE', 'PascalCase'],
+                leadingUnderscore: 'require',
+            },
+            {
+                selector: 'property',
+                filter: '^__html$',
+                format: null,
             },
         ],
         '@typescript-eslint/no-empty-function': 'off',
@@ -219,11 +231,15 @@ module.exports = {
             'consistent-as-needed',
         ],
         'radix': 'off',
-        'react/jsx-boolean-value': 'error',
+        'react/jsx-boolean-value': [
+            'error',
+            'always',
+        ],
         'react/jsx-key': 'error',
         'react/jsx-no-bind': 'error',
         'react/no-string-refs': 'error',
         'react/self-closing-comp': 'error',
+        'react-hooks/exhaustive-deps': 'error',
         'space-before-function-paren': 'off',
         'space-in-parens': [
             'error',

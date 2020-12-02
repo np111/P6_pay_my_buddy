@@ -116,7 +116,7 @@ export default class MyError extends React.Component<MyErrorProps> {
         return {statusCode, reqUrl: req ? req.url : undefined, backUrl, namespacesRequired: []};
     }
 
-    private getLocalizedMessages(reqUrl?: string) {
+    private _getLocalizedMessages(reqUrl?: string) {
         if (!reqUrl && typeof window !== 'undefined') {
             reqUrl = window.location.pathname;
         }
@@ -131,7 +131,7 @@ export default class MyError extends React.Component<MyErrorProps> {
 
     public render() {
         const {statusCode, reqUrl, backUrl} = this.props;
-        const m = this.getLocalizedMessages(reqUrl);
+        const m = this._getLocalizedMessages(reqUrl);
         const status = m.status['' + statusCode] || m.status['500'];
         return (
             <>

@@ -18,13 +18,13 @@ export type ErrorType = 'CLIENT' | 'SERVICE' | 'UNKNOWN';
 export type ErrorCode =
 // Client-side implementation
     '_ABORTED'
-// Type: UNKNOWN
+    // Type: UNKNOWN
     | 'SERVER_EXCEPTION'
-// Type: CLIENT
+    // Type: CLIENT
     | 'BAD_REQUEST'
     | 'VALIDATION_FAILED'
     | 'ACCESS_DENIED'
-// Type: SERVICE
+    // Type: SERVICE
     | 'EMAIL_ALREADY_EXISTS'
     | 'INVALID_CREDENTIALS'
     ;

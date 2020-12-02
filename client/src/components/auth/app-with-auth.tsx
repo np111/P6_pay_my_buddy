@@ -12,7 +12,7 @@ import {AuthContext} from './auth-context';
 
 export interface AppWithAuthContext extends AppContext {
     ctx: NextPageWithAuthContext;
-    cookies?: { get(name: string): void, set(name: string, value?: string, options?: any): void }
+    cookies?: { get(name: string): void; set(name: string, value?: string, options?: any): void };
 }
 
 export interface NextPageWithAuthContext extends NextPageContext {

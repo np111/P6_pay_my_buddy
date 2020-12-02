@@ -54,7 +54,7 @@ export class ClientAuthGuard extends EventEmitter implements AuthGuard {
             url: 'auth/login',
             body: {email, password},
         }).then((res) => {
-            if (res.success == false) {
+            if (res.success === false) {
                 if (res.error.code === 'INVALID_CREDENTIALS') {
                     return false;
                 }
@@ -70,7 +70,7 @@ export class ClientAuthGuard extends EventEmitter implements AuthGuard {
         return apiClient.fetch({
             url: 'auth/remember',
             authToken: token,
-        }).then((res: ApiResponse<{}>) => {
+        }).then((res: ApiResponse) => {
             if (res.success === false) {
                 throw new UnhandledApiError(res.error);
             }
@@ -90,7 +90,7 @@ export class ClientAuthGuard extends EventEmitter implements AuthGuard {
             url: 'auth/logout',
             body: {},
         }).then((res) => {
-            if (res.success == false) {
+            if (res.success === false) {
                 throw new UnhandledApiError(res.error);
             }
             this.update({});

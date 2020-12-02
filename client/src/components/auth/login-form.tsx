@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {setFormError} from '../../utils/form-utils';
 import {useCatchAsyncError} from '../../utils/react-utils';
 import {routes} from '../../utils/routes';
@@ -19,7 +19,7 @@ export const LoginForm = withAuth()(withTranslation('common')(function ({t, auth
     const catchAsyncError = useCatchAsyncError();
     const [loading, setLoading] = useState(false);
     const [form] = useForm();
-    const login = ({email, password}) => {
+    const login = useCallback(({email, password}) => {
         setLoading(true);
         return authGuard
             .login(email, password)
@@ -30,7 +30,7 @@ export const LoginForm = withAuth()(withTranslation('common')(function ({t, auth
             })
             .catch(catchAsyncError)
             .finally(() => setLoading(false));
-    };
+    }, [t, authGuard, catchAsyncError, form]);
     if (authenticating) {
         return <Skeleton loading={true}/>;
     }

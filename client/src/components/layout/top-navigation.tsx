@@ -22,7 +22,7 @@ interface MenuEntry {
 }
 
 const renderMenuItems = (t: TFunction, menu: MenuEntry[]) => {
-    return menu.filter(e => e !== undefined).map(({id, link, onClick}) => {
+    return menu.filter((e) => e !== undefined).map(({id, link, onClick}) => {
         let content = <a onClick={onClick}>{t('common:page.' + id)}</a>;
         if (link) {
             content = <Link {...link}>{content}</Link>;

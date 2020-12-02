@@ -14,11 +14,10 @@ export interface AppRouterOptions {
 
 export class AppRouter {
     public static reload(opts?: any) {
-        // hack: _h is set to force-reload in all circumstances
-        // https://github.com/zeit/next.js/blob/0bcd1fc39bb07f67b94238a0e867e9c3fe73a163/packages/next/next-server/lib/router/router.ts#L283
-        return opts && opts.replace === true
-            ? Router.replace(this.getCurrentUrl(), Router.asPath, {...opts, _h: true})
-            : Router.push(this.getCurrentUrl(), Router.asPath, {...opts, _h: true});
+        const reload = opts && opts.replace ? Router.replace : Router.push;
+        // hack: _h is set to force-reload in all circumstances, see https://github.com/zeit/next.js/blob/0bcd1fc39bb07f67b94238a0e867e9c3fe73a163/packages/next/next-server/lib/router/router.ts#L283
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        return reload.call(Router, this._getCurrentUrl(), Router.asPath, {...opts, _h: true});
     }
 
     public static push(route: LinkProps, query?: any, opts?: AppRouterOptions) {
@@ -31,12 +30,11 @@ export class AppRouter {
                 delete href.search;
             }
         }
-        return opts && opts.replace === true
-            ? Router.replace(this.urlToString(href) as string, this.urlToString(as), <any>opts)
-            : Router.push(this.urlToString(href) as string, this.urlToString(as), <any>opts);
+        const push = opts && opts.replace ? Router.replace : Router.push;
+        return push.call(Router, this._urlToString(href) as string, this._urlToString(as), <any>opts);
     }
 
-    private static getCurrentUrl() {
+    private static _getCurrentUrl() {
         return {
             pathname: Router.pathname,
             query: Router.query,
@@ -44,7 +42,7 @@ export class AppRouter {
         };
     }
 
-    private static urlToString(url?: UrlObject) {
+    private static _urlToString(url?: UrlObject) {
         return url && url.href !== null ? url.href : undefined;
     }
 }
