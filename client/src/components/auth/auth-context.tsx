@@ -1,9 +1,9 @@
 import React from 'react';
-import {ClientAuthGuard} from './auth';
+import {AuthGuard} from './auth';
 
 export interface AuthContextProps {
     authenticating: boolean;
-    authGuard?: ClientAuthGuard;
+    authGuard?: AuthGuard;
 }
 
 export const AuthContext = React.createContext<AuthContextProps>({

@@ -7,7 +7,7 @@ import {withRouter} from 'next/router';
 import React from 'react';
 import {catchAsyncError} from '../../utils/react-utils';
 import {AppRouter} from '../../utils/routes';
-import {ClientAuthGuard, SerializedAuthGuard, ServerAuthGuard} from './auth';
+import {AuthGuard, ClientAuthGuard, SerializedAuthGuard, ServerAuthGuard} from './auth';
 import {AuthContext} from './auth-context';
 
 export interface AppWithAuthContext extends AppContext {
@@ -16,7 +16,7 @@ export interface AppWithAuthContext extends AppContext {
 }
 
 export interface NextPageWithAuthContext extends NextPageContext {
-    authGuard: ClientAuthGuard;
+    authGuard: AuthGuard;
 }
 
 interface AppWithAuthProps {
@@ -178,12 +178,12 @@ function loadAuthToken(appCtx?: AppWithAuthContext) {
     return undefined;
 }
 
-function setGlobalAuthGuard(authGuard: ClientAuthGuard) {
+function setGlobalAuthGuard(authGuard: AuthGuard) {
     if (typeof window === 'undefined') throw new Error('Global AuthGuard is client-side only');
     (global as any).__AUTH_GUARD = authGuard;
 }
 
-export function getGlobalAuthGuard(): ClientAuthGuard {
+export function getGlobalAuthGuard(): AuthGuard {
     if (!(global as any).__AUTH_GUARD) throw new Error('Global AuthGuard is not defined');
     return (global as any).__AUTH_GUARD;
 }

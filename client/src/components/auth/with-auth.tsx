@@ -1,11 +1,11 @@
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import React from 'react';
-import {ClientAuthGuard} from './auth';
+import {AuthGuard} from './auth';
 import {AuthContext} from './auth-context';
 
 export interface WithAuth {
     authenticating: boolean;
-    authGuard: ClientAuthGuard;
+    authGuard: AuthGuard;
 }
 
 export function withAuth() { // wrap everything into a function in the case we add an options param

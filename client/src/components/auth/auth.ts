@@ -7,6 +7,12 @@ export interface AuthGuard {
     readonly authenticated: boolean;
     readonly token?: string;
     readonly user?: AuthUser;
+
+    login(email: string, password: string): Promise<boolean>;
+
+    remember(token: string): Promise<boolean>;
+
+    logout(): Promise<void>;
 }
 
 export interface AuthUser {
@@ -20,16 +26,16 @@ export interface SerializedAuthGuard {
     user?: AuthUser;
 }
 
-/**
- * Client-side implementation of the AuthGuard.
- * A single instance is instantiated for the browsing-session lifetime and can be updated from server serialized data.
- */
 export class ClientAuthGuard extends EventEmitter implements AuthGuard {
     token?: string;
     user?: AuthUser;
 
     get authenticated() {
         return !!this.user;
+    }
+
+    serialize(): SerializedAuthGuard {
+        return {token: this.token, user: this.user};
     }
 
     update(data: SerializedAuthGuard | undefined, dontEmit?: boolean) {
@@ -40,10 +46,6 @@ export class ClientAuthGuard extends EventEmitter implements AuthGuard {
         if (dontEmit !== false) {
             this.emit('updated', data, prevData);
         }
-    }
-
-    serialize(): SerializedAuthGuard {
-        return {token: this.token, user: this.user};
     }
 
     login(email: string, password: string): Promise<boolean> {
@@ -99,8 +101,5 @@ export class ClientAuthGuard extends EventEmitter implements AuthGuard {
     }
 }
 
-/**
- * Server-side implementation of the AuthGuard.
- */
 export class ServerAuthGuard extends ClientAuthGuard {
 }
