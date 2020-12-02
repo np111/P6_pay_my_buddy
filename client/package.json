@@ -13,6 +13,7 @@
     "@zeit/next-less": "^1.0.1",
     "@zeit/next-sass": "^1.0.1",
     "antd": "^4.8.4",
+    "cookies": "^0.8.0",
     "cssnano": "^4.1.10",
     "file-loader": "^6.2.0",
     "hoist-non-react-statics": "^3.3.2",

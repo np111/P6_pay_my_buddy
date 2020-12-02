@@ -1,18 +1,17 @@
 import {default as _fetch} from 'isomorphic-unfetch';
 import getConfig from 'next/config';
 import {Router} from 'next/router';
-import {getGlobalAuthGuard} from '../components/auth/app-with-auth';
+import {getGlobalAuthGuard, NextPageWithAuthContext} from '../components/auth/app-with-auth';
 import {AccessDeniedError, ApiException} from './api-exception';
 import {ApiResponse} from './api-response';
 
 export interface ApiFetchRequest {
-    ctx?: any; // next-js SSR page context
+    ctx?: NextPageWithAuthContext; // next-js SSR page context
     authToken?: string | false;
     method?: 'GET' | 'POST';
     url: string;
     body?: any;
-    // unhandledError?: ((err: ApiError) => boolean) | boolean;
-    noCancel?: boolean;
+    neverCancel?: boolean;
 }
 
 const {serverRuntimeConfig, publicRuntimeConfig} = getConfig();
@@ -33,32 +32,34 @@ if (typeof window !== 'undefined' && typeof AbortController !== 'undefined') {
     Router.events.on('routeChangeStart', abortController);
 }
 
-export function apiFetch<T = any>(req: ApiFetchRequest): Promise<ApiResponse<T>> {
-    let method = req.method;
-    let body;
-    if (req.body) {
-        if (!method) {
-            method = 'POST';
-        }
-        body = JSON.stringify(req.body);
-    }
-    if (!method) {
-        method = 'GET';
-    }
+export function apiFetch<T = any>({ctx, authToken, method, url, body, neverCancel}: ApiFetchRequest): Promise<ApiResponse<T>> {
     const headers: any = {};
+
+    // Resolve auth token
+    if (authToken !== false && authToken == undefined) {
+        if (typeof window !== 'undefined') {
+            authToken = getGlobalAuthGuard().token;
+        } else {
+            authToken = ctx.authGuard.token;
+        }
+    }
+    if (authToken === false || authToken === undefined) {
+        authToken = 'anonymous';
+    }
+    headers['X-Auth-Token'] = authToken;
+
+    // Serialize body (and auto-detect method)
     if (body) {
+        method = method || 'POST';
+        body = JSON.stringify(body);
         headers['Content-Type'] = 'application/json;charset=utf-8';
     }
-    if (typeof window !== 'undefined') {
-        let authToken = req.authToken;
-        if (authToken !== false && (authToken = authToken || getGlobalAuthGuard().token)) {
-            headers['X-Auth-Token'] = authToken;
-        }
-    }
+    method = method || 'GET';
 
-    const input: RequestInfo = apiUrl + req.url;
+    // Fetch
+    const input: RequestInfo = apiUrl + url;
     const init: RequestInit = {method, headers, body};
-    if (req.noCancel !== true) {
+    if (neverCancel !== true) {
         init.signal = signal;
     }
     return _fetch(input, init)
@@ -79,9 +80,6 @@ export function apiFetch<T = any>(req: ApiFetchRequest): Promise<ApiResponse<T>>
                                     throw new ApiException('Client-side exception (' + error.code + ')', error);
                             }
                         }
-                        /*if (req.unhandledError === true  || (typeof req.unhandledError === 'function' && req.unhandledError(error))) {
-                            throw new UnhandledApiError(error);
-                        }*/
                         return {success: false, error};
                     }
                     throw new ApiException('Unsupported server response: incomplete error fields');

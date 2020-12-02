@@ -32,16 +32,13 @@ export class ClientAuthGuard extends EventEmitter implements AuthGuard {
         return !!this.user;
     }
 
-    update(s: SerializedAuthGuard | undefined, disableEmit?: boolean) {
-        if (s === undefined || s === null) {
-            this.token = undefined;
-            this.user = undefined;
-        } else {
-            this.token = s.token;
-            this.user = s.user;
-        }
-        if (disableEmit !== false) {
-            this.emit('updated', s);
+    update(data: SerializedAuthGuard | undefined, dontEmit?: boolean) {
+        data = data || {};
+        const prevData = {token: this.token};
+        this.token = data.token;
+        this.user = data.user;
+        if (dontEmit !== false) {
+            this.emit('updated', data, prevData);
         }
     }
 
@@ -104,14 +101,6 @@ export class ClientAuthGuard extends EventEmitter implements AuthGuard {
 
 /**
  * Server-side implementation of the AuthGuard.
- * Currently the client is never authenticated during SSR.
  */
-export class ServerAuthGuard implements AuthGuard {
-    get authenticated() {
-        return false;
-    }
-
-    serialize() {
-        return {};
-    }
+export class ServerAuthGuard extends ClientAuthGuard {
 }

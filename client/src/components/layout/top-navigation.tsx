@@ -1,7 +1,7 @@
 import {TFunction, WithTranslation} from 'next-i18next';
 import React, {useEffect, useState} from 'react';
 import ReactDOM from 'react-dom';
-import {AppRouter, routes} from '../../utils/routes';
+import {routes} from '../../utils/routes';
 import {WithAuth, withAuth} from '../auth/with-auth';
 import {Link, LinkProps, withTranslation} from '../i18n';
 import {Menu} from '../ui/menu';
@@ -46,7 +46,7 @@ export const TopNavigation = withAuth()(withTranslation('common')(function ({t, 
     if (authGuard.authenticated) {
         menu = [
             currentPage !== 'index' ? {id: 'index', link: index} : undefined,
-            {id: 'logout', onClick: () => authGuard.logout().then(() => AppRouter.push(index))}, // TODO: page loading animation during the whole process
+            {id: 'logout', onClick: () => authGuard.logout()}, // TODO: page loading animation during the whole process
         ];
     } else {
         menu = [

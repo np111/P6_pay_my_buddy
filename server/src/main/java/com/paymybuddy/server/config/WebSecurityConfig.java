@@ -25,9 +25,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable(); // no cookie = no csrf (https://security.stackexchange.com/a/166798) ; we currently only use a session-storage header to authenticate
+        // We don't need CSRF protections since no cookies are used to authenticate non-GET requests (auth token is
+        // retrieved from the 'X-Auth-Token' header). See https://security.stackexchange.com/a/166798
+        http.csrf().disable();
+
         http.cors();
+
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
         http.authorizeRequests().anyRequest().permitAll();
         http.formLogin().disable();
         http.logout().disable();

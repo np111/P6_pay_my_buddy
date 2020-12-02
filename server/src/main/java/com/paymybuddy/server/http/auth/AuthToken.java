@@ -21,7 +21,7 @@ public final class AuthToken extends AbstractAuthenticationToken {
     private AuthToken(AuthGuard auth, String token) {
         super(auth == null ? null : Collections.emptyList()); // (no authorities)
         this.auth = auth;
-        this.token = token;
+        this.token = token == null ? "" : token;
         setAuthenticated(auth != null);
     }
 

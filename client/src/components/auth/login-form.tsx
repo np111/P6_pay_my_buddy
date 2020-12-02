@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {setFormError} from '../../utils/form-utils';
 import {useCatchAsyncError} from '../../utils/react-utils';
-import {AppRouter, routes} from '../../utils/routes';
+import {routes} from '../../utils/routes';
 import {Link, LinkProps, WithTranslation, withTranslation} from '../i18n';
 import {Button} from '../ui/button';
 import {Form, useForm} from '../ui/form';
@@ -26,8 +26,6 @@ export const LoginForm = withAuth()(withTranslation('common')(function ({t, auth
             .then((logged) => {
                 if (!logged) {
                     setFormError(form, 'email', t('common:auth.invalid_credentials'));
-                } else if (redirect) {
-                    return AppRouter.push(redirect);
                 }
             })
             .catch(catchAsyncError)

@@ -12,6 +12,7 @@ import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,7 +30,9 @@ public class TokenAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws ServletException, IOException {
         String token = req.getHeader("x-auth-token");
-        if (token != null && !token.isEmpty()) {
+        if (token == null) {
+            throw new CredentialsExpiredException("Missing auth token");
+        } else if (!"anonymous".equals(token)) {
             try {
                 Authentication authResult = authManager.authenticate(AuthToken.unauthenticated(token));
                 SecurityContextHolder.getContext().setAuthentication(authResult);
