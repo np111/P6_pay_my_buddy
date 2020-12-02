@@ -1,7 +1,7 @@
 import Skeleton from 'antd/lib/skeleton';
 import React, {useState} from 'react';
+import {apiClient} from '../api/api-client';
 import {UnhandledApiError} from '../api/api-exception';
-import {apiFetch} from '../api/api-fetch';
 import {WithAuth, withAuth} from '../components/auth/with-auth';
 import {pageWithTranslation, withTranslation, WithTranslation} from '../components/i18n';
 import {MainLayout} from '../components/layout/main-layout';
@@ -52,7 +52,7 @@ const RegisterForm = withAuth()(withTranslation()(function ({t, authenticating}:
     const register = ({name, email, password}) => {
         console.log({name, email, password});
         setLoading(true);
-        return apiFetch({
+        return apiClient.fetch({
             authToken: false,
             url: 'auth/register',
             body: {

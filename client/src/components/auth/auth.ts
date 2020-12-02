@@ -1,6 +1,6 @@
 import EventEmitter from 'wolfy87-eventemitter';
+import {apiClient} from '../../api/api-client';
 import {AccessDeniedError, UnhandledApiError} from '../../api/api-exception';
-import {apiFetch} from '../../api/api-fetch';
 import {ApiResponse} from '../../api/api-response';
 
 export interface AuthGuard {
@@ -47,7 +47,7 @@ export class ClientAuthGuard extends EventEmitter implements AuthGuard {
     }
 
     login(email: string, password: string): Promise<boolean> {
-        return apiFetch({
+        return apiClient.fetch({
             authToken: false,
             url: 'auth/login',
             body: {email, password},
@@ -65,7 +65,7 @@ export class ClientAuthGuard extends EventEmitter implements AuthGuard {
     }
 
     remember(token: string): Promise<boolean> {
-        return apiFetch({
+        return apiClient.fetch({
             url: 'auth/remember',
             authToken: token,
         }).then((res: ApiResponse<{}>) => {
@@ -84,7 +84,7 @@ export class ClientAuthGuard extends EventEmitter implements AuthGuard {
     }
 
     logout(): Promise<void> {
-        return apiFetch({
+        return apiClient.fetch({
             url: 'auth/logout',
             body: {},
         }).then((res) => {
