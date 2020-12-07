@@ -1,7 +1,6 @@
-package com.paymybuddy.api.request;
+package com.paymybuddy.api.request.user;
 
-import com.paymybuddy.api.validation.constraint.IsEmail;
-import com.paymybuddy.api.validation.constraint.IsPassword;
+import com.paymybuddy.api.util.validation.constraint.IsEmail;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,12 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Data
-public class LoginRequest {
+public class AddContactRequest {
     @NotNull
     @IsEmail
     private String email;
-
-    @NotNull
-    @IsPassword
-    private String password;
 }

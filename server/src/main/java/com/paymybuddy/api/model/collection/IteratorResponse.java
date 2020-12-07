@@ -1,6 +1,6 @@
-package com.paymybuddy.api.response;
+package com.paymybuddy.api.model.collection;
 
-import com.paymybuddy.api.model.User;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Data
-public class LoginResponse {
-    private String token;
-    private User user;
+public class IteratorResponse<T> implements CollectionResponse<T> {
+    private String prevCursor;
+    private String nextCursor;
+    private List<T> records;
 }

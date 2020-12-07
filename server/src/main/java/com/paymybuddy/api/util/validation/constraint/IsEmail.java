@@ -1,4 +1,4 @@
-package com.paymybuddy.api.validation.constraint;
+package com.paymybuddy.api.util.validation.constraint;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

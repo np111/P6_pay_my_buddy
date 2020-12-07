@@ -3,9 +3,9 @@ package com.paymybuddy.server.http.controller;
 import com.paymybuddy.api.model.ApiError;
 import com.paymybuddy.api.model.ApiError.ErrorCode;
 import com.paymybuddy.api.model.ApiError.ErrorType;
-import com.paymybuddy.api.request.LoginRequest;
-import com.paymybuddy.api.request.RegisterRequest;
-import com.paymybuddy.api.response.LoginResponse;
+import com.paymybuddy.api.request.auth.LoginRequest;
+import com.paymybuddy.api.request.auth.RegisterRequest;
+import com.paymybuddy.api.model.auth.LoginResponse;
 import com.paymybuddy.server.http.auth.AuthGuard;
 import com.paymybuddy.server.http.auth.AuthToken;
 import com.paymybuddy.server.service.AuthService;
@@ -54,16 +54,10 @@ public class AuthController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @JsonRequestMapping(method = RequestMethod.POST, value = "/logout")
-    public ResponseEntity<Void> logout() {
-        authService.destroyAuthToken((AuthToken) SecurityContextHolder.getContext().getAuthentication());
-        SecurityContextHolder.clearContext();
-        return ResponseEntity.noContent().build();
-    }
-
-    @PreAuthorize("isAuthenticated()")
     @JsonRequestMapping(method = RequestMethod.GET, value = "/remember")
-    public LoginResponse me(@AuthenticationPrincipal AuthGuard auth) {
+    public LoginResponse remember(
+            @AuthenticationPrincipal AuthGuard auth
+    ) {
         return buildLoginResponse(null, auth);
     }
 
@@ -72,6 +66,14 @@ public class AuthController {
                 .token(token)
                 .user(auth.getUser())
                 .build();
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @JsonRequestMapping(method = RequestMethod.POST, value = "/logout")
+    public ResponseEntity<Void> logout() {
+        authService.destroyAuthToken((AuthToken) SecurityContextHolder.getContext().getAuthentication());
+        SecurityContextHolder.clearContext();
+        return ResponseEntity.noContent().build();
     }
 
     @ExceptionHandler(AuthService.EmailAlreadyRegisteredException.class)
@@ -85,5 +87,5 @@ public class AuthController {
                 .build());
     }
 
-    // TODO: handle IllegalNameException, IllegalEmailException, EmailAlreadyRegisteredException
+    // TODO: handle IllegalNameException, EmailAlreadyRegisteredException
 }

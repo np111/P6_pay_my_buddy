@@ -1,6 +1,6 @@
 package com.paymybuddy.server.http.auth;
 
-import com.paymybuddy.api.model.User;
+import com.paymybuddy.api.model.user.User;
 
 public interface AuthGuard {
     boolean isAuthenticated();

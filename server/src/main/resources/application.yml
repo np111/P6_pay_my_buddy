@@ -16,3 +16,8 @@ spring:
     host: '${REDIS_HOST:localhost}'
     port: '${REDIS_PORT:14374}'
     password: '${REDIS_PASSWORD:pmb}'
+
+logging:
+  level:
+    # Disable useless hibernate warnings
+    org.hibernate.persister.entity: ERROR

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.paymybuddy.api.model.Currency;
-import com.paymybuddy.api.model.User;
+import com.paymybuddy.api.model.user.User;
 import com.paymybuddy.server.http.auth.AuthToken;
 import com.paymybuddy.server.jpa.entity.UserEntity;
 import com.paymybuddy.server.jpa.mapper.UserMapper;

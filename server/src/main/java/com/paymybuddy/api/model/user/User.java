@@ -1,6 +1,7 @@
-package com.paymybuddy.api.model;
+package com.paymybuddy.api.model.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.paymybuddy.api.model.Currency;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,4 @@ public class User {
     private String name;
 
     private Currency defaultCurrency;
-
-    private List<Object> balances; // TODO
 }

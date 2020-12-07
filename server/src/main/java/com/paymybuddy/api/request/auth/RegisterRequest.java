@@ -1,9 +1,9 @@
-package com.paymybuddy.api.request;
+package com.paymybuddy.api.request.auth;
 
 import com.paymybuddy.api.model.Currency;
-import com.paymybuddy.api.validation.constraint.IsEmail;
-import com.paymybuddy.api.validation.constraint.IsName;
-import com.paymybuddy.api.validation.constraint.IsPassword;
+import com.paymybuddy.api.util.validation.constraint.IsEmail;
+import com.paymybuddy.api.util.validation.constraint.IsName;
+import com.paymybuddy.api.util.validation.constraint.IsPassword;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

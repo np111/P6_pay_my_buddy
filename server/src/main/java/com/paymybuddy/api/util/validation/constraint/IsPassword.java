@@ -1,4 +1,4 @@
-package com.paymybuddy.api.validation.constraint;
+package com.paymybuddy.api.util.validation.constraint;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -15,13 +15,13 @@ import javax.validation.constraints.Size;
 @Target({ElementType.METHOD, ElementType.FIELD, ElementType.ANNOTATION_TYPE, ElementType.CONSTRUCTOR,
         ElementType.PARAMETER, ElementType.TYPE_USE})
 @Retention(RetentionPolicy.RUNTIME)
-@Repeatable(IsName.List.class)
+@Repeatable(IsPassword.List.class)
 //
-@Size(max = IsName.NAME_MAX_LEN)
-public @interface IsName {
-    int NAME_MAX_LEN = 255;
+@Size(max = IsPassword.PASSWORD_MAX_LEN)
+public @interface IsPassword {
+    int PASSWORD_MAX_LEN = 50;
 
-    String message() default "{invalid.name}";
+    String message() default "{invalid.password}";
 
     Class<?>[] groups() default {};
 
@@ -32,6 +32,6 @@ public @interface IsName {
     @Retention(RetentionPolicy.RUNTIME)
     @Documented
     @interface List {
-        IsName[] value();
+        IsPassword[] value();
     }
 }
