@@ -7,6 +7,7 @@ import com.paymybuddy.api.model.ApiError;
 import com.paymybuddy.api.model.ApiError.ErrorCode;
 import com.paymybuddy.api.model.ApiError.ErrorType;
 import com.paymybuddy.server.util.exception.ApiException;
+import com.paymybuddy.server.util.exception.PreconditionException;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -171,6 +172,17 @@ public class ExceptionController implements AccessDeniedHandler {
         String constraint = objectError.getCode();
         // TODO: retrieves attributes
         return errorToResponse(errorValidationFailed(message, null, constraint, null));
+    }
+
+    /**
+     * Handles failed validation.
+     * <p>
+     * Returns a CLIENT/VALIDATION_FAILED error.
+     */
+    @ExceptionHandler(PreconditionException.class)
+    @ResponseBody
+    public ResponseEntity<ApiError> handlePreconditionException(PreconditionException e, HttpServletRequest req) {
+        return errorToResponse(errorValidationFailed(e.getMessage(), e.getParameter(), e.getConstraint(), e.getAttributes()));
     }
 
     private ApiError errorValidationFailed(String message, String parameter, String constraint,

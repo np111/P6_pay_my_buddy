@@ -12,6 +12,7 @@ import com.paymybuddy.server.http.auth.AuthToken;
 import com.paymybuddy.server.jpa.entity.UserEntity;
 import com.paymybuddy.server.jpa.mapper.UserMapper;
 import com.paymybuddy.server.jpa.repository.UserRepository;
+import com.paymybuddy.server.util.DateUtil;
 import com.paymybuddy.server.util.exception.FastRuntimeException;
 import java.time.ZonedDateTime;
 import java.util.UUID;
@@ -179,7 +180,7 @@ public class AuthService implements InitializingBean {
         public AuthGuard(User user) {
             this.userId = user.getId();
             this.user = user;
-            this.loginDate = ZonedDateTime.now();
+            this.loginDate = DateUtil.now();
         }
 
         @Override

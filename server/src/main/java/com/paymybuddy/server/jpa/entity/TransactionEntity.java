@@ -48,6 +48,12 @@ public class TransactionEntity {
     @Column(name = "amount", precision = 40, scale = 20)
     private BigDecimal amount;
 
+    @Column(name = "fee", precision = 40, scale = 20)
+    private BigDecimal fee;
+
+    @Column(name = "description", nullable = false)
+    private String description;
+
     @Column(name = "date")
     private ZonedDateTime date;
 }

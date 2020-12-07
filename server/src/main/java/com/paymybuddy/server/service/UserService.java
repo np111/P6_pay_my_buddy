@@ -9,6 +9,7 @@ import com.paymybuddy.server.jpa.mapper.UserMapper;
 import com.paymybuddy.server.jpa.repository.UserRepository;
 import java.math.BigDecimal;
 import java.net.IDN;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -45,7 +46,7 @@ public class UserService {
     public List<UserBalance> getUserBalances(long userId) {
         UserEntity userEntity = userRepository.findById(userId).orElse(null);
         if (userEntity == null) {
-            return null;
+            return Collections.emptyList();
         }
 
         List<UserBalance> ret = userEntity.getBalances().stream()

@@ -18,7 +18,7 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     @Query("update UserEntity u set u.encodedPassword = :encodedPassword where u.id = :id")
     void updatePassword(@Param("id") long id, @Param("encodedPassword") String encodedPassword);
 
-    @Query("SELECT u FROM UserEntity u WHERE u.id IN :ids")
+    @Query("SELECT u FROM UserEntity u WHERE u.id IN :ids ORDER BY u.id")
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     List<UserEntity> findAllByIdsForUpdate(@Param("ids") Collection<Long> ids);
 }

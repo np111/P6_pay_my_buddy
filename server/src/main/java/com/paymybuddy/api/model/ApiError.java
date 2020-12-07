@@ -78,5 +78,7 @@ public class ApiError {
 
         EMAIL_ALREADY_EXISTS,
         INVALID_CREDENTIALS,
+        CONTACT_NOT_FOUND,
+        NOT_ENOUGH_FUNDS,
     }
 }

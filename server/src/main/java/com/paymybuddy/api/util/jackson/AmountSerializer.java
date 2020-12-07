@@ -9,10 +9,10 @@ import java.math.BigDecimal;
 public class AmountSerializer extends JsonSerializer<BigDecimal> {
     @Override
     public void serialize(BigDecimal amount, JsonGenerator gen, SerializerProvider provider) throws IOException {
-        if (amount == null) {
-            gen.writeNull();
-        } else {
-            gen.writeString(amount.stripTrailingZeros().toPlainString());
-        }
+        gen.writeString(toString(amount));
+    }
+
+    public static String toString(BigDecimal amount) {
+        return amount == null ? null : amount.stripTrailingZeros().toPlainString();
     }
 }

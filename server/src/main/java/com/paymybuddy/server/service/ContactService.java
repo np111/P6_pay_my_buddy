@@ -29,7 +29,7 @@ public class ContactService {
     public PageableResponse<User> listContacts(long userId, PageableFetcher.Params pageableParams) {
         return PageableFetcher.<User>create()
                 .recordsFinder(pageable -> userContactRepository.findContactByUserId(userId, pageable)
-                        .stream().map(userMapper::toUser).collect(Collectors.toList()))
+                        .stream().map(userMapper::toContact).collect(Collectors.toList()))
                 .recordsCounter(() -> userContactRepository.countByUserId(userId))
                 .minPerPage(1) // FIXME: Allow low values for tests/examples
                 .defaultSort(Sort.by("contact.name"))
@@ -37,6 +37,11 @@ public class ContactService {
                 .sortableProperty("name")
                 .sortableProperty("email")
                 .fetch(pageableParams);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isContact(long userId, long contactId) {
+        return userContactRepository.existsById(new UserContactEntity.Key(userId, contactId));
     }
 
     @Transactional
@@ -50,17 +55,17 @@ public class ContactService {
         contactEntryEntity.setUserId(userId);
         contactEntryEntity.setContactId(contactEntity.getId());
         userContactRepository.save(contactEntryEntity);
-        return userMapper.toUser(contactEntity);
+        return userMapper.toContact(contactEntity);
     }
 
     @Transactional
-    public User removeContact(long userId, Long contactId) {
+    public User removeContact(long userId, long contactId) {
         UserContactEntity contactEntryEntity = userContactRepository.findById(new UserContactEntity.Key(userId, contactId)).orElse(null);
         if (contactEntryEntity == null) {
             throw new ContactNotFoundException();
         }
 
-        User contact = userMapper.toUser(contactEntryEntity.getContact());
+        User contact = userMapper.toContact(contactEntryEntity.getContact());
         userContactRepository.delete(contactEntryEntity);
         return contact;
     }
