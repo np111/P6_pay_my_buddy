@@ -1,11 +1,16 @@
+import {IncomingMessage} from 'http';
 import {parse, UrlObject} from 'url';
 import {LinkProps, Router} from '../components/i18n';
 
 export const routes = {
     index: () => ({href: '/'}),
 
-    login: () => ({href: '/login'}),
+    login: ({to}: { to?: string } = {}) => ({
+        href: '/login' + (to !== undefined ? '?to=' + encodeURIComponent(to) : ''),
+    }),
     register: () => ({href: '/register'}),
+
+    summary: () => ({href: '/summary'}),
 };
 
 export interface AppRouterOptions {
@@ -32,6 +37,14 @@ export class AppRouter {
         }
         const push = opts && opts.replace ? Router.replace : Router.push;
         return push.call(Router, this._urlToString(href) as string, this._urlToString(as), <any>opts);
+    }
+
+    public static getPath(req?: IncomingMessage) {
+        if (typeof window === 'undefined') {
+            return req ? req.url : undefined;
+        } else {
+            return Router.asPath;
+        }
     }
 
     private static _getCurrentUrl() {

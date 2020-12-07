@@ -31,6 +31,19 @@ body:not(.is-loaded) #header {
   .logo {
   }
 
+  .skeleton-menu {
+    overflow: hidden;
+    white-space: nowrap;
+
+    > div {
+      margin-left: 20px;
+    }
+
+    .ant-skeleton-button {
+      width: 122px;
+    }
+  }
+
   .ant-menu {
     flex-grow: 1;
     min-width: 1px;

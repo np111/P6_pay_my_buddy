@@ -7,12 +7,6 @@ export interface AuthGuard {
     readonly authenticated: boolean;
     readonly token?: string;
     readonly user?: AuthUser;
-
-    login(email: string, password: string): Promise<boolean>;
-
-    remember(token: string): Promise<boolean>;
-
-    logout(): Promise<void>;
 }
 
 export interface AuthUser {
@@ -21,34 +15,53 @@ export interface AuthUser {
     email: string;
 }
 
-export interface SerializedAuthGuard {
+export interface AuthMethods {
+    readonly login: (email: string, password: string) => Promise<boolean>;
+    readonly remember: (token: string) => Promise<boolean>;
+    readonly logout: () => Promise<void>;
+}
+
+export interface ClientAuthGuardData {
     token?: string;
     user?: AuthUser;
 }
 
-export class ClientAuthGuard extends EventEmitter implements AuthGuard {
-    token?: string;
-    user?: AuthUser;
+export class ClientAuthGuard extends EventEmitter implements AuthGuard, AuthMethods {
+    private _data: ClientAuthGuardData = {};
 
     get authenticated() {
         return !!this.user;
     }
 
-    serialize(): SerializedAuthGuard {
-        return {token: this.token, user: this.user};
+    get token(): string | undefined {
+        return this._data.token;
     }
 
-    update(data: SerializedAuthGuard | undefined, dontEmit?: boolean) {
-        data = data || {};
-        const prevData = {token: this.token};
-        this.token = data.token;
-        this.user = data.user;
+    get user(): AuthUser | undefined {
+        return this._data.user;
+    }
+
+    serialize = (): ClientAuthGuardData => {
+        return {token: this.token, user: this.user ? {...this.user} : undefined};
+    };
+
+    deserialize = (data: ClientAuthGuardData | undefined, dontEmit?: boolean) => {
+        const prevData = this._data;
+        this._data = data || {};
         if (dontEmit !== false) {
-            this.emit('updated', data, prevData);
+            this.emit('updated', this._data, prevData);
         }
+    };
+
+    clone(): AuthGuard {
+        return {
+            authenticated: this.authenticated,
+            token: this.token,
+            user: this.user ? {...this.user} : undefined,
+        };
     }
 
-    login(email: string, password: string): Promise<boolean> {
+    login = (email: string, password: string): Promise<boolean> => {
         return apiClient.fetch({
             authToken: false,
             url: 'auth/login',
@@ -60,13 +73,13 @@ export class ClientAuthGuard extends EventEmitter implements AuthGuard {
                 }
                 throw new UnhandledApiError(res.error);
             } else {
-                this.update(res.result);
+                this.deserialize(res.result);
                 return true;
             }
         });
-    }
+    };
 
-    remember(token: string): Promise<boolean> {
+    remember = (token: string): Promise<boolean> => {
         return apiClient.fetch({
             url: 'auth/remember',
             authToken: token,
@@ -74,18 +87,18 @@ export class ClientAuthGuard extends EventEmitter implements AuthGuard {
             if (res.success === false) {
                 throw new UnhandledApiError(res.error);
             }
-            this.update({token, ...res.result});
+            this.deserialize({token, ...res.result});
             return true;
         }).catch((err) => {
             if (err instanceof AccessDeniedError && err.invalidToken) {
-                this.update({});
+                this.deserialize({});
                 return false;
             }
             throw err;
         });
-    }
+    };
 
-    logout(): Promise<void> {
+    logout = (): Promise<void> => {
         return apiClient.fetch({
             url: 'auth/logout',
             body: {},
@@ -93,12 +106,12 @@ export class ClientAuthGuard extends EventEmitter implements AuthGuard {
             if (res.success === false) {
                 throw new UnhandledApiError(res.error);
             }
-            this.update({});
+            this.deserialize({});
         }).catch((err) => {
             // the remote session deletion failed, but only removing the local state is enough (and secure)
-            this.update({});
+            this.deserialize({});
         });
-    }
+    };
 }
 
 export class ServerAuthGuard extends ClientAuthGuard {

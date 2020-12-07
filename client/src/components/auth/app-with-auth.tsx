@@ -3,11 +3,10 @@ import JsCookies from 'js-cookie';
 import {AppContext} from 'next/app';
 import {WithRouterProps} from 'next/dist/client/with-router';
 import {NextPageContext} from 'next/dist/next-server/lib/utils';
-import {withRouter} from 'next/router';
 import React from 'react';
 import {catchAsyncError} from '../../utils/react-utils';
 import {AppRouter} from '../../utils/routes';
-import {AuthGuard, ClientAuthGuard, SerializedAuthGuard, ServerAuthGuard} from './auth';
+import {AuthGuard, ClientAuthGuard, ClientAuthGuardData, ServerAuthGuard} from './auth';
 import {AuthContext} from './auth-context';
 
 export interface AppWithAuthContext extends AppContext {
@@ -16,11 +15,12 @@ export interface AppWithAuthContext extends AppContext {
 }
 
 export interface NextPageWithAuthContext extends NextPageContext {
+    authenticating: boolean;
     authGuard: AuthGuard;
 }
 
 interface AppWithAuthProps {
-    authGuard: SerializedAuthGuard;
+    authGuard: ClientAuthGuardData;
 }
 
 export function appWithAuth() { // wrap everything into a function in the case we add an options param
@@ -31,21 +31,25 @@ export function appWithAuth() { // wrap everything into a function in the case w
     };
     return (WrappedAppComponent) => {
         // noinspection JSPotentiallyInvalidUsageOfThis
-        class AppWithAuth extends React.Component<AppWithAuthProps & WithRouterProps> {
+        class AppWithAuth extends React.Component<AppWithAuthProps & WithRouterProps, any> {
             static async getInitialProps(appCtx: AppWithAuthContext) {
                 const {req} = appCtx.ctx;
                 let ssrAuthGuard;
                 if (req) {
                     ssrAuthGuard = new ServerAuthGuard();
                     if (true) { // TODO: add an option to enable/disable SSR authentication
+                        appCtx.ctx.authenticating = false;
                         initSsrCookiesIfNeeded(appCtx);
                         const token = loadAuthToken(appCtx);
                         if (token && !await ssrAuthGuard.remember(token)) {
                             saveAuthToken(undefined, appCtx);
                         }
+                    } else {
+                        appCtx.ctx.authenticating = true;
                     }
                     appCtx.ctx.authGuard = ssrAuthGuard;
                 } else {
+                    appCtx.ctx.authenticating = false;
                     appCtx.ctx.authGuard = getGlobalAuthGuard();
                 }
 
@@ -60,96 +64,101 @@ export function appWithAuth() { // wrap everything into a function in the case w
                 };
             }
 
-            authSync = false;
-            authStore = {
-                authenticating: false,
-                authGuard: new ClientAuthGuard(),
-            };
+            private _authSync = false;
+            private _authGuard = new ClientAuthGuard();
 
             constructor(props: AppWithAuthProps & WithRouterProps, ctx: any) {
                 super(props, ctx);
-                this.authStore.authGuard.update(props.authGuard, true);
+                this._authGuard.deserialize(props.authGuard, true);
+                let authenticating = false;
                 if (typeof window !== 'undefined') {
-                    setGlobalAuthGuard(this.authStore.authGuard);
-                    this.authStore.authenticating = this.authStore.authGuard.token !== loadAuthToken();
+                    setGlobalAuthGuard(this._authGuard);
+                    authenticating = this._authGuard.token !== loadAuthToken();
                 }
+                this.state = {authenticating, authGuard: this._authGuard.clone()};
             }
 
             componentDidMount() {
-                this.authStore.authGuard.addListener('updated', this.onAuthUpdated);
-                window.addEventListener('storage', this.onAuthSync);
+                this._authGuard.addListener('updated', this._onAuthUpdated);
+                window.addEventListener('storage', this._onAuthSync);
 
                 const remember = (): Promise<any> => {
                     const token = loadAuthToken();
-                    if (this.authStore.authGuard.token !== token) {
+                    if (this._authGuard.token !== token) {
                         if (token) {
                             // Not remembered in SSR, do client-side remembering
-                            return this.authStore.authGuard.remember(token).catch((err) => catchAsyncError(this, err));
+                            return this._authGuard.remember(token).catch((err) => catchAsyncError(this, err));
                         } else {
                             // Remembered in SSR, but disconnected since
-                            this.authStore.authGuard.update({});
+                            this._authGuard.deserialize({});
                         }
                     }
                     return Promise.resolve();
                 };
                 remember().finally(() => {
-                    if (this.authStore.authenticating) {
-                        this.authStore.authenticating = false;
-                        this.forceUpdate();
-                    }
+                    this.setState({authenticating: false});
                 });
             }
 
             componentWillUnmount() {
-                window.removeEventListener('storage', this.onAuthSync);
-                this.authStore.authGuard.removeListener('updated', this.onAuthUpdated);
+                window.removeEventListener('storage', this._onAuthSync);
+                this._authGuard.removeListener('updated', this._onAuthUpdated);
             }
 
-            onAuthUpdated = (data: SerializedAuthGuard, prevData: SerializedAuthGuard) => {
-                this.authStore.authenticating = false;
-                if (window.localStorage && !this.authSync) {
-                    this.authSync = true;
+            private _onAuthUpdated = (data: ClientAuthGuardData, prevData: ClientAuthGuardData) => {
+                // this.authStore.authenticating = false;
+                if (window.localStorage && !this._authSync) {
+                    this._authSync = true;
                     try {
                         saveAuthToken(data ? data.token : undefined);
                         window.localStorage.setItem(authSyncKey, JSON.stringify(data ? data : null));
                         window.localStorage.removeItem(authSyncKey);
                     } finally {
-                        this.authSync = false;
+                        this._authSync = false;
                     }
                 }
-                if (prevData.token === this.authStore.authGuard.token) {
-                    this.forceUpdate();
+                if (prevData.token === this._authGuard.token) {
+                    this.setState({authenticating: false, authGuard: this._authGuard.clone()});
                 } else {
+                    this.setState({authenticating: false, authGuard: this._authGuard.clone()});
                     // noinspection JSIgnoredPromiseFromCall
                     AppRouter.reload({replace: true});
                 }
             };
 
-            onAuthSync = (event: StorageEvent) => {
-                if (!this.authSync) {
-                    this.authSync = true;
+            private _onAuthSync = (event: StorageEvent) => {
+                if (!this._authSync) {
+                    this._authSync = true;
                     try {
                         if (event.key !== authSyncKey || typeof event.newValue !== 'string') {
                             return;
                         }
-                        const s = JSON.parse(event.newValue) as SerializedAuthGuard;
-                        this.authStore.authGuard.update(s);
+                        const s = JSON.parse(event.newValue) as ClientAuthGuardData;
+                        this._authGuard.deserialize(s);
                     } finally {
-                        this.authSync = false;
+                        this._authSync = false;
                     }
                 }
             };
 
             render() {
                 return (
-                    <AuthContext.Provider value={this.authStore}>
+                    <AuthContext.Provider value={{
+                        authenticating: this.state.authenticating,
+                        authGuard: this.state.authGuard,
+                        authMethods: {
+                            login: this._authGuard.login,
+                            remember: this._authGuard.remember,
+                            logout: this._authGuard.logout,
+                        },
+                    }}>
                         <WrappedAppComponent {...this.props}/>
                     </AuthContext.Provider>
                 );
             }
         }
 
-        return hoistNonReactStatics(withRouter(AppWithAuth), WrappedAppComponent, {getInitialProps: true});
+        return hoistNonReactStatics(AppWithAuth, WrappedAppComponent, {getInitialProps: true});
     };
 }
 

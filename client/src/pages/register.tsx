@@ -1,8 +1,7 @@
-import Skeleton from 'antd/lib/skeleton';
 import React, {useCallback, useState} from 'react';
 import {apiClient} from '../api/api-client';
 import {UnhandledApiError} from '../api/api-exception';
-import {WithAuth, withAuth} from '../components/auth/with-auth';
+import {pageWithAuth, WithAuth} from '../components/auth/with-auth';
 import {pageWithTranslation, withTranslation, WithTranslation} from '../components/i18n';
 import {MainLayout} from '../components/layout/main-layout';
 import {Button} from '../components/ui/button';
@@ -14,38 +13,18 @@ import {setFormError} from '../utils/form-utils';
 import {useCatchAsyncError} from '../utils/react-utils';
 import {AppRouter, routes} from '../utils/routes';
 
-export default withAuth()(pageWithTranslation('register')(function Login({t, authGuard}: WithAuth & WithTranslation) {
+export default pageWithAuth({preAuthorize: 'isAnonymous'})(pageWithTranslation('register')(function Login({t}: WithAuth & WithTranslation) {
     return (
         <MainLayout id='register' title={t('common:page.register')}>
             <div className='container sm-t'>
-                {!authGuard.authenticated ? (
-                    <RegisterForm/>
-                ) : (
-                    <>TODO: Redirect to account</>
-                )}
+                <RegisterForm/>
             </div>
         </MainLayout>
     );
 }));
 
-const layout = {
-    labelCol: {
-        sm: {span: 8},
-        lg: {span: 8},
-    },
-    wrapperCol: {
-        sm: {span: 16},
-        lg: {span: 12},
-    },
-};
-const tailLayout = {
-    wrapperCol: {
-        sm: {offset: 8, span: 16},
-    },
-};
-// TODO: i18n
 // TODO: select default currency
-const RegisterForm = withAuth()(withTranslation()(function ({t, authenticating}: WithAuth & WithTranslation) {
+const RegisterForm = withTranslation()(function ({t}: WithTranslation) {
     const catchAsyncError = useCatchAsyncError();
     const [loading, setLoading] = useState(false);
     const [form] = useForm();
@@ -72,9 +51,6 @@ const RegisterForm = withAuth()(withTranslation()(function ({t, authenticating}:
             return AppRouter.push(routes.login());
         }).catch(catchAsyncError).finally(() => setLoading(false));
     }, [t, catchAsyncError, form]);
-    if (authenticating) {
-        return <Skeleton loading={true}/>;
-    }
     return (
         <Spin spinning={loading}>
             <Form
@@ -134,4 +110,19 @@ const RegisterForm = withAuth()(withTranslation()(function ({t, authenticating}:
             </Form>
         </Spin>
     );
-}));
+});
+const layout = {
+    labelCol: {
+        sm: {span: 8},
+        lg: {span: 8},
+    },
+    wrapperCol: {
+        sm: {span: 16},
+        lg: {span: 12},
+    },
+};
+const tailLayout = {
+    wrapperCol: {
+        sm: {offset: 8, span: 16},
+    },
+};

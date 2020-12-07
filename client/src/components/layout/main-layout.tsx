@@ -14,9 +14,9 @@ export interface MainLayoutProps {
     section?: string;
     title?: string;
     fullTitle?: boolean;
-    topNavigation?: TopNavigationProps;
     head?: React.ReactNode;
-    children: React.ReactNode;
+    topNavigation?: TopNavigationProps;
+    children?: React.ReactNode;
 }
 
 export const MainLayout = withTranslation()(function ({t, id, section, title, fullTitle, head, topNavigation, children}: WithTranslation & MainLayoutProps) {

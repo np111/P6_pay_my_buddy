@@ -5,6 +5,7 @@ import {routes} from '../../utils/routes';
 import {WithAuth, withAuth} from '../auth/with-auth';
 import {Link, LinkProps, withTranslation} from '../i18n';
 import {Menu} from '../ui/menu';
+import {Skeleton} from '../ui/skeleton';
 
 require('../../assets/css/layouts/header.scss');
 const logo = require('../../assets/img/logo_32.png');
@@ -31,7 +32,7 @@ const renderMenuItems = (t: TFunction, menu: MenuEntry[]) => {
     });
 };
 
-export const TopNavigation = withAuth()(withTranslation('common')(function ({t, authGuard, currentPage, transparent}: TopNavigationProps & WithAuth & WithTranslation) {
+export const TopNavigation = withAuth()(withTranslation('common')(function ({t, authGuard, authMethods, currentPage, transparent}: TopNavigationProps & WithAuth & WithTranslation) {
     const [top, setTop] = useState(true);
 
     useEffect(() => {
@@ -41,16 +42,18 @@ export const TopNavigation = withAuth()(withTranslation('common')(function ({t, 
         return () => window.removeEventListener('scroll', onScroll);
     }, [setTop]);
 
-    const index = routes.index();
+    let home;
     let menu;
     if (authGuard.authenticated) {
+        home = routes.summary();
         menu = [
-            currentPage !== 'index' ? {id: 'index', link: index} : undefined,
-            {id: 'logout', onClick: () => authGuard.logout()}, // TODO: page loading animation during the whole process
+            {id: 'summary', link: routes.summary()},
+            {id: 'logout', onClick: () => authMethods.logout()}, // TODO: page loading animation during the whole process
         ];
     } else {
+        home = routes.index();
         menu = [
-            currentPage !== 'index' ? {id: 'index', link: index} : undefined,
+            currentPage !== 'index' ? {id: 'index', link: routes.index()} : undefined,
             {id: 'login', link: routes.login()},
             {id: 'register', link: routes.register()},
         ];
@@ -62,7 +65,7 @@ export const TopNavigation = withAuth()(withTranslation('common')(function ({t, 
                 <div className='container'>
                     <div className='navbar'>
                         <div className='logo'>
-                            <Link {...index}>
+                            <Link {...home}>
                                 <a>
                                     <img
                                         alt={t('common:logo_tag')}
@@ -74,12 +77,20 @@ export const TopNavigation = withAuth()(withTranslation('common')(function ({t, 
                                 </a>
                             </Link>
                         </div>
-                        <Menu
-                            mode='horizontal'
-                            selectedKeys={currentPage ? [currentPage] : []}
-                        >
-                            {renderMenuItems(t, menu)}
-                        </Menu>
+                        {currentPage === 'loading' ? (
+                            <div className='skeleton-menu'>
+                                <Skeleton.Button active={true}/>
+                                <Skeleton.Button active={true}/>
+                                <Skeleton.Button active={true}/>
+                            </div>
+                        ) : (
+                            <Menu
+                                mode='horizontal'
+                                selectedKeys={currentPage ? [currentPage] : []}
+                            >
+                                {renderMenuItems(t, menu)}
+                            </Menu>
+                        )}
                     </div>
                 </div>
             </header>

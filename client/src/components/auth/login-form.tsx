@@ -1,12 +1,11 @@
 import React, {useCallback, useState} from 'react';
 import {setFormError} from '../../utils/form-utils';
 import {useCatchAsyncError} from '../../utils/react-utils';
-import {routes} from '../../utils/routes';
+import {AppRouter, routes} from '../../utils/routes';
 import {Link, LinkProps, WithTranslation, withTranslation} from '../i18n';
 import {Button} from '../ui/button';
 import {Form, useForm} from '../ui/form';
 import {Input} from '../ui/input';
-import {Skeleton} from '../ui/skeleton';
 import {Spin} from '../ui/spin';
 import {Autofocus} from '../utils/autofocus';
 import {WithAuth, withAuth} from './with-auth';
@@ -15,28 +14,27 @@ export interface LoginFormProps {
     redirect?: LinkProps;
 }
 
-export const LoginForm = withAuth()(withTranslation('common')(function ({t, authenticating, authGuard, redirect}: LoginFormProps & WithAuth & WithTranslation) {
+export const LoginForm = withAuth()(withTranslation('common')(function ({t, authMethods, redirect}: LoginFormProps & WithAuth & WithTranslation) {
     const catchAsyncError = useCatchAsyncError();
     const [loading, setLoading] = useState(false);
     const [form] = useForm();
     const login = useCallback(({email, password}) => {
         setLoading(true);
-        return authGuard
+        return authMethods
             .login(email, password)
             .then((logged) => {
                 if (!logged) {
+                    setLoading(false);
                     setFormError(form, 'email', t('common:auth.invalid_credentials'));
+                } else if (redirect) {
+                    return AppRouter.push(redirect);
                 }
             })
-            .catch(catchAsyncError)
-            .finally(() => setLoading(false));
-    }, [t, authGuard, catchAsyncError, form]);
-    if (authenticating) {
-        return <Skeleton loading={true}/>;
-    }
-    if (authGuard.authenticated) {
-        return null;
-    }
+            .catch((err) => {
+                setLoading(false);
+                catchAsyncError(err);
+            });
+    }, [t, authMethods, catchAsyncError, form, redirect]);
     return (
         <Spin spinning={loading}>
             <div className='login-form'>
