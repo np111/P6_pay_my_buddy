@@ -11,10 +11,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Data
-public class PageableResponse<T> implements CollectionResponse<T> {
-    private Integer page;
-    private Integer perPage;
-    private Integer pageCount;
-    private Integer totalCount;
+public class CursorResponse<T> implements CollectionResponse<T> {
+    private String prevCursor;
+    private Boolean hasPrev;
+    private String nextCursor;
+    private Boolean hasNext;
     private List<T> records;
 }

@@ -1,19 +1,17 @@
 package com.paymybuddy.server.service;
 
-import com.paymybuddy.api.model.collection.PageableResponse;
+import com.paymybuddy.api.model.collection.PageResponse;
 import com.paymybuddy.api.model.user.User;
 import com.paymybuddy.server.jpa.entity.UserContactEntity;
 import com.paymybuddy.server.jpa.entity.UserEntity;
 import com.paymybuddy.server.jpa.mapper.UserMapper;
 import com.paymybuddy.server.jpa.repository.UserContactRepository;
 import com.paymybuddy.server.jpa.repository.UserRepository;
-import com.paymybuddy.server.jpa.util.PageableFetcher;
+import com.paymybuddy.server.jpa.util.PageFetcher;
 import com.paymybuddy.server.util.exception.FastRuntimeException;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,17 +24,12 @@ public class ContactService {
     private final UserMapper userMapper;
 
     @Transactional(readOnly = true)
-    public PageableResponse<User> listContacts(long userId, PageableFetcher.Params pageableParams) {
-        return PageableFetcher.<User>create()
-                .recordsFinder(pageable -> userContactRepository.findContactByUserId(userId, pageable)
-                        .stream().map(userMapper::toContact).collect(Collectors.toList()))
-                .recordsCounter(() -> userContactRepository.countByUserId(userId))
-                .minPerPage(1) // FIXME: Allow low values for tests/examples
-                .defaultSort(Sort.by("contact.name"))
-                .sortablePropertyTransformer(p -> "contact." + p)
-                .sortableProperty("name")
-                .sortableProperty("email")
-                .fetch(pageableParams);
+    public PageResponse<User> listContacts(long userId, PageFetcher.Request pageRequest) {
+        return PageFetcher.<User, UserEntity>create()
+                .recordsQuery(pageable -> userContactRepository.findContactByUserId(userId, pageable))
+                .recordMapper(userMapper::toContact)
+                .sortPropertyTransformer(p -> "contact." + p)
+                .fetch(pageRequest);
     }
 
     @Transactional(readOnly = true)

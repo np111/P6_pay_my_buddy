@@ -11,8 +11,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Data
-public class IteratorResponse<T> implements CollectionResponse<T> {
-    private String prevCursor;
-    private String nextCursor;
+public class PageResponse<T> implements CollectionResponse<T> {
+    private Integer page;
+    private Integer pageSize;
+    private Integer pageCount;
+    private Integer totalCount;
     private List<T> records;
 }

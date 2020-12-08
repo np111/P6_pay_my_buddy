@@ -2,6 +2,7 @@ package com.paymybuddy.server.service;
 
 import com.google.common.base.Preconditions;
 import com.paymybuddy.api.model.Currency;
+import com.paymybuddy.api.model.collection.CursorResponse;
 import com.paymybuddy.api.model.transaction.Transaction;
 import com.paymybuddy.server.jpa.entity.TransactionEntity;
 import com.paymybuddy.server.jpa.entity.UserBalanceEntity;
@@ -10,6 +11,7 @@ import com.paymybuddy.server.jpa.mapper.TransactionMapper;
 import com.paymybuddy.server.jpa.repository.TransactionRepository;
 import com.paymybuddy.server.jpa.repository.UserBalanceRepository;
 import com.paymybuddy.server.jpa.repository.UserRepository;
+import com.paymybuddy.server.jpa.util.CursorFetcher;
 import com.paymybuddy.server.util.exception.FastRuntimeException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -24,6 +26,9 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static com.paymybuddy.server.jpa.repository.TransactionRepository.isRecipient;
+import static com.paymybuddy.server.jpa.repository.TransactionRepository.isSender;
+
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Service
 @Scope("singleton")
@@ -35,8 +40,16 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final TransactionMapper transactionMapper;
 
-    public BigDecimal computeFee(Currency currency, BigDecimal amount) {
-        return amount.multiply(FEE_PERCENTS).setScale(currency.getDecimals(), RoundingMode.UP);
+    @Transactional(readOnly = true)
+    public CursorResponse<Transaction> listTransactions(long userId, CursorFetcher.Request cursorRequest) {
+        return CursorFetcher.<Transaction, TransactionEntity>create()
+                .recordsQuery(q -> transactionRepository.findAll(
+                        q.getSpecification().and(isSender(userId).or(isRecipient(userId))),
+                        q.getPageable()))
+                .recordMapper(transactionMapper::toTransaction)
+                .property("id", new CursorFetcher.LongPropertyType(), TransactionEntity::getId, true)
+                .property("amount", new CursorFetcher.BigDecimalPropertyType(), TransactionEntity::getAmount)
+                .fetch(cursorRequest);
     }
 
     @Transactional
@@ -94,6 +107,10 @@ public class TransactionService {
         transaction.setSender(sender);
         transaction.setRecipient(recipient);
         return transactionMapper.toTransaction(transaction);
+    }
+
+    public BigDecimal computeFee(Currency currency, BigDecimal amount) {
+        return amount.multiply(FEE_PERCENTS).setScale(currency.getDecimals(), RoundingMode.UP);
     }
 
     private UserBalanceEntity getBalance(long userId, Currency currency) {

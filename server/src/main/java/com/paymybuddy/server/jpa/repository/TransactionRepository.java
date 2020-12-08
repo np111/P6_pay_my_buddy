@@ -1,12 +1,16 @@
 package com.paymybuddy.server.jpa.repository;
 
 import com.paymybuddy.server.jpa.entity.TransactionEntity;
-import java.util.List;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface TransactionRepository extends JpaRepository<TransactionEntity, Long> {
-    @Query("SELECT t FROM TransactionEntity t WHERE (t.senderId = :userId OR t.recipientId = :userId) ORDER BY t.date DESC")
-    List<TransactionEntity> findByUserId(Long userId, Pageable pageable);
+public interface TransactionRepository extends JpaRepository<TransactionEntity, Long>, JpaSpecificationExecutor<TransactionEntity> {
+    static Specification<TransactionEntity> isSender(long userId) {
+        return (root, query, builder) -> builder.equal(root.get("senderId"), userId);
+    }
+
+    static Specification<TransactionEntity> isRecipient(long userId) {
+        return (root, query, builder) -> builder.equal(root.get("recipientId"), userId);
+    }
 }
