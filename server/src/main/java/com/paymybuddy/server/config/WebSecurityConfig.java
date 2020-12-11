@@ -1,7 +1,7 @@
 package com.paymybuddy.server.config;
 
-import com.paymybuddy.server.http.auth.CredentialsAuthProvider;
-import com.paymybuddy.server.http.auth.TokenAuthProvider;
+import com.paymybuddy.auth.provider.CredentialsAuthProvider;
+import com.paymybuddy.auth.provider.TokenAuthProvider;
 import com.paymybuddy.server.http.controller.ExceptionController;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
