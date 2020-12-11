@@ -1,21 +1,17 @@
-package com.paymybuddy.business.fetcher;
+package com.paymybuddy.business.pageable;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.io.BaseEncoding;
-import com.google.common.primitives.Longs;
 import com.paymybuddy.api.model.collection.CursorResponse;
-import com.paymybuddy.business.util.PageableUtil;
-import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
+import com.paymybuddy.business.pageable.type.PropertyType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -24,12 +20,9 @@ import javax.persistence.criteria.Predicate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.Singular;
 import lombok.experimental.Accessors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -67,7 +60,7 @@ public class CursorFetcher<T, E> {
         return this;
     }
 
-    public CursorResponse<T> fetch(Request request) {
+    public CursorResponse<T> fetch(CursorRequest request) {
         Preconditions.checkNotNull(recordsQuery, "recordsQuery cannot be null");
         Preconditions.checkNotNull(recordMapper, "recordMapper cannot be null");
         Preconditions.checkNotNull(uniquePropertyName, "require at least one unique property");
@@ -118,7 +111,8 @@ public class CursorFetcher<T, E> {
                     comparator = c.getType().inverse().getComparator();
                 }
 
-                Comparable value = (Comparable) c.getValues().get(valueIndex);
+                @SuppressWarnings("unchecked") // values are validated in decodeCursor
+                Comparable<Object> value = (Comparable<Object>) c.getValues().get(valueIndex);
                 if (prev == null) {
                     specification = specification.or((root, query, builder) -> comparator.compare(builder, root.get(property), value));
                     prev = (root, query, builder) -> builder.equal(root.get(property), value);
@@ -227,34 +221,6 @@ public class CursorFetcher<T, E> {
         private final Pageable pageable;
     }
 
-    @Data
-    @EqualsAndHashCode(callSuper = true)
-    @Accessors(fluent = false)
-    public static class Request extends AbstractRequest {
-        private String cursor;
-    }
-
-    public static class RequestParser extends AbstractRequestParser<Request> {
-        private static final String CURSOR_PARAM_NAME = "cursor";
-
-        @lombok.Builder(builderClassName = "Builder")
-        private RequestParser(
-                @NonNull Integer defaultPageSize, @NonNull Integer minPageSize, @NonNull Integer maxPageSize,
-                @Singular("defaultSort") List<String> defaultSorts, @Singular("sortableProperty") Set<String> sortableProperties
-        ) {
-            super(Request::new, defaultPageSize, minPageSize, maxPageSize, defaultSorts, sortableProperties);
-        }
-
-        public Request of(Function<String, String> getParameterFn) {
-            String cursor = getParameterFn.apply(CURSOR_PARAM_NAME);
-            // TODO: validate cursor
-
-            Request ret = super.of(getParameterFn);
-            ret.setCursor(cursor);
-            return ret;
-        }
-    }
-
     @NoArgsConstructor
     @AllArgsConstructor
     @Data
@@ -316,8 +282,8 @@ public class CursorFetcher<T, E> {
     }
 
     @FunctionalInterface
-    private interface CursorComparator<Y extends Comparable<? super Y>> {
-        Predicate compare(CriteriaBuilder builder, Expression<? extends Y> x, Y y);
+    private interface CursorComparator {
+        <Y extends Comparable<? super Y>> Predicate compare(CriteriaBuilder builder, Expression<? extends Y> x, Y y);
     }
 
     @RequiredArgsConstructor
@@ -327,35 +293,5 @@ public class CursorFetcher<T, E> {
         private final PropertyType<T> type;
         private final Function<E, T> accessor;
         private final boolean unique;
-    }
-
-    public interface PropertyType<T> {
-        byte[] serialize(T value);
-
-        T deserialize(byte[] str);
-    }
-
-    public static class LongPropertyType implements PropertyType<Long> {
-        @Override
-        public byte[] serialize(Long value) {
-            return Longs.toByteArray(value);
-        }
-
-        @Override
-        public Long deserialize(byte[] bytes) {
-            return Longs.fromByteArray(bytes);
-        }
-    }
-
-    public static class BigDecimalPropertyType implements PropertyType<BigDecimal> {
-        @Override
-        public byte[] serialize(BigDecimal value) {
-            return value.stripTrailingZeros().toPlainString().getBytes(StandardCharsets.US_ASCII);
-        }
-
-        @Override
-        public BigDecimal deserialize(byte[] bytes) {
-            return new BigDecimal(new String(bytes, StandardCharsets.US_ASCII));
-        }
     }
 }

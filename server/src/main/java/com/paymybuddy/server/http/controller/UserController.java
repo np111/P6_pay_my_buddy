@@ -19,8 +19,8 @@ import com.paymybuddy.business.UserService;
 import com.paymybuddy.business.exception.ContactNotFoundException;
 import com.paymybuddy.business.exception.NotEnoughFundsException;
 import com.paymybuddy.business.exception.NotHimselfException;
-import com.paymybuddy.business.fetcher.CursorFetcher;
-import com.paymybuddy.business.fetcher.PageFetcher;
+import com.paymybuddy.business.pageable.CursorRequestParser;
+import com.paymybuddy.business.pageable.PageRequestParser;
 import com.paymybuddy.business.util.DateUtil;
 import com.paymybuddy.server.http.util.JsonRequestMapping;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +46,7 @@ import static com.paymybuddy.server.http.controller.ExceptionController.errorToR
 @RequestMapping("/user")
 @Validated
 public class UserController {
-    private static final PageFetcher.RequestParser CONTACT_REQUEST_PARSER = PageFetcher.RequestParser.builder()
+    private static final PageRequestParser CONTACT_REQUEST_PARSER = PageRequestParser.builder()
             .minPageSize(1) // FIXME: small value for tests/examples only
             .maxPageSize(100)
             .defaultPageSize(20)
@@ -54,7 +54,7 @@ public class UserController {
             .sortableProperty("name")
             .defaultSort("name")
             .build();
-    private static final CursorFetcher.RequestParser TRANSACTION_REQUEST_PARSER = CursorFetcher.RequestParser.builder()
+    private static final CursorRequestParser TRANSACTION_REQUEST_PARSER = CursorRequestParser.builder()
             .minPageSize(1) // FIXME: small value for tests/examples only
             .maxPageSize(100)
             .defaultPageSize(20)

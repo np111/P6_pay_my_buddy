@@ -3,7 +3,8 @@ package com.paymybuddy.business;
 import com.paymybuddy.api.model.collection.PageResponse;
 import com.paymybuddy.api.model.user.User;
 import com.paymybuddy.business.exception.ContactNotFoundException;
-import com.paymybuddy.business.fetcher.PageFetcher;
+import com.paymybuddy.business.pageable.PageFetcher;
+import com.paymybuddy.business.pageable.PageRequest;
 import com.paymybuddy.persistence.entity.UserContactEntity;
 import com.paymybuddy.persistence.entity.UserEntity;
 import com.paymybuddy.persistence.mapper.UserMapper;
@@ -24,7 +25,7 @@ public class ContactService {
     private final UserMapper userMapper;
 
     @Transactional(readOnly = true)
-    public PageResponse<User> listContacts(long userId, PageFetcher.Request pageRequest) {
+    public PageResponse<User> listContacts(long userId, PageRequest pageRequest) {
         return PageFetcher.<User, UserEntity>create()
                 .recordsQuery(pageable -> userContactRepository.findContactByUserId(userId, pageable))
                 .recordMapper(userMapper::toContact)

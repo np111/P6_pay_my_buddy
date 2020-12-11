@@ -1,4 +1,4 @@
-package com.paymybuddy.business.util;
+package com.paymybuddy.business.pageable;
 
 import java.util.Collection;
 import java.util.List;
@@ -8,8 +8,8 @@ import lombok.experimental.UtilityClass;
 import org.springframework.data.domain.Sort;
 
 @UtilityClass
-public class PageableUtil {
-    public static List<Sort.Order> parseSortInstructions(Collection<String> instructions, Function<String, String> propertyTransformer) {
+class PageableUtil {
+    static List<Sort.Order> parseSortInstructions(Collection<String> instructions, Function<String, String> propertyTransformer) {
         if (instructions.isEmpty()) {
             throw new IllegalArgumentException("empty sort instructions");
         }
@@ -18,7 +18,7 @@ public class PageableUtil {
                 .collect(Collectors.toList());
     }
 
-    private static Sort.Order parseSortInstruction(String instruction, Function<String, String> propertyTransformer) {
+    static Sort.Order parseSortInstruction(String instruction, Function<String, String> propertyTransformer) {
         Sort.Direction direction;
         String property;
         if (instruction.startsWith("-")) {
@@ -31,7 +31,7 @@ public class PageableUtil {
         return new Sort.Order(direction, propertyTransformer == null ? property : propertyTransformer.apply(property));
     }
 
-    public static String getSortProperty(String instruction) {
+    static String getSortProperty(String instruction) {
         if (instruction.startsWith("-")) {
             return instruction.substring(1);
         }

@@ -7,7 +7,10 @@ import com.paymybuddy.api.model.transaction.Transaction;
 import com.paymybuddy.business.exception.NotEnoughFundsException;
 import com.paymybuddy.business.exception.RecipientNotFoundException;
 import com.paymybuddy.business.exception.SenderNotFoundException;
-import com.paymybuddy.business.fetcher.CursorFetcher;
+import com.paymybuddy.business.pageable.CursorFetcher;
+import com.paymybuddy.business.pageable.CursorRequest;
+import com.paymybuddy.business.pageable.type.BigDecimalPropertyType;
+import com.paymybuddy.business.pageable.type.LongPropertyType;
 import com.paymybuddy.persistence.entity.TransactionEntity;
 import com.paymybuddy.persistence.entity.UserBalanceEntity;
 import com.paymybuddy.persistence.entity.UserEntity;
@@ -43,14 +46,14 @@ public class TransactionService {
     private final TransactionMapper transactionMapper;
 
     @Transactional(readOnly = true)
-    public CursorResponse<Transaction> listTransactions(long userId, CursorFetcher.Request cursorRequest) {
+    public CursorResponse<Transaction> listTransactions(long userId, CursorRequest cursorRequest) {
         return CursorFetcher.<Transaction, TransactionEntity>create()
                 .recordsQuery(q -> transactionRepository.findAll(
                         q.getSpecification().and(isSender(userId).or(isRecipient(userId))),
                         q.getPageable()))
                 .recordMapper(transactionMapper::toTransaction)
-                .property("id", new CursorFetcher.LongPropertyType(), TransactionEntity::getId, true)
-                .property("amount", new CursorFetcher.BigDecimalPropertyType(), TransactionEntity::getAmount)
+                .property("id", new LongPropertyType(), TransactionEntity::getId, true)
+                .property("amount", new BigDecimalPropertyType(), TransactionEntity::getAmount)
                 .fetch(cursorRequest);
     }
 

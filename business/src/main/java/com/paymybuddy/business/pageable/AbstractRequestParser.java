@@ -1,8 +1,7 @@
-package com.paymybuddy.business.fetcher;
+package com.paymybuddy.business.pageable;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
-import com.paymybuddy.business.util.PageableUtil;
 import com.paymybuddy.business.util.ValidationUtil;
 import java.util.Collection;
 import java.util.LinkedHashSet;

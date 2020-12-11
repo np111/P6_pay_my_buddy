@@ -1,4 +1,4 @@
-package com.paymybuddy.business.fetcher;
+package com.paymybuddy.business.pageable;
 
 import java.util.Collection;
 import lombok.Data;
