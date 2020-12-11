@@ -1,6 +1,6 @@
 package com.paymybuddy.business.exception;
 
-public class FastRuntimeException extends RuntimeException {
+public abstract class FastRuntimeException extends RuntimeException {
     public FastRuntimeException() {
     }
 

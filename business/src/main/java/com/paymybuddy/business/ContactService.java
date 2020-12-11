@@ -2,13 +2,13 @@ package com.paymybuddy.business;
 
 import com.paymybuddy.api.model.collection.PageResponse;
 import com.paymybuddy.api.model.user.User;
+import com.paymybuddy.business.exception.ContactNotFoundException;
 import com.paymybuddy.business.fetcher.PageFetcher;
 import com.paymybuddy.persistence.entity.UserContactEntity;
 import com.paymybuddy.persistence.entity.UserEntity;
 import com.paymybuddy.persistence.mapper.UserMapper;
 import com.paymybuddy.persistence.repository.UserContactRepository;
 import com.paymybuddy.persistence.repository.UserRepository;
-import com.paymybuddy.business.exception.FastRuntimeException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -63,6 +63,4 @@ public class ContactService {
         return contact;
     }
 
-    public static class ContactNotFoundException extends FastRuntimeException {
-    }
 }

@@ -4,6 +4,9 @@ import com.google.common.base.Preconditions;
 import com.paymybuddy.api.model.Currency;
 import com.paymybuddy.api.model.collection.CursorResponse;
 import com.paymybuddy.api.model.transaction.Transaction;
+import com.paymybuddy.business.exception.NotEnoughFundsException;
+import com.paymybuddy.business.exception.RecipientNotFoundException;
+import com.paymybuddy.business.exception.SenderNotFoundException;
 import com.paymybuddy.business.fetcher.CursorFetcher;
 import com.paymybuddy.persistence.entity.TransactionEntity;
 import com.paymybuddy.persistence.entity.UserBalanceEntity;
@@ -12,7 +15,6 @@ import com.paymybuddy.persistence.mapper.TransactionMapper;
 import com.paymybuddy.persistence.repository.TransactionRepository;
 import com.paymybuddy.persistence.repository.UserBalanceRepository;
 import com.paymybuddy.persistence.repository.UserRepository;
-import com.paymybuddy.business.exception.FastRuntimeException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.ZonedDateTime;
@@ -20,7 +22,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -122,22 +123,5 @@ public class TransactionService {
             userBalanceEntity.setAmount(new BigDecimal(0));
         }
         return userBalanceEntity;
-    }
-
-    public static class SenderNotFoundException extends FastRuntimeException {
-    }
-
-    public static class RecipientNotFoundException extends FastRuntimeException {
-    }
-
-    @Getter
-    public static class NotEnoughFundsException extends FastRuntimeException {
-        private final Currency currency;
-        private final BigDecimal missingAmount;
-
-        public NotEnoughFundsException(Currency currency, BigDecimal missingAmount) {
-            this.currency = currency;
-            this.missingAmount = missingAmount;
-        }
     }
 }
