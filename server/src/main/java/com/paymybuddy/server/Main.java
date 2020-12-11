@@ -12,7 +12,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EntityScan("com.paymybuddy.persistence.entity")
 public class Main {
     public static void main(String[] args) {
-        System.setProperty("logging.level.org.hibernate.engine.jdbc.spi.SqlExceptionHelper", "FATAL");
         SpringApplication.run(Main.class, args);
     }
 }
