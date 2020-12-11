@@ -2,7 +2,6 @@ package com.paymybuddy.api.model.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.paymybuddy.api.model.Currency;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

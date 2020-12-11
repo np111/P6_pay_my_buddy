@@ -55,6 +55,12 @@ public class TransactionService {
     }
 
     @Transactional
+    public Transaction createTransaction(long senderId, long recipientId, Currency currency, BigDecimal amount, String description, ZonedDateTime date) {
+        BigDecimal fee = computeFee(currency, amount);
+        return createTransaction(senderId, recipientId, currency, amount, description, fee, date);
+    }
+
+    @Transactional
     public Transaction createTransaction(long senderId, long recipientId, Currency currency, BigDecimal amount, String description, BigDecimal fee, ZonedDateTime date) {
         // Validate the amount
         amount = amount.stripTrailingZeros();

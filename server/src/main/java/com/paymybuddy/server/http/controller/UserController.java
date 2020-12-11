@@ -3,7 +3,6 @@ package com.paymybuddy.server.http.controller;
 import com.paymybuddy.api.model.ApiError;
 import com.paymybuddy.api.model.ApiError.ErrorCode;
 import com.paymybuddy.api.model.ApiError.ErrorType;
-import com.paymybuddy.api.model.Currency;
 import com.paymybuddy.api.model.collection.CursorResponse;
 import com.paymybuddy.api.model.collection.ListResponse;
 import com.paymybuddy.api.model.collection.PageResponse;
@@ -14,17 +13,16 @@ import com.paymybuddy.api.request.transaction.CreateTransactionRequest;
 import com.paymybuddy.api.request.user.AddContactRequest;
 import com.paymybuddy.api.util.jackson.AmountSerializer;
 import com.paymybuddy.auth.AuthGuard;
+import com.paymybuddy.business.ContactService;
+import com.paymybuddy.business.TransactionService;
+import com.paymybuddy.business.UserService;
+import com.paymybuddy.business.exception.ContactNotFoundException;
+import com.paymybuddy.business.exception.NotEnoughFundsException;
+import com.paymybuddy.business.exception.NotHimselfException;
 import com.paymybuddy.business.fetcher.CursorFetcher;
 import com.paymybuddy.business.fetcher.PageFetcher;
-import com.paymybuddy.business.ContactService;
-import com.paymybuddy.business.exception.ContactNotFoundException;
-import com.paymybuddy.business.TransactionService;
-import com.paymybuddy.business.exception.NotEnoughFundsException;
-import com.paymybuddy.business.UserService;
 import com.paymybuddy.business.util.DateUtil;
-import com.paymybuddy.business.exception.NotHimselfException;
 import com.paymybuddy.server.http.util.JsonRequestMapping;
-import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -127,10 +125,8 @@ public class UserController {
         if (!contactService.isContact(userId, recipientId)) {
             throw new ContactNotFoundException();
         }
-        Currency currency = body.getCurrency();
-        BigDecimal amount = body.getAmount();
-        BigDecimal fee = transactionService.computeFee(currency, amount);
-        return transactionService.createTransaction(userId, recipientId, currency, amount, body.getDescription(), fee, DateUtil.now());
+        return transactionService.createTransaction(
+                userId, recipientId, body.getCurrency(), body.getAmount(), body.getDescription(), DateUtil.now());
     }
 
     @ExceptionHandler(ContactNotFoundException.class)
