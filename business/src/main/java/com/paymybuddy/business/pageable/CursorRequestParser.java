@@ -19,7 +19,7 @@ public class CursorRequestParser extends AbstractRequestParser<CursorRequest> {
 
     public CursorRequest of(Function<String, String> getParameterFn) {
         String cursor = getParameterFn.apply(CURSOR_PARAM_NAME);
-        // TODO: validate cursor
+        // cursor is decoded and validated when fetching
 
         CursorRequest ret = super.of(getParameterFn);
         ret.setCursor(cursor);

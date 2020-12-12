@@ -5,6 +5,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.io.BaseEncoding;
 import com.paymybuddy.api.model.collection.CursorResponse;
+import com.paymybuddy.business.exception.PreconditionException;
 import com.paymybuddy.business.pageable.type.PropertyType;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,6 +47,7 @@ public class CursorFetcher<T, E> {
     private Function<E, T> recordMapper;
     private String uniquePropertyName;
     private final Map<String, Property<?, E>> properties = new HashMap<>();
+
     private Function<String, String> propertyTransformer;
 
     public <V> CursorFetcher<T, E> property(String propertyName, PropertyType<V> type, Function<E, V> accessor) {
@@ -83,7 +85,12 @@ public class CursorFetcher<T, E> {
             sorts.add(Sort.Order.asc(uniquePropertyName));
         }
 
-        Cursor c = decodeCursor(cursor, sorts); // TODO: wrap exceptions
+        Cursor c;
+        try {
+            c = decodeCursor(cursor, sorts);
+        } catch (IllegalArgumentException ignored) {
+            throw new PreconditionException("cursor", "IsCursor", "must be a valid cursor", Collections.emptyMap());
+        }
         boolean reverse = false;
         Specification<E> specification = Specification.where(null);
         if (c != null) {
@@ -165,36 +172,31 @@ public class CursorFetcher<T, E> {
 
         CursorType type = CursorType.bySymbol(cursor.charAt(0));
         if (type == null) {
-            // TODO: Exception
-            return null;
+            throw new IllegalArgumentException("Unknown cursor type");
         }
 
         List<Object> values = new ArrayList<>(sorts.size());
         int valuesIndex = 0;
         for (String str : DOT_SPLITTER.split(cursor.substring(1))) {
             if (valuesIndex >= sorts.size()) {
-                // TODO: Exception
-                return null;
+                throw new IllegalArgumentException("Cursor overflow");
             }
 
             if (str.equals("$")) {
                 values.add(null);
             } else {
-                byte[] bytes;
                 try {
-                    bytes = BASE64_URL.decode(str);
-                } catch (IllegalArgumentException e) {
-                    // TODO: Exception
-                    return null;
+                    byte[] bytes = BASE64_URL.decode(str);
+                    Property<?, E> property = properties.get(sorts.get(valuesIndex).getProperty());
+                    values.add(property.getType().deserialize(bytes));
+                } catch (Exception e) {
+                    throw new IllegalArgumentException("Unreadable cursor property", e);
                 }
-                Property<?, E> property = properties.get(sorts.get(valuesIndex).getProperty());
-                values.add(property.getType().deserialize(bytes));
             }
             ++valuesIndex;
         }
         if (valuesIndex != sorts.size()) {
-            // TODO: Exception
-            return null;
+            throw new IllegalArgumentException("Incomplete cursor");
         }
         return new Cursor(type, values);
     }
