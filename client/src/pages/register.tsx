@@ -41,10 +41,17 @@ const RegisterForm = withTranslation()(function ({t}: WithTranslation) {
             },
         }).then((res): void | Promise<any> => {
             if (res.success === false) {
-                if (res.error.code === 'EMAIL_ALREADY_EXISTS') {
-                    return setFormError(form, 'email', t('register:email_already_registered'));
+                if (res.error.code === 'INVALID_NAME') {
+                    return setFormError(form, 'name', t('register:invalid_name'));
                 }
-                // TODO: catch all errors
+                if (res.error.code === 'INVALID_EMAIL') {
+                    return setFormError(form, 'email', res.error.metadata.alreadyExists
+                        ? t('register:email_already_registered')
+                        : t('register:invalid_email'));
+                }
+                if (res.error.code === 'INVALID_PASSWORD') {
+                    return setFormError(form, 'email', t('register:invalid_password'));
+                }
                 throw new UnhandledApiError(res.error);
             }
             // TODO: display a confirmation notification
@@ -82,7 +89,7 @@ const RegisterForm = withTranslation()(function ({t}: WithTranslation) {
                     validateTrigger='onBlur'
                     rules={[{required: true, message: t('register:require_password')}]}
                 >
-                    <Input.Password maxLength={255}/>
+                    <Input.Password maxLength={50}/>
                 </Form.Item>
                 <Form.Item
                     name='passwordConfirmation'

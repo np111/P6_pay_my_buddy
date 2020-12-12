@@ -11,6 +11,10 @@ import com.paymybuddy.auth.AuthService;
 import com.paymybuddy.auth.AuthToken;
 import com.paymybuddy.business.UserService;
 import com.paymybuddy.business.exception.EmailAlreadyRegisteredException;
+import com.paymybuddy.business.exception.IllegalEmailException;
+import com.paymybuddy.business.exception.IllegalNameException;
+import com.paymybuddy.business.exception.TooLongPasswordException;
+import com.paymybuddy.business.exception.TooShortPasswordException;
 import com.paymybuddy.server.http.util.JsonRequestMapping;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,10 +89,55 @@ public class AuthController {
         return errorToResponse(ApiError.builder()
                 .type(ErrorType.SERVICE)
                 .status(HttpStatus.BAD_REQUEST.value())
-                .code(ErrorCode.EMAIL_ALREADY_EXISTS)
+                .code(ErrorCode.INVALID_EMAIL)
                 .message("Email already registered")
+                .metadata("alreadyExists", true)
                 .build());
     }
 
-    // TODO: handle IllegalNameException, EmailAlreadyRegisteredException
+    @ExceptionHandler(IllegalEmailException.class)
+    @ResponseBody
+    public ResponseEntity<ApiError> handleIllegalEmailException() {
+        return errorToResponse(ApiError.builder()
+                .type(ErrorType.SERVICE)
+                .status(HttpStatus.BAD_REQUEST.value())
+                .code(ErrorCode.INVALID_EMAIL)
+                .message("Illegal email")
+                .build());
+    }
+
+    @ExceptionHandler(IllegalNameException.class)
+    @ResponseBody
+    public ResponseEntity<ApiError> handleIllegalNameException() {
+        return errorToResponse(ApiError.builder()
+                .type(ErrorType.SERVICE)
+                .status(HttpStatus.BAD_REQUEST.value())
+                .code(ErrorCode.INVALID_NAME)
+                .message("Illegal name")
+                .build());
+    }
+
+    @ExceptionHandler(TooShortPasswordException.class)
+    @ResponseBody
+    public ResponseEntity<ApiError> handleTooShortPasswordException(TooShortPasswordException ex) {
+        return errorToResponse(ApiError.builder()
+                .type(ErrorType.SERVICE)
+                .status(HttpStatus.BAD_REQUEST.value())
+                .code(ErrorCode.INVALID_PASSWORD)
+                .message("Password is too short")
+                .metadata("minLength", ex.getLength())
+                .build());
+    }
+
+    @ExceptionHandler(TooLongPasswordException.class)
+    @ResponseBody
+    public ResponseEntity<ApiError> handleTooLongPasswordException(TooLongPasswordException ex) {
+        return errorToResponse(ApiError.builder()
+                .type(ErrorType.SERVICE)
+                .status(HttpStatus.BAD_REQUEST.value())
+                .code(ErrorCode.INVALID_PASSWORD)
+                .message("Password is too long")
+                .metadata("maxLength", ex.getLength())
+                .build());
+    }
 }

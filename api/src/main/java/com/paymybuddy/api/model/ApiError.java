@@ -76,7 +76,9 @@ public class ApiError {
 
         // Type: SERVICE
 
-        EMAIL_ALREADY_EXISTS,
+        INVALID_EMAIL,
+        INVALID_NAME,
+        INVALID_PASSWORD,
         INVALID_CREDENTIALS,
         CONTACT_NOT_FOUND,
         NOT_ENOUGH_FUNDS,
