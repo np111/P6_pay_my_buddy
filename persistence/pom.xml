@@ -16,9 +16,10 @@
     <dependency>
       <groupId>com.paymybuddy</groupId>
       <artifactId>paymybuddy-api</artifactId>
+      <scope>provided</scope>
     </dependency>
 
-    <!-- Spring Boot: JPA (MariaDB) -->
+    <!-- Spring Boot: JPA (w/ MariaDB) -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>

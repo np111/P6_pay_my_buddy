@@ -16,26 +16,31 @@
     <dependency>
       <groupId>com.paymybuddy</groupId>
       <artifactId>paymybuddy-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.paymybuddy</groupId>
-      <artifactId>paymybuddy-persistence</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.paymybuddy</groupId>
-      <artifactId>paymybuddy-business</artifactId>
+      <scope>provided</scope>
     </dependency>
 
-    <!-- Spring Boot: Security (for auth) -->
+    <!-- Spring Boot: Security -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-security</artifactId>
     </dependency>
 
-    <!-- Spring Boot: Redis (for auth caching) -->
+    <!-- Spring Boot: Redis -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-redis</artifactId>
+    </dependency>
+
+    <!-- Jackson API -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-jsr310</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <!-- Utils -->

@@ -17,12 +17,14 @@
     <dependency>
       <groupId>javax.validation</groupId>
       <artifactId>validation-api</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <!-- Jackson Databind API -->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 </project>

@@ -6,14 +6,9 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.paymybuddy.api.model.Currency;
 import com.paymybuddy.api.model.user.User;
-import com.paymybuddy.business.UserService;
-import com.paymybuddy.business.exception.FastRuntimeException;
-import com.paymybuddy.business.util.DateUtil;
-import com.paymybuddy.persistence.entity.UserEntity;
-import com.paymybuddy.persistence.mapper.UserMapper;
-import com.paymybuddy.persistence.repository.UserRepository;
+import com.paymybuddy.auth.provider.UserProvider;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -22,11 +17,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import org.apache.commons.validator.GenericValidator;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -38,7 +31,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Service
@@ -47,12 +39,10 @@ public class AuthService implements InitializingBean {
     private static final String AUTH_SESS_BY_ID_HASH_KEY = "authsess.";
     private static final int AUTH_TOKEN_MAX_LEN = Long.toString(Long.MAX_VALUE).length() + 1 + new UUID(0, 0).toString().length();
 
-    private final @Getter PasswordEncoder passwordEncoder;
-    private String userNotFoundEncodedPassword;
+    private final @Getter UserProvider userProvider;
 
-    private final @Getter UserService userService;
-    private final UserRepository userRepository;
-    private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
+    private String userNotFoundEncodedPassword;
 
     private final LettuceConnectionFactory lettuceConFactory;
     private RedisTemplate<String, ?> authSessTemplate;
@@ -71,9 +61,8 @@ public class AuthService implements InitializingBean {
         authSessHashOps = authSessTemplate.opsForHash();
     }
 
-    @Transactional
     public AuthToken login(String email, String password) {
-        User user = userService.getUserByEmail(email);
+        User user = userProvider.getUserByEmail(email);
         if (user == null) {
             // mitigate timing attack
             passwordEncoder.matches(password, userNotFoundEncodedPassword);
@@ -84,7 +73,7 @@ public class AuthService implements InitializingBean {
         }
         if (passwordEncoder.upgradeEncoding(user.getEncodedPassword())) {
             // upgrade password encoding
-            userRepository.updatePassword(user.getId(), passwordEncoder.encode(password));
+            userProvider.updateEncodedPassword(user, passwordEncoder.encode(password));
         }
         return createAuthToken(user);
     }
@@ -127,46 +116,6 @@ public class AuthService implements InitializingBean {
         }
     }
 
-    @Transactional
-    public User register(String name, String email, String password, Currency defaultCurrency) throws IllegalNameException, IllegalEmailException, EmailAlreadyRegisteredException {
-        name = validateAndNormalizeNewName(name);
-        email = validateAndNormalizeNewEmail(email);
-        validateNewPassword(password);
-
-        UserEntity userEntity = new UserEntity();
-        userEntity.setName(name);
-        userEntity.setEmail(email);
-        userEntity.setEncodedPassword(passwordEncoder.encode(password));
-        userEntity.setDefaultCurrency(defaultCurrency);
-        try {
-            userRepository.save(userEntity);
-        } catch (DataIntegrityViolationException ex) {
-            throw new EmailAlreadyRegisteredException();
-        }
-        return userMapper.toUser(userEntity);
-    }
-
-    private String validateAndNormalizeNewName(String name) {
-        name = userService.normalizeName(name);
-        if (name == null) {
-            throw new IllegalNameException();
-        }
-        // TODO: Advanced validation
-        return userService.normalizeName(name);
-    }
-
-    private String validateAndNormalizeNewEmail(String email) {
-        email = userService.normalizeEmail(email);
-        if (email == null || !GenericValidator.isEmail(email)) {
-            throw new IllegalEmailException();
-        }
-        return email;
-    }
-
-    private void validateNewPassword(String password) {
-        // TODO(high): validate password preconditions (minimum length, symbols?, etc)
-    }
-
     @NoArgsConstructor
     @Data
     @ToString(of = {"userId"})
@@ -180,7 +129,7 @@ public class AuthService implements InitializingBean {
         public AuthGuard(User user) {
             this.userId = user.getId();
             this.user = user;
-            this.loginDate = DateUtil.now();
+            this.loginDate = ZonedDateTime.now(ZoneOffset.UTC).withNano(0);
         }
 
         @Override
@@ -190,7 +139,7 @@ public class AuthService implements InitializingBean {
 
         public User getUser() {
             if (user == null && isAuthenticated()) {
-                user = authService.getUserService().getUserById(userId);
+                user = authService.userProvider.getUserById(userId);
                 if (user == null) {
                     throw new RuntimeException("user not found (id: " + userId + ")");
                 }
@@ -220,14 +169,5 @@ public class AuthService implements InitializingBean {
             }
             return auth;
         }
-    }
-
-    public static class IllegalNameException extends FastRuntimeException {
-    }
-
-    public static class IllegalEmailException extends FastRuntimeException {
-    }
-
-    public static class EmailAlreadyRegisteredException extends FastRuntimeException {
     }
 }

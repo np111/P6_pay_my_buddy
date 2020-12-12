@@ -9,6 +9,8 @@ import com.paymybuddy.api.request.auth.RegisterRequest;
 import com.paymybuddy.auth.AuthGuard;
 import com.paymybuddy.auth.AuthService;
 import com.paymybuddy.auth.AuthToken;
+import com.paymybuddy.business.UserService;
+import com.paymybuddy.business.exception.EmailAlreadyRegisteredException;
 import com.paymybuddy.server.http.util.JsonRequestMapping;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,7 @@ import static com.paymybuddy.server.http.controller.ExceptionController.errorToR
 @RequestMapping("/auth")
 @Validated
 public class AuthController {
+    private final UserService userService;
     private final AuthService authService;
 
     @PreAuthorize("isAnonymous()")
@@ -39,7 +42,7 @@ public class AuthController {
     public ResponseEntity<Void> register(
             @RequestBody @Validated RegisterRequest body
     ) {
-        authService.register(body.getName(), body.getEmail(), body.getPassword(), body.getDefaultCurrency());
+        userService.register(body.getName(), body.getEmail(), body.getPassword(), body.getDefaultCurrency());
         return ResponseEntity.noContent().build();
     }
 
@@ -76,7 +79,7 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 
-    @ExceptionHandler(AuthService.EmailAlreadyRegisteredException.class)
+    @ExceptionHandler(EmailAlreadyRegisteredException.class)
     @ResponseBody
     public ResponseEntity<ApiError> handleEmailAlreadyRegisteredException() {
         return errorToResponse(ApiError.builder()

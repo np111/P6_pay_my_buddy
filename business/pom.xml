@@ -16,16 +16,17 @@
     <dependency>
       <groupId>com.paymybuddy</groupId>
       <artifactId>paymybuddy-api</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.paymybuddy</groupId>
       <artifactId>paymybuddy-persistence</artifactId>
+      <scope>provided</scope>
     </dependency>
-
-    <!-- Spring Boot: Json -->
     <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-json</artifactId>
+      <groupId>com.paymybuddy</groupId>
+      <artifactId>paymybuddy-auth</artifactId>
+      <scope>provided</scope>
     </dependency>
 
     <!-- Utils -->
