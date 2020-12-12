@@ -1,4 +1,4 @@
-package com.paymybuddy.persistence.mapper;
+package com.paymybuddy.business.mapper;
 
 import com.paymybuddy.api.model.user.User;
 import com.paymybuddy.persistence.entity.UserEntity;

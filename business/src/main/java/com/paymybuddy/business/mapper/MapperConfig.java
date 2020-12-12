@@ -1,4 +1,4 @@
-package com.paymybuddy.persistence.mapper;
+package com.paymybuddy.business.mapper;
 
 import org.mapstruct.ReportingPolicy;
 

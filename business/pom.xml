@@ -29,6 +29,12 @@
       <scope>provided</scope>
     </dependency>
 
+    <!-- MapStruct -->
+    <dependency>
+      <groupId>org.mapstruct</groupId>
+      <artifactId>mapstruct</artifactId>
+    </dependency>
+
     <!-- Utils -->
     <dependency>
       <groupId>commons-validator</groupId>
