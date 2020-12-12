@@ -9,6 +9,8 @@ import com.paymybuddy.auth.provider.UserProvider;
 import com.paymybuddy.business.exception.EmailAlreadyRegisteredException;
 import com.paymybuddy.business.exception.IllegalEmailException;
 import com.paymybuddy.business.exception.IllegalNameException;
+import com.paymybuddy.business.exception.TooLongPasswordException;
+import com.paymybuddy.business.exception.TooShortPasswordException;
 import com.paymybuddy.business.mapper.UserBalanceMapper;
 import com.paymybuddy.business.mapper.UserMapper;
 import com.paymybuddy.persistence.entity.UserEntity;
@@ -36,6 +38,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Scope("singleton")
 public class UserService implements UserProvider {
     private static final Pattern NAME_PATTERN = Pattern.compile("^(?>(?>^| )\\p{L}(?>[\\p{L}'\\-]*\\p{L})?)+$");
+    private static final int PASSWORD_MIN_LEN = 8;
+    private static final int PASSWORD_MAX_LEN = 50;
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -152,6 +156,11 @@ public class UserService implements UserProvider {
     }
 
     private void validateNewPassword(String password) {
-        // TODO(high): validate password preconditions (minimum length, symbols?, etc)
+        if (password.length() < PASSWORD_MIN_LEN) {
+            throw new TooShortPasswordException(PASSWORD_MIN_LEN);
+        }
+        if (password.length() > PASSWORD_MAX_LEN) {
+            throw new TooLongPasswordException(PASSWORD_MAX_LEN);
+        }
     }
 }
