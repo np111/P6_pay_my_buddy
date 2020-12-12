@@ -4,6 +4,7 @@ import com.paymybuddy.api.model.Currency;
 import com.paymybuddy.api.model.user.User;
 import com.paymybuddy.api.model.user.UserBalance;
 import com.paymybuddy.api.util.validation.constraint.IsEmail;
+import com.paymybuddy.api.util.validation.constraint.IsName;
 import com.paymybuddy.auth.provider.UserProvider;
 import com.paymybuddy.business.exception.EmailAlreadyRegisteredException;
 import com.paymybuddy.business.exception.IllegalEmailException;
@@ -17,8 +18,10 @@ import java.net.IDN;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.GenericValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -32,6 +35,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Scope("singleton")
 public class UserService implements UserProvider {
+    private static final Pattern NAME_PATTERN = Pattern.compile("^(?>(?>^| )\\p{L}(?>[\\p{L}'\\-]*\\p{L})?)+$");
+
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final UserBalanceMapper userBalanceMapper;
@@ -100,16 +105,21 @@ public class UserService implements UserProvider {
 
     @Nullable
     private String normalizeName(String name) {
-        // TODO
+        // normalize
+        name = StringUtils.normalizeSpace(name);
+
+        // length check
+        if (name.isEmpty() || name.length() > IsName.NAME_MAX_LEN) {
+            return null;
+        }
         return name;
     }
 
     private String validateAndNormalizeNewName(String name) {
         name = normalizeName(name);
-        if (name == null) {
+        if (name == null || !NAME_PATTERN.matcher(name).matches()) {
             throw new IllegalNameException();
         }
-        // TODO: Advanced validation
         return name;
     }
 
