@@ -6,11 +6,11 @@
   }
 
   .ant-menu {
-    color: $bg-color;
+    color: $surface-color;
   }
 
   .ant-menu-item:hover a, .ant-menu-item-selected a {
-    color: transparentize($bg-color, .2);
+    color: transparentize($surface-color, .2);
   }
 }
 

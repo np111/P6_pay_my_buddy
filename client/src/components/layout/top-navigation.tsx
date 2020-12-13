@@ -1,6 +1,7 @@
 import {TFunction, WithTranslation} from 'next-i18next';
 import React, {useEffect, useState} from 'react';
 import ReactDOM from 'react-dom';
+import {withNProgress} from '../../utils/react-utils';
 import {routes} from '../../utils/routes';
 import {WithAuth, withAuth} from '../auth/with-auth';
 import {Link, LinkProps, withTranslation} from '../i18n';
@@ -48,7 +49,8 @@ export const TopNavigation = withAuth()(withTranslation('common')(function ({t, 
         home = routes.summary();
         menu = [
             {id: 'summary', link: routes.summary()},
-            {id: 'logout', onClick: () => authMethods.logout()}, // TODO: page loading animation during the whole process
+            {id: 'contacts', link: routes.contacts()},
+            {id: 'logout', onClick: () => withNProgress(authMethods.logout())},
         ];
     } else {
         home = routes.index();
@@ -79,9 +81,9 @@ export const TopNavigation = withAuth()(withTranslation('common')(function ({t, 
                         </div>
                         {currentPage === 'loading' ? (
                             <div className='skeleton-menu'>
-                                <Skeleton.Button active={true}/>
-                                <Skeleton.Button active={true}/>
-                                <Skeleton.Button active={true}/>
+                                <Skeleton.Button/>
+                                <Skeleton.Button/>
+                                <Skeleton.Button/>
                             </div>
                         ) : (
                             <Menu

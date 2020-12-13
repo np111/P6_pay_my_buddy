@@ -3,6 +3,7 @@ package com.paymybuddy.business;
 import com.paymybuddy.api.model.collection.PageResponse;
 import com.paymybuddy.api.model.user.User;
 import com.paymybuddy.business.exception.ContactNotFoundException;
+import com.paymybuddy.business.exception.IsHimselfException;
 import com.paymybuddy.business.mapper.UserMapper;
 import com.paymybuddy.business.pageable.PageFetcher;
 import com.paymybuddy.business.pageable.PageRequest;
@@ -43,6 +44,9 @@ public class ContactService {
         UserEntity contactEntity = userRepository.findByEmail(contactEmail).orElse(null);
         if (contactEntity == null) {
             throw new ContactNotFoundException();
+        }
+        if (userId == contactEntity.getId()) {
+            throw new IsHimselfException();
         }
 
         UserContactEntity contactEntryEntity = new UserContactEntity();

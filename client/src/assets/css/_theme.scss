@@ -5,12 +5,17 @@ $text-color-secondary: rgba(0, 0, 0, 0.7);
 $screen-sm-min: 576px;
 
 // Custom
-$bg-color: #fff;
+$font-light-weight: 300;
+$font-normal-weight: 400;
+$font-bold-weight: 600;
+
+$surface-color: #fff;
 $separator-color: #e6e7e5;
 
+$body-bg-color: #f4f8fa;
 $header-bg-color: #fff;
 $header-height: 72px;
-$footer-bg-color: #f7f5fa;
+$footer-bg-color: #f4f8fa;
 
 $container-margin: 16px;
 $section-margin: 24px;

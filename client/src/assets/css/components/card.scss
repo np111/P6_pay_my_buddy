@@ -1,0 +1,23 @@
+@import '../_theme';
+
+.card {
+  padding: $container-margin;
+  border-radius: 8px;
+  background: $surface-color;
+  overflow: auto;
+  @include mdElevation(1);
+
+  .title {
+    font-weight: $font-bold-weight;
+    margin-bottom: $paragraph-margin;
+  }
+}
+
+.card-narrow-table {
+  margin: -$container-margin;
+
+  .ant-table-pagination.ant-pagination {
+    margin-left: $container-margin;
+    margin-right: $container-margin;
+  }
+}

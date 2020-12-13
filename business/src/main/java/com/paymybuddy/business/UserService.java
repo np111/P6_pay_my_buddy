@@ -3,6 +3,7 @@ package com.paymybuddy.business;
 import com.paymybuddy.api.model.Currency;
 import com.paymybuddy.api.model.user.User;
 import com.paymybuddy.api.model.user.UserBalance;
+import com.paymybuddy.api.model.user.UserBalancesResponse;
 import com.paymybuddy.api.util.validation.constraint.IsEmail;
 import com.paymybuddy.api.util.validation.constraint.IsName;
 import com.paymybuddy.auth.provider.UserProvider;
@@ -17,7 +18,6 @@ import com.paymybuddy.persistence.entity.UserEntity;
 import com.paymybuddy.persistence.repository.UserRepository;
 import java.math.BigDecimal;
 import java.net.IDN;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
@@ -89,22 +89,36 @@ public class UserService implements UserProvider {
 
     @Transactional(readOnly = true)
     @Nullable
-    public List<UserBalance> getUserBalances(long userId) {
+    public UserBalancesResponse getUserBalances(long userId) {
         UserEntity userEntity = userRepository.findById(userId).orElse(null);
         if (userEntity == null) {
-            return Collections.emptyList();
+            return null;
         }
 
-        List<UserBalance> ret = userEntity.getBalances().stream()
+        Currency defaultCurrency = userEntity.getDefaultCurrency();
+        List<UserBalance> balances = userEntity.getBalances().stream()
+                .filter(b -> BigDecimal.ZERO.compareTo(b.getAmount()) != 0)
+                .sorted((a, b) -> {
+                    if (a.getCurrency() == defaultCurrency) {
+                        return -1;
+                    }
+                    if (b.getCurrency() == defaultCurrency) {
+                        return 1;
+                    }
+                    return a.getCurrency().ordinal() - b.getCurrency().ordinal();
+                })
                 .map(userBalanceMapper::toUserBalance)
                 .collect(Collectors.toList());
-        if (ret.stream().noneMatch(b -> b.getCurrency() == userEntity.getDefaultCurrency())) {
-            ret.add(0, UserBalance.builder()
+        if (balances.stream().noneMatch(b -> b.getCurrency() == defaultCurrency)) {
+            balances.add(0, UserBalance.builder()
                     .currency(userEntity.getDefaultCurrency())
                     .amount(new BigDecimal(0))
                     .build());
         }
-        return ret;
+        return UserBalancesResponse.builder()
+                .defaultCurrency(defaultCurrency)
+                .balances(balances)
+                .build();
     }
 
     @Nullable

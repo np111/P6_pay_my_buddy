@@ -82,5 +82,6 @@ public class ApiError {
         INVALID_CREDENTIALS,
         CONTACT_NOT_FOUND,
         NOT_ENOUGH_FUNDS,
+        CANNOT_BE_HIMSELF,
     }
 }

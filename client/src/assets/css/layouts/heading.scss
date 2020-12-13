@@ -1,0 +1,25 @@
+@import '../_theme';
+
+.heading {
+  display: flex;
+  gap: $paragraph-margin $section-margin;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  > h1 {
+    flex: 1;
+    white-space: nowrap;
+    margin: 0;
+  }
+
+  > .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $paragraph-margin;
+
+    > .action {
+      flex: 1;
+    }
+  }
+}

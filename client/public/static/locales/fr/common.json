@@ -6,7 +6,9 @@
     "index": "Accueil",
     "login": "Connexion",
     "register": "Ouvrir un compte",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "summary": "Synthèse",
+    "contacts": "Contacts"
   },
   "auth": {
     "email": "Email",
@@ -16,5 +18,13 @@
     "require_email": "Veuillez entrer votre email.",
     "require_password": "Veuillez entrer votre mot de passe.",
     "invalid_credentials": "Vos identifiants sont incorrects. Réessayez."
+  },
+  "actions": {
+    "send_money": "Envoyer de l'argent",
+    "add_contact": "Ajouter un contact"
+  },
+  "intl": {
+    "groupingSep": " ",
+    "decimalSep": ","
   }
 }

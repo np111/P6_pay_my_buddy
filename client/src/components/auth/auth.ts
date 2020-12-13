@@ -26,6 +26,10 @@ export interface ClientAuthGuardData {
     user?: AuthUser;
 }
 
+export interface UpdateAuthContext {
+    noEmit?: boolean;
+}
+
 export class ClientAuthGuard extends EventEmitter implements AuthGuard, AuthMethods {
     private _data: ClientAuthGuardData = {};
 
@@ -45,11 +49,11 @@ export class ClientAuthGuard extends EventEmitter implements AuthGuard, AuthMeth
         return {token: this.token, user: this.user ? {...this.user} : undefined};
     };
 
-    deserialize = (data: ClientAuthGuardData | undefined, dontEmit?: boolean) => {
+    deserialize = (data: ClientAuthGuardData | undefined, ctx: UpdateAuthContext = {}) => {
         const prevData = this._data;
         this._data = data || {};
-        if (dontEmit !== false) {
-            this.emit('updated', this._data, prevData);
+        if (!ctx.noEmit) {
+            this.emit('updated', this._data, prevData, ctx);
         }
     };
 
@@ -81,8 +85,8 @@ export class ClientAuthGuard extends EventEmitter implements AuthGuard, AuthMeth
 
     remember = (token: string): Promise<boolean> => {
         return apiClient.fetch({
-            url: 'auth/remember',
             authToken: token,
+            url: 'auth/remember',
         }).then((res: ApiResponse) => {
             if (res.success === false) {
                 throw new UnhandledApiError(res.error);
@@ -100,6 +104,7 @@ export class ClientAuthGuard extends EventEmitter implements AuthGuard, AuthMeth
 
     logout = (): Promise<void> => {
         return apiClient.fetch({
+            authToken: this._data.token,
             url: 'auth/logout',
             body: {},
         }).then((res) => {

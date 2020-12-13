@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+import NProgress from 'nprogress';
+import React, {useRef, useState} from 'react';
 
 export function catchAsyncError(component: React.Component, err: any) {
     component.setState(() => {
@@ -19,4 +20,29 @@ export function useCatchAsyncError() {
             throw err;
         });
     };
+}
+
+export function useStickyResult<T>(value: T): T {
+    const val = useRef<T>();
+    if (value !== undefined) {
+        val.current = value;
+    }
+    return val.current;
+}
+
+export function noop() {
+    return Promise.resolve();
+}
+
+// eslint-disable-next-line
+export function doBindArgs<T extends Function>(fn: T, ...args: any[]): T {
+    return fn.bind.apply(fn, [undefined, ...args]);
+}
+
+export function withNProgress<T>(promise: Promise<T>): Promise<T> {
+    if (typeof window !== 'undefined') {
+        NProgress.start();
+        promise.then(() => NProgress.done()).catch(() => NProgress.done());
+    }
+    return promise;
 }

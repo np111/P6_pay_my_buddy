@@ -6,7 +6,9 @@ import {TopNavigation, TopNavigationProps} from './top-navigation';
 
 require('antd/lib/style/color/colorPalette.less'); // required by @ant-design/dark-theme
 require('antd/lib/style/index.less'); // antd theme and core
-require('../../assets/css/layouts/common.scss');
+require('antd/lib/notification/style/index.less'); // antd notification
+require('@fortawesome/fontawesome-svg-core/styles.css');
+require('../../assets/css/layouts/main.scss');
 require('../../assets/css/layouts/nprogress.scss');
 
 export interface MainLayoutProps {
@@ -24,6 +26,8 @@ export const MainLayout = withTranslation()(function ({t, id, section, title, fu
         <>
             <Head>
                 <meta name='viewport' content='width=device-width, initial-scale=1'/>
+                <link rel="preconnect" href="https://fonts.gstatic.com"/>
+                <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
                 <title>{fullTitle === true ? title : title + ' - ' + t('common:name')}</title>
                 {head}
             </Head>

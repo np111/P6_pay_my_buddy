@@ -20,7 +20,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry cors) {
-        cors.addMapping("/**").allowedOrigins("http://localhost:3000").maxAge(TimeUnit.DAYS.toSeconds(1)); // TODO: add origins properties
+        cors.addMapping("/**").allowedOrigins("http://localhost:3000").allowedMethods("*").maxAge(TimeUnit.DAYS.toSeconds(1)); // TODO: add origins properties
     }
 
     @Override

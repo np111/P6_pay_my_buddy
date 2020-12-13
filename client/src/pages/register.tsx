@@ -1,27 +1,34 @@
 import React, {useCallback, useState} from 'react';
 import {apiClient} from '../api/api-client';
 import {UnhandledApiError} from '../api/api-exception';
+import '../assets/css/pages/register.scss';
 import {pageWithAuth, WithAuth} from '../components/auth/with-auth';
 import {pageWithTranslation, withTranslation, WithTranslation} from '../components/i18n';
 import {MainLayout} from '../components/layout/main-layout';
 import {Button} from '../components/ui/button';
+import {Card} from '../components/ui/card';
 import {Form, useForm} from '../components/ui/form';
 import {Input} from '../components/ui/input';
 import {Spin} from '../components/ui/spin';
 import {Autofocus} from '../components/utils/autofocus';
 import {setFormError} from '../utils/form-utils';
+import notification from '../utils/notification';
 import {useCatchAsyncError} from '../utils/react-utils';
 import {AppRouter, routes} from '../utils/routes';
 
-export default pageWithAuth({preAuthorize: 'isAnonymous'})(pageWithTranslation('register')(function Login({t}: WithAuth & WithTranslation) {
+function RegisterPage({t}: WithAuth & WithTranslation) {
     return (
         <MainLayout id='register' title={t('common:page.register')}>
             <div className='container sm-t'>
-                <RegisterForm/>
+                <Card className='register-card'>
+                    <RegisterForm/>
+                </Card>
             </div>
         </MainLayout>
     );
-}));
+}
+
+export default pageWithAuth({preAuthorize: 'isAnonymous'})(pageWithTranslation('register')(RegisterPage));
 
 // TODO: select default currency
 const RegisterForm = withTranslation()(function ({t}: WithTranslation) {
@@ -54,10 +61,12 @@ const RegisterForm = withTranslation()(function ({t}: WithTranslation) {
                 }
                 throw new UnhandledApiError(res.error);
             }
-            // TODO: display a confirmation notification
+
+            notification.success({message: t('register:registered')});
             return AppRouter.push(routes.login());
         }).catch(catchAsyncError).finally(() => setLoading(false));
     }, [t, catchAsyncError, form]);
+
     return (
         <Spin spinning={loading}>
             <Form
@@ -119,17 +128,9 @@ const RegisterForm = withTranslation()(function ({t}: WithTranslation) {
     );
 });
 const layout = {
-    labelCol: {
-        sm: {span: 8},
-        lg: {span: 8},
-    },
-    wrapperCol: {
-        sm: {span: 16},
-        lg: {span: 12},
-    },
+    labelCol: {sm: 8},
+    wrapperCol: {sm: 16},
 };
 const tailLayout = {
-    wrapperCol: {
-        sm: {offset: 8, span: 16},
-    },
+    wrapperCol: {sm: {offset: 8, span: 16}},
 };

@@ -5,8 +5,7 @@ import {WithRouterProps} from 'next/dist/client/with-router';
 import {NextPageContext} from 'next/dist/next-server/lib/utils';
 import React from 'react';
 import {catchAsyncError} from '../../utils/react-utils';
-import {AppRouter} from '../../utils/routes';
-import {AuthGuard, ClientAuthGuard, ClientAuthGuardData, ServerAuthGuard} from './auth';
+import {AuthGuard, ClientAuthGuard, ClientAuthGuardData, ServerAuthGuard, UpdateAuthContext} from './auth';
 import {AuthContext} from './auth-context';
 
 export interface AppWithAuthContext extends AppContext {
@@ -33,24 +32,37 @@ export function appWithAuth() { // wrap everything into a function in the case w
         // noinspection JSPotentiallyInvalidUsageOfThis
         class AppWithAuth extends React.Component<AppWithAuthProps & WithRouterProps, any> {
             static async getInitialProps(appCtx: AppWithAuthContext) {
-                const {req} = appCtx.ctx;
-                let ssrAuthGuard;
-                if (req) {
-                    ssrAuthGuard = new ServerAuthGuard();
-                    if (true) { // TODO: add an option to enable/disable SSR authentication
-                        appCtx.ctx.authenticating = false;
-                        initSsrCookiesIfNeeded(appCtx);
-                        const token = loadAuthToken(appCtx);
-                        if (token && !await ssrAuthGuard.remember(token)) {
-                            saveAuthToken(undefined, appCtx);
+                let authProps;
+                if ((appCtx.Component as any).isPageWithAuth === true) {
+                    const {req} = appCtx.ctx;
+                    let ssrAuthGuard;
+                    if (req) {
+                        ssrAuthGuard = new ServerAuthGuard();
+                        appCtx.ctx.authenticating = true;
+                        appCtx.ctx.authGuard = ssrAuthGuard;
+                        if (true) { // TODO: add an option to enable/disable SSR authentication
+                            initSsrCookiesIfNeeded(appCtx);
+                            const token = loadAuthToken(appCtx);
+                            if (token) {
+                                let remembered;
+                                try {
+                                    remembered = !!await ssrAuthGuard.remember(token);
+                                    appCtx.ctx.authenticating = false;
+                                } catch (e) {
+                                    console.error('SSR remember thrown:', e);
+                                }
+                                if (remembered === false) {
+                                    saveAuthToken(undefined, appCtx);
+                                }
+                            }
                         }
                     } else {
-                        appCtx.ctx.authenticating = true;
+                        appCtx.ctx.authenticating = false;
+                        appCtx.ctx.authGuard = getGlobalAuthGuard();
                     }
-                    appCtx.ctx.authGuard = ssrAuthGuard;
-                } else {
-                    appCtx.ctx.authenticating = false;
-                    appCtx.ctx.authGuard = getGlobalAuthGuard();
+                    authProps = {
+                        authGuard: ssrAuthGuard ? ssrAuthGuard.serialize() : undefined,
+                    };
                 }
 
                 let wrappedComponentProps;
@@ -59,17 +71,18 @@ export function appWithAuth() { // wrap everything into a function in the case w
                 }
 
                 return {
-                    authGuard: ssrAuthGuard ? ssrAuthGuard.serialize() : undefined,
+                    ...authProps,
                     ...wrappedComponentProps,
                 };
             }
 
+            private _authInitialized = false;
             private _authSync = false;
             private _authGuard = new ClientAuthGuard();
 
             constructor(props: AppWithAuthProps & WithRouterProps, ctx: any) {
                 super(props, ctx);
-                this._authGuard.deserialize(props.authGuard, true);
+                this._authGuard.deserialize(props.authGuard, {noEmit: true});
                 let authenticating = false;
                 if (typeof window !== 'undefined') {
                     setGlobalAuthGuard(this._authGuard);
@@ -79,6 +92,24 @@ export function appWithAuth() { // wrap everything into a function in the case w
             }
 
             componentDidMount() {
+                this._initAuth();
+            }
+
+            componentDidUpdate(prevProps: Readonly<AppWithAuthProps & WithRouterProps>) {
+                this._initAuth();
+            }
+
+            componentWillUnmount() {
+                window.removeEventListener('storage', this._onAuthSync);
+                this._authGuard.removeListener('updated', this._onAuthUpdated);
+            }
+
+            private _initAuth() {
+                if (this._authInitialized || (this.props as any).Component.isPageWithAuth !== true) {
+                    return;
+                }
+                this._authInitialized = true;
+
                 this._authGuard.addListener('updated', this._onAuthUpdated);
                 window.addEventListener('storage', this._onAuthSync);
 
@@ -100,12 +131,7 @@ export function appWithAuth() { // wrap everything into a function in the case w
                 });
             }
 
-            componentWillUnmount() {
-                window.removeEventListener('storage', this._onAuthSync);
-                this._authGuard.removeListener('updated', this._onAuthUpdated);
-            }
-
-            private _onAuthUpdated = (data: ClientAuthGuardData, prevData: ClientAuthGuardData) => {
+            private _onAuthUpdated = (data: ClientAuthGuardData, prevData: ClientAuthGuardData, ctx: UpdateAuthContext) => {
                 // this.authStore.authenticating = false;
                 if (window.localStorage && !this._authSync) {
                     this._authSync = true;
@@ -117,13 +143,7 @@ export function appWithAuth() { // wrap everything into a function in the case w
                         this._authSync = false;
                     }
                 }
-                if (prevData.token === this._authGuard.token) {
-                    this.setState({authenticating: false, authGuard: this._authGuard.clone()});
-                } else {
-                    this.setState({authenticating: false, authGuard: this._authGuard.clone()});
-                    // noinspection JSIgnoredPromiseFromCall
-                    AppRouter.reload({replace: true});
-                }
+                this.setState({authenticating: false, authGuard: this._authGuard.clone()});
             };
 
             private _onAuthSync = (event: StorageEvent) => {
@@ -166,7 +186,6 @@ const authCookie = 'auth_token';
 const authSyncKey = 'sync:auth.update';
 
 function saveAuthToken(value: string | undefined, appCtx?: AppWithAuthContext) {
-    // TODO: set max age or session-only, if needed
     if (typeof window !== 'undefined') {
         if (value === undefined) {
             JsCookies.remove(authCookie);

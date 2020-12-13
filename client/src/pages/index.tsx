@@ -1,10 +1,11 @@
 import React from 'react';
+import {pageWithAuth} from '../components/auth/with-auth';
 import {pageWithTranslation, WithTranslation} from '../components/i18n';
 import {MainLayout} from '../components/layout/main-layout';
 
 require('../assets/css/pages/index.scss');
 
-export default pageWithTranslation()(function Index({t}: WithTranslation) {
+function IndexPage({t}: WithTranslation) {
     return (
         <MainLayout
             id='index'
@@ -23,4 +24,6 @@ export default pageWithTranslation()(function Index({t}: WithTranslation) {
             </section>
         </MainLayout>
     );
-});
+}
+
+export default pageWithAuth()(pageWithTranslation()(IndexPage));

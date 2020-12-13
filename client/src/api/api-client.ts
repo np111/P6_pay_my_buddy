@@ -1,14 +1,13 @@
 import {default as _fetch} from 'isomorphic-unfetch';
 import getConfig from 'next/config';
 import {Router} from 'next/router';
-import {getGlobalAuthGuard, NextPageWithAuthContext} from '../components/auth/app-with-auth';
+import {AppRouter} from '../utils/routes';
 import {AccessDeniedError, ApiException} from './api-exception';
 import {ApiResponse} from './api-response';
 
 export interface ApiFetchRequest {
-    ctx?: NextPageWithAuthContext; // SSR page context
-    authToken?: string | false;
-    method?: 'GET' | 'POST';
+    authToken: string | false;
+    method?: 'GET' | 'POST' | 'DELETE';
     url: string;
     body?: any;
     neverCancel?: boolean;
@@ -23,21 +22,11 @@ export class ApiClient {
         this._abortSignal = abortSignal;
     }
 
-    fetch<T = any>({ctx, authToken, method, url, body, neverCancel}: ApiFetchRequest): Promise<ApiResponse<T>> {
+    fetch = <T = any>({authToken, method, url, body, neverCancel}: ApiFetchRequest): Promise<ApiResponse<T>> => {
         const headers: any = {};
 
         // Resolve auth token
-        if (authToken !== false && authToken === undefined) {
-            if (typeof window !== 'undefined') {
-                authToken = getGlobalAuthGuard().token;
-            } else {
-                if (!ctx) {
-                    throw new ApiException('ctx is missing in SSR context');
-                }
-                authToken = ctx.authGuard.token;
-            }
-        }
-        if (authToken === false || authToken === undefined) {
+        if (authToken === false) {
             authToken = 'anonymous';
         }
         headers['X-Auth-Token'] = authToken;
@@ -88,7 +77,7 @@ export class ApiClient {
             }
             throw e;
         });
-    }
+    };
 
     private _parseJson(httpRes: Response) {
         switch (httpRes.status) {
@@ -123,7 +112,10 @@ export const apiClient = (() => {
             initController();
         };
         initController();
-        Router.events.on('routeChangeStart', abortController);
+        Router.events.on('routeChangeStart', () => {
+            if (AppRouter.isShallow()) return;
+            abortController();
+        });
         abortSignal = () => signal;
     }
     return new ApiClient(apiUrl, abortSignal);

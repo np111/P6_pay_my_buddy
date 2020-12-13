@@ -3,15 +3,20 @@ import {LoginForm} from '../components/auth/login-form';
 import {pageWithAuth, WithAuth} from '../components/auth/with-auth';
 import {pageWithTranslation, WithTranslation} from '../components/i18n';
 import {MainLayout} from '../components/layout/main-layout';
+import {Card} from '../components/ui/card';
 
 require('../assets/css/pages/login.scss');
 
-export default pageWithAuth({preAuthorize: 'isAnonymous'})(pageWithTranslation()(function Login({t}: WithAuth & WithTranslation) {
+function LoginPage({t}: WithAuth & WithTranslation) {
     return (
         <MainLayout id='login' title={t('common:page.login')}>
             <div className='container sm-t'>
-                <LoginForm/>
+                <Card className='login-card'>
+                    <LoginForm/>
+                </Card>
             </div>
         </MainLayout>
     );
-}));
+}
+
+export default pageWithAuth({preAuthorize: 'isAnonymous'})(pageWithTranslation()(LoginPage));

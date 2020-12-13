@@ -1,0 +1,15 @@
+{
+  "your_contacts": "Vos contacts",
+  "no_contact_yet": "Vous n'avez pas encore de contact.",
+  "add_first_contact": "Ajouter mon premier contact !",
+  "name": "Nom",
+  "email": "Email",
+  "add": "Ajouter",
+  "added": "{{name}} a été ajouté à votre liste de contacts.",
+  "remove": "Supprimer",
+  "removed": "{{name}} a été retiré de votre liste de contacts.",
+  "remove_confirmation": "Voulez-vous vraiment supprimer ce contact ?",
+  "require_email": "Veuillez entrer un email.",
+  "cannot_be_himself": "Vous ne pouvez pas devenir votre propre contact.",
+  "contact_not_found": "Impossible de trouver un utilisateur avec cet email."
+}

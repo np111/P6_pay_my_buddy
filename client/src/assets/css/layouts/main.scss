@@ -1,12 +1,12 @@
 @import '../_theme';
 
 html, body {
-  background: $bg-color;
+  background: $body-bg-color;
   height: auto; // antd set height to 100%, this is useless and cause bugs
 }
 
-body {
-  overflow-y: scroll; // always keep the scrollbar visible
+body.ant-scrolling-effect .ant-modal-wrap {
+  overflow-y: scroll !important; // always keep the modal scrollbar visible
 }
 
 .page {
@@ -37,6 +37,10 @@ _:-ms-fullscreen, :root .ant-steps-vertical {
   display: block;
 }
 
+h1, h2, h3, h4, h5, h6 {
+  font-weight: $font-bold-weight;
+}
+
 h1 {
   font-size: 1.6em;
 }
@@ -53,6 +57,12 @@ p {
   margin-bottom: $paragraph-margin;
 }
 
+ol, ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
 a {
   &:active {
     text-decoration: underline;
@@ -61,6 +71,14 @@ a {
   &.silent-link {
     color: inherit;
   }
+}
+
+.text-center {
+  text-align: center;
+}
+
+.flex-center {
+  justify-content: center;
 }
 
 .container {

@@ -1,15 +1,28 @@
+import {config as fontawesomeConfig} from '@fortawesome/fontawesome-svg-core';
 import {AppContext, AppProps} from 'next/app';
 import {Router} from 'next/router';
 import NProgress from 'nprogress';
 import React, {Component} from 'react';
 import {appWithAuth} from '../components/auth/app-with-auth';
 import {appWithTranslation} from '../components/i18n';
+import {AppRouter} from '../utils/routes';
+
+fontawesomeConfig.autoAddCss = false;
 
 if (typeof window !== 'undefined') {
     // Global: Progress
-    Router.events.on('routeChangeStart', () => NProgress.start());
-    Router.events.on('routeChangeComplete', () => NProgress.done());
-    Router.events.on('routeChangeError', () => NProgress.done());
+    Router.events.on('routeChangeStart', () => {
+        if (AppRouter.isShallow()) return;
+        NProgress.start();
+    });
+    Router.events.on('routeChangeComplete', () => {
+        if (AppRouter.isShallow(true)) return;
+        NProgress.done();
+    });
+    Router.events.on('routeChangeError', () => {
+        if (AppRouter.isShallow(true)) return;
+        NProgress.done();
+    });
 }
 
 class MyApp extends React.Component<AppProps> {

@@ -1,4 +1,5 @@
 import React, {useCallback, useState} from 'react';
+import '../../assets/css/components/login-form.scss';
 import {setFormError} from '../../utils/form-utils';
 import {useCatchAsyncError} from '../../utils/react-utils';
 import {AppRouter, routes} from '../../utils/routes';

@@ -64,8 +64,8 @@ body:not(.is-loaded) #header {
     margin-left: 5px;
     padding: 5px 10px;
     font-size: 1em;
-    font-weight: 700;
-    text-transform: uppercase;
+    font-weight: $font-bold-weight;
+    //text-transform: uppercase;
   }
 
   .ant-menu-horizontal > .ant-menu-submenu {

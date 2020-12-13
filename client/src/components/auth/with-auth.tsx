@@ -40,20 +40,20 @@ export function pageWithAuth({preAuthorize}: PageWithAuthOpts = {}) {
                 usedAuthCtx = authCtx;
             }
 
-            if (typeof window !== 'undefined') {
-                console.log({allowed, usedAuthCtx, authCtx});
-            }
-
             if (!usedAuthCtx) {
                 return (
                     <MainLayout id='loading' title='...'>
                         <div className='container'>
-                            <Skeleton active={true}/>
+                            <Skeleton/>
                         </div>
                     </MainLayout>
                 );
             }
-            return <WrappedComponent {...props} {...usedAuthCtx}/>;
+            return (
+                <AuthContext.Provider value={usedAuthCtx}>
+                    <WrappedComponent {...props} {...usedAuthCtx}/>
+                </AuthContext.Provider>
+            );
         }
 
         PageWithAuthHOC.getInitialProps = (ctx: NextPageWithAuthContext) => {
@@ -65,6 +65,8 @@ export function pageWithAuth({preAuthorize}: PageWithAuthOpts = {}) {
             }
             return WrappedComponent.getInitialProps ? WrappedComponent.getInitialProps(ctx) : {};
         };
+
+        PageWithAuthHOC.isPageWithAuth = true;
 
         function checkPreAuthorizeActions(authenticating: boolean, authGuard: AuthGuard, req?: IncomingMessage): { route?: LinkProps } | undefined {
             if (authenticating || !authGuard) {

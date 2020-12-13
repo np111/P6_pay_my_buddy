@@ -4,11 +4,10 @@ import com.paymybuddy.api.model.ApiError;
 import com.paymybuddy.api.model.ApiError.ErrorCode;
 import com.paymybuddy.api.model.ApiError.ErrorType;
 import com.paymybuddy.api.model.collection.CursorResponse;
-import com.paymybuddy.api.model.collection.ListResponse;
 import com.paymybuddy.api.model.collection.PageResponse;
 import com.paymybuddy.api.model.transaction.Transaction;
 import com.paymybuddy.api.model.user.User;
-import com.paymybuddy.api.model.user.UserBalance;
+import com.paymybuddy.api.model.user.UserBalancesResponse;
 import com.paymybuddy.api.request.transaction.CreateTransactionRequest;
 import com.paymybuddy.api.request.user.AddContactRequest;
 import com.paymybuddy.api.util.jackson.AmountSerializer;
@@ -17,8 +16,8 @@ import com.paymybuddy.business.ContactService;
 import com.paymybuddy.business.TransactionService;
 import com.paymybuddy.business.UserService;
 import com.paymybuddy.business.exception.ContactNotFoundException;
+import com.paymybuddy.business.exception.IsHimselfException;
 import com.paymybuddy.business.exception.NotEnoughFundsException;
-import com.paymybuddy.business.exception.NotHimselfException;
 import com.paymybuddy.business.pageable.CursorRequestParser;
 import com.paymybuddy.business.pageable.PageRequestParser;
 import com.paymybuddy.business.util.DateUtil;
@@ -69,10 +68,10 @@ public class UserController {
 
     @PreAuthorize("isAuthenticated()")
     @JsonRequestMapping(method = RequestMethod.GET, value = "/balance")
-    public ListResponse<UserBalance> getBalances(
+    public UserBalancesResponse getBalances(
             @AuthenticationPrincipal AuthGuard auth
     ) {
-        return ListResponse.of(userService.getUserBalances(auth.getUserId()));
+        return userService.getUserBalances(auth.getUserId());
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -119,9 +118,6 @@ public class UserController {
     ) {
         long userId = auth.getUserId();
         long recipientId = body.getRecipientId();
-        if (userId == recipientId) {
-            throw new NotHimselfException("recipientId");
-        }
         if (!contactService.isContact(userId, recipientId)) {
             throw new ContactNotFoundException();
         }
@@ -150,6 +146,17 @@ public class UserController {
                 .message("You don't have enough funds")
                 .metadata("currency", ex.getCurrency())
                 .metadata("missingAmount", AmountSerializer.toString(ex.getMissingAmount()))
+                .build());
+    }
+
+    @ExceptionHandler(IsHimselfException.class)
+    @ResponseBody
+    public ResponseEntity<ApiError> handleIsHimselfException(IsHimselfException ex) {
+        return errorToResponse(ApiError.builder()
+                .type(ErrorType.SERVICE)
+                .status(HttpStatus.PRECONDITION_FAILED.value())
+                .code(ErrorCode.CANNOT_BE_HIMSELF)
+                .message("You cannot perform this action on yourself")
                 .build());
     }
 }
