@@ -12,6 +12,7 @@ import {Card} from '../components/ui/card';
 import {Form, useForm} from '../components/ui/form';
 import {Icon} from '../components/ui/icon';
 import {iconAddContact} from '../components/ui/icons/icon-addcontact';
+import {InlineError} from '../components/ui/inline-error';
 import {Input} from '../components/ui/input';
 import {Modal} from '../components/ui/modal';
 import {Popconfirm} from '../components/ui/popconfirm';
@@ -129,7 +130,7 @@ const ContactsList = withAuth()(withTranslation('contacts')(function ContactsLis
     }, [authToken, catchAsyncError, mutate, t]);
 
     if (error) {
-        return <>TODO: inline error component</>;
+        return <InlineError error={error}/>;
     }
 
     const columns: ColumnsType<any> = [{

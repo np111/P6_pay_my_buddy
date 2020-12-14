@@ -15,6 +15,7 @@ import {iconPageNext} from '../components/ui/icons/icon-page-next';
 import {iconPagePrev} from '../components/ui/icons/icon-page-prev';
 import {iconReceived} from '../components/ui/icons/icon-received';
 import {iconSent} from '../components/ui/icons/icon-sent';
+import {InlineError} from '../components/ui/inline-error';
 import {ColumnsType, ExpandableConfig, Table} from '../components/ui/table';
 import {DateFormat} from '../components/utils/date-format';
 import {titleSep} from '../utils/i18n-utils';
@@ -75,7 +76,7 @@ const TransactionsList = withAuth()(withTranslation('activity')(function Transac
     }, [data]);
 
     if (error) {
-        return <>TODO: inline error component</>;
+        return <InlineError error={error}/>;
     }
 
     const columns: ColumnsType<any> = [{

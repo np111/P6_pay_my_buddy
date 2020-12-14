@@ -13,6 +13,7 @@ import {Col, Row} from '../components/ui/grid';
 import {Icon} from '../components/ui/icon';
 import {iconReceived} from '../components/ui/icons/icon-received';
 import {iconSent} from '../components/ui/icons/icon-sent';
+import {InlineError} from '../components/ui/inline-error';
 import {Skeleton} from '../components/ui/skeleton';
 import {DateFormat} from '../components/utils/date-format';
 import {routes} from '../utils/routes';
@@ -68,17 +69,17 @@ const Balances = withAuth()(withTranslation('summary')(function Balances({authGu
         return <li key={balance.currency}><CurrencyAmount {...balance}/></li>;
     }, []);
 
-    if (error) {
-        return <>TODO: inline error component</>;
-    }
-    if (userBalance === undefined) {
-        return <Skeleton/>;
-    }
     return (
         <Card title={t('summary:balance')}>
-            <ul className='balances'>
-                {userBalance.balances.map(renderBalance)}
-            </ul>
+            {error ? (
+                <InlineError error={error}/>
+            ) : userBalance === undefined ? (
+                <Skeleton/>
+            ) : (
+                <ul className='balances'>
+                    {userBalance.balances.map(renderBalance)}
+                </ul>
+            )}
         </Card>
     );
 }));
@@ -117,22 +118,24 @@ const RecentActivity = withAuth()(withTranslation('summary')(function RecentActi
         );
     }, [authGuard]);
 
-    if (error) {
-        return <>TODO: inline error component</>;
-    }
-    if (transactions === undefined) {
-        return <Skeleton/>;
-    }
     return (
         <Card title={t('summary:recent_activity')}>
-            <ul className='recent-activities'>
-                {transactions.records.map(renderTransaction)}
-            </ul>
-            <div className='text-center'>
-                <Link key='send-money' {...routes.activity()}>
-                    <a>{t('summary:more_activities')}</a>
-                </Link>
-            </div>
+            {error ? (
+                <InlineError error={error}/>
+            ) : transactions === undefined ? (
+                <Skeleton/>
+            ) : (
+                <>
+                    <ul className='recent-activities'>
+                        {transactions.records.map(renderTransaction)}
+                    </ul>
+                    <div className='text-center'>
+                        <Link key='send-money' {...routes.activity()}>
+                            <a>{t('summary:more_activities')}</a>
+                        </Link>
+                    </div>
+                </>
+            )}
         </Card>
     );
 }));
