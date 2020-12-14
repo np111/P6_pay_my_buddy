@@ -1,4 +1,6 @@
 {
   "welcome": "Bonjour {{name}},",
-  "balance": "Solde"
+  "balance": "Solde",
+  "recent_activity": "Activité récente",
+  "more_activities": "Voir plus"
 }

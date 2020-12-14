@@ -17,4 +17,23 @@
       color: transparentize($text-color, .5);
     }
   }
+
+  .recent-activities {
+    li {
+      margin-bottom: $paragraph-margin;
+
+      .head {
+        display: flex;
+      }
+
+      .title {
+        flex: 1;
+      }
+
+      .date {
+        color: $text-color-secondary;
+        margin-left: 1.25em;
+      }
+    }
+  }
 }

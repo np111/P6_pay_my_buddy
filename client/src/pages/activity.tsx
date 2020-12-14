@@ -84,7 +84,7 @@ const TransactionsList = withAuth()(withTranslation('activity')(function Transac
         render(none, r) {
             return r.recipient.id === authGuard.user.id
                 ? <><Icon {...iconReceived}/> {t('activity:received_from', r.sender)}</>
-                : <><Icon {...iconSent}/> {t('activity:sent_to', r.sender)}</>;
+                : <><Icon {...iconSent}/> {t('activity:sent_to', r.recipient)}</>;
         },
     }, {
         dataIndex: 'description',

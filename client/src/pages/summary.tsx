@@ -2,15 +2,20 @@ import React, {useCallback} from 'react';
 import useSWR from 'swr';
 import {apiClient} from '../api/api-client';
 import {UnhandledApiError} from '../api/api-exception';
-import {UserBalance, UserBalancesResponse} from '../api/api-types';
+import {Transaction, UserBalance, UserBalancesResponse} from '../api/api-types';
 import {pageWithAuth, withAuth, WithAuth} from '../components/auth/with-auth';
 import {CurrencyAmount} from '../components/business/currency-amount';
-import {pageWithTranslation, withTranslation, WithTranslation} from '../components/i18n';
+import {Link, pageWithTranslation, withTranslation, WithTranslation} from '../components/i18n';
 import {Heading} from '../components/layout/heading';
 import {MainLayout} from '../components/layout/main-layout';
 import {Card} from '../components/ui/card';
 import {Col, Row} from '../components/ui/grid';
+import {Icon} from '../components/ui/icon';
+import {iconReceived} from '../components/ui/icons/icon-received';
+import {iconSent} from '../components/ui/icons/icon-sent';
 import {Skeleton} from '../components/ui/skeleton';
+import {DateFormat} from '../components/utils/date-format';
+import {routes} from '../utils/routes';
 
 require('../assets/css/pages/summary.scss');
 
@@ -30,7 +35,7 @@ function SummaryPage({t, authGuard}: WithAuth & WithTranslation) {
                     </Col>
                     <Col xs={24} md={10}>
                         <section className='sm-t'>
-                            <Card title='Transactions récentes'>TODO</Card>
+                            <RecentActivity/>
                         </section>
                     </Col>
                 </Row>
@@ -74,6 +79,60 @@ const Balances = withAuth()(withTranslation('summary')(function Balances({authGu
             <ul className='balances'>
                 {userBalance.balances.map(renderBalance)}
             </ul>
+        </Card>
+    );
+}));
+
+const RecentActivity = withAuth()(withTranslation('summary')(function RecentActivity({authGuard, t}: WithAuth & WithTranslation) {
+    const {data: transactions, error} = useSWR(
+        [authGuard.token, 'user/transaction?pageSize=5&pageSort=-id'],
+        (authToken, url) => apiClient
+            .fetch({authToken, url})
+            .then((res) => {
+                if (res.success === false) {
+                    throw new UnhandledApiError(res.error);
+                }
+                return res.result;
+            }),
+        {refreshInterval: 60_000, errorRetryInterval: 15_000});
+
+    const renderTransaction = useCallback((tr: Transaction) => {
+        let title;
+        let prefix;
+        if (tr.recipient.id === authGuard.user.id) {
+            title = <><Icon {...iconReceived}/> {tr.sender.name}</>;
+            prefix = '';
+        } else {
+            title = <><Icon {...iconSent}/> {tr.recipient.name}</>;
+            prefix = '-';
+        }
+        return (
+            <li key={tr.id}>
+                <div className='head'>
+                    <div className='title'>{title}</div>
+                    <div className='amount'>{prefix}<CurrencyAmount {...tr}/></div>
+                </div>
+                <div className='date'><DateFormat date={tr.date} format='lll'/></div>
+            </li>
+        );
+    }, [authGuard]);
+
+    if (error) {
+        return <>TODO: inline error component</>;
+    }
+    if (transactions === undefined) {
+        return <Skeleton/>;
+    }
+    return (
+        <Card title={t('summary:recent_activity')}>
+            <ul className='recent-activities'>
+                {transactions.records.map(renderTransaction)}
+            </ul>
+            <div className='text-center'>
+                <Link key='send-money' {...routes.activity()}>
+                    <a>{t('summary:more_activities')}</a>
+                </Link>
+            </div>
         </Card>
     );
 }));

@@ -7,7 +7,7 @@
   overflow: auto;
   @include mdElevation(1);
 
-  .title {
+  > .title {
     font-weight: $font-bold-weight;
     margin-bottom: $paragraph-margin;
   }
