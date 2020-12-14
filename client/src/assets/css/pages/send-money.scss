@@ -1,0 +1,21 @@
+@import '../_theme';
+
+.send-money-card {
+  max-width: 420px;
+  margin: auto;
+  text-align: center;
+
+  .amount-item {
+    margin-bottom: $paragraph-margin;
+
+    input {
+      max-width: 220px;
+      text-align: center;
+    }
+  }
+
+  .currency-item .ant-select {
+    max-width: 120px;
+    text-align: center;
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "send_money": "Envoyer de l'argent",
+  "contact": "Email ou nom",
+  "contact_not_found": "Impossible de trouver ce contact",
+  "next": "Suivant",
+  "to": "À {{name}} ({{email}})",
+  "amount": "Montant",
+  "description": "Description",
+  "send": "Envoyer",
+  "cancel": "Annuler",
+  "amount_must_be_positive": "Le montant doit être supérieur à zéro.",
+  "description_required": "Une description est requise.",
+  "not_enough_funds": "Vous n'avez pas assez de fonds (il vous manque {{missingAmount}} {{currency}}).",
+  "money_sent": "Argent envoyé !",
+  "transaction_details": "Vous avez envoyé <0/> à <1/>.",
+  "send_again": "Envoyer de l'argent à nouveau"
+}

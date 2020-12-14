@@ -4,6 +4,7 @@ import com.paymybuddy.api.model.ApiError;
 import com.paymybuddy.api.model.ApiError.ErrorCode;
 import com.paymybuddy.api.model.ApiError.ErrorType;
 import com.paymybuddy.api.model.collection.CursorResponse;
+import com.paymybuddy.api.model.collection.ListResponse;
 import com.paymybuddy.api.model.collection.PageResponse;
 import com.paymybuddy.api.model.transaction.Transaction;
 import com.paymybuddy.api.model.user.User;
@@ -22,6 +23,8 @@ import com.paymybuddy.business.pageable.CursorRequestParser;
 import com.paymybuddy.business.pageable.PageRequestParser;
 import com.paymybuddy.business.util.DateUtil;
 import com.paymybuddy.server.http.util.JsonRequestMapping;
+import javax.validation.constraints.Size;
+import javax.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -93,12 +96,34 @@ public class UserController {
     }
 
     @PreAuthorize("isAuthenticated()")
+    @JsonRequestMapping(method = RequestMethod.GET, value = "/contact/{contactSelector}")
+    public User getContact(
+            @AuthenticationPrincipal AuthGuard auth,
+            @PathVariable("contactSelector") String contactSelector
+    ) {
+        User contact = contactService.getContact(auth.getUserId(), contactSelector);
+        if (contact == null) {
+            throw new ContactNotFoundException();
+        }
+        return contact;
+    }
+
+    @PreAuthorize("isAuthenticated()")
     @JsonRequestMapping(method = RequestMethod.DELETE, value = "/contact/{contactId}")
     public User removeContact(
             @AuthenticationPrincipal AuthGuard auth,
             @PathVariable("contactId") Long contactId
     ) {
         return contactService.removeContact(auth.getUserId(), contactId);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @JsonRequestMapping(method = RequestMethod.GET, value = "/autocomplete-contact")
+    public ListResponse<User> autocompleteContact(
+            @AuthenticationPrincipal AuthGuard auth,
+            @PathParam("input") @Size(max = 255) String input
+    ) {
+        return contactService.searchContacts(auth.getUserId(), input, 10);
     }
 
     @PreAuthorize("isAuthenticated()")

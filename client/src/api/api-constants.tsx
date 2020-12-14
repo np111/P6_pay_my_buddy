@@ -14,3 +14,5 @@ export const currencies: { [currency: string]: CurrencyProps } = {
     AUD: {decimals: 2, prefix: '$', suffix: ' AUD'},
     HKD: {decimals: 2, prefix: 'HK$ ', suffix: ''},
 };
+
+export const currenciesOptions = Object.keys(currencies).sort().map((currency) => ({value: currency}));

@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import React from 'react';
 import '../../assets/css/layouts/heading.scss';
 import {AppRouter, routes} from '../../utils/routes';
-import {Trans} from '../i18n';
+import {Link, Trans} from '../i18n';
 import {Button} from '../ui/button';
 import {Icon} from '../ui/icon';
 import {iconAddContact} from '../ui/icons/icon-addcontact';
@@ -17,9 +17,11 @@ export type HeadingProps = {
 export function Heading({title, actions, onAddContact, ...divProps}: HeadingProps) {
     if (actions === undefined) {
         actions = [
-            <Button key='send-money' type='primary' block={true}>
-                <Icon {...iconSendMoney} marginRight={true}/><Trans i18nKey='common:actions.send_money'/>
-            </Button>,
+            <Link key='send-money' {...routes.sendMoney()}>
+                <Button type='primary' block={true}>
+                    <Icon {...iconSendMoney} marginRight={true}/><Trans i18nKey='common:actions.send_money'/>
+                </Button>
+            </Link>,
             <Button key='add-contact' type='default' block={true} onClick={onAddContact || defaultOnAddContact}>
                 <Icon {...iconAddContact} marginRight={true}/><Trans i18nKey='common:actions.add_contact'/>
             </Button>,

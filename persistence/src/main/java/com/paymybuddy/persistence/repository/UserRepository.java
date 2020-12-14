@@ -16,6 +16,8 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
     Optional<UserEntity> findByEmail(String email);
 
+    Optional<UserEntity> findByName(String name);
+
     @Modifying
     @Query("update UserEntity u set u.encodedPassword = :encodedPassword where u.id = :id")
     void updatePassword(@Param("id") long id, @Param("encodedPassword") String encodedPassword);

@@ -1,5 +1,5 @@
 import {notification as antdNotification} from 'antd';
-import {NotificationApi} from 'antd/es/notification';
+import {NotificationApi} from 'antd/lib/notification';
 
 const notification = {} as NotificationApi;
 

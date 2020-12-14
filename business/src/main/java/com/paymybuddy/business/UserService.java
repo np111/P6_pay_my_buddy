@@ -57,8 +57,27 @@ public class UserService implements UserProvider {
     @Transactional(readOnly = true)
     @Nullable
     public User getUserByEmail(String email) {
+        return userMapper.toUser(getUserEntityByEmail(email));
+    }
+
+    @Transactional(readOnly = true)
+    @Nullable
+    public UserEntity getUserEntityByEmail(String email) {
         email = normalizeEmail(email);
-        return email == null ? null : userMapper.toUser(userRepository.findByEmail(email).orElse(null));
+        return email == null ? null : userRepository.findByEmail(email).orElse(null);
+    }
+
+    @Transactional(readOnly = true)
+    @Nullable
+    public User getUserByName(String name) {
+        return userMapper.toUser(getUserEntityByName(name));
+    }
+
+    @Transactional(readOnly = true)
+    @Nullable
+    public UserEntity getUserEntityByName(String name) {
+        name = normalizeName(name);
+        return name == null ? null : userRepository.findByName(name).orElse(null);
     }
 
     @Transactional
@@ -145,6 +164,9 @@ public class UserService implements UserProvider {
     private String normalizeEmail(String email) {
         // normalize
         String[] emailParts = email.split("@", 2);
+        if (emailParts.length != 2) {
+            return null;
+        }
         String user = emailParts[0];
         String domain = emailParts[1];
         try {
