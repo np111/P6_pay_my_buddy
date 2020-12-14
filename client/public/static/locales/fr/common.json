@@ -25,6 +25,8 @@
     "add_contact": "Ajouter un contact"
   },
   "intl": {
+    "ok": "OK",
+    "cancel": "Annuler",
     "titleSep": "{{title}} :",
     "groupingSep": " ",
     "decimalSep": ","
