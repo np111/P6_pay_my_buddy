@@ -1,0 +1,12 @@
+{
+  "transaction_history": "Historique de transaction",
+  "type": "Transaction",
+  "sender": "Expéditeur",
+  "recipient": "Destinataire",
+  "description": "Description",
+  "amount": "Montant",
+  "fee": "Frais",
+  "date": "Date",
+  "received_from": "Reçu de {{name}}",
+  "sent_to": "Envoyé à {{name}}"
+}

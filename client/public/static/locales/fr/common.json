@@ -8,6 +8,7 @@
     "register": "Ouvrir un compte",
     "logout": "Déconnexion",
     "summary": "Synthèse",
+    "activity": "Activité",
     "contacts": "Contacts"
   },
   "auth": {
@@ -24,6 +25,7 @@
     "add_contact": "Ajouter un contact"
   },
   "intl": {
+    "titleSep": "{{title}} :",
     "groupingSep": " ",
     "decimalSep": ","
   }

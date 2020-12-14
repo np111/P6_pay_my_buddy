@@ -87,13 +87,13 @@ const ContactsList = withAuth()(withTranslation('contacts')(function ContactsLis
         page: 0,
     });
     const handleTableChange = useCallback((pagination, filters, sorter) => {
-        setTableQuery({
+        setTableQuery((tableQuery) => ({
             ...tableQuery,
             pageSize: pagination.pageSize,
             pageSort: !sorter.order ? undefined : (sorter.order === 'descend' ? '-' : '') + sorter.field,
             page: pagination.current - 1,
-        });
-    }, [tableQuery]);
+        }));
+    }, []);
 
     const {data: loadingData, error, mutate} = useSWR(
         [authToken, 'user/contact', tableQuery],

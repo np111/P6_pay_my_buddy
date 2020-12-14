@@ -1,0 +1,32 @@
+@import '../_theme';
+
+.dl.default {
+  .dl-item {
+    margin-bottom: $paragraph-margin;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.dl.horizontal {
+  .dl-item {
+    display: flex;
+
+    .dl-title {
+      text-align: right;
+      margin-right: 10px;
+      min-width: 160px;
+    }
+  }
+}
+
+.dl.secondary-title .dl-title {
+  color: $text-color-secondary;
+
+  b {
+    color: $text-color;
+    font-weight: $font-normal-weight;
+  }
+}

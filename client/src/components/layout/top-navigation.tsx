@@ -49,6 +49,7 @@ export const TopNavigation = withAuth()(withTranslation('common')(function ({t, 
         home = routes.summary();
         menu = [
             {id: 'summary', link: routes.summary()},
+            {id: 'activity', link: routes.activity()},
             {id: 'contacts', link: routes.contacts()},
             {id: 'logout', onClick: () => withNProgress(authMethods.logout())},
         ];

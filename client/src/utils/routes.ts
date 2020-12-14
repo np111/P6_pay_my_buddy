@@ -12,6 +12,7 @@ export const routes = {
     register: () => ({href: '/register'}),
 
     summary: () => ({href: '/summary'}),
+    activity: () => ({href: '/activity'}),
     contacts: ({showAdd}: { showAdd?: boolean } = {}) => ({
         href: '/contacts' + queryStringify({showAdd}),
     }),

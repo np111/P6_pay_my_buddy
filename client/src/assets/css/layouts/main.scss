@@ -125,3 +125,10 @@ a {
 .ant-form .ant-form-item:last-child {
   margin-bottom: 0;
 }
+
+.cursor-pagination {
+  padding: $container-margin;
+  display: flex;
+  gap: $paragraph-margin;
+  justify-content: flex-end;
+}
