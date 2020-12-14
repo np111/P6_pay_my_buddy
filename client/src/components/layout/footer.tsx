@@ -7,10 +7,6 @@ require('../../assets/css/layouts/footer.scss');
 export const Footer = withTranslation('common')(function ({t}: WithTranslation) {
     const copyYear = Math.max(2020, new Date().getFullYear());
     const colProps = {xs: 24, sm: 12, lg: 6};
-    const renderLinks = () => {
-        // TODO
-        return null;
-    };
     return (
         <footer id='footer'>
             <div className='links'>
@@ -23,20 +19,24 @@ export const Footer = withTranslation('common')(function ({t}: WithTranslation) 
                                     <a href='/'/>
                                 </Trans>
                             </p>
-                            <a href='/contact'>
-                                {t('common:footer.contact')}
-                            </a>
-                        </Col>
-                        <Col {...colProps}>
-                            <div className='title'>{t('common:footer.links')}</div>
-                            {renderLinks()}
                         </Col>
                         <Col {...colProps}>
                             {/* empty */}
                         </Col>
                         <Col {...colProps}>
+                            <div className='title'>{t('common:footer.links')}</div>
+                            <ul>
+                                <li><a href='#'>{t('common:footer.prices')}</a></li>
+                                <li><a href='#'>{t('common:footer.developers')}</a></li>
+                                <li><a href='#'>{t('common:footer.partners')}</a></li>
+                            </ul>
+                        </Col>
+                        <Col {...colProps}>
                             <div className='title'>{t('common:footer.help')}</div>
-                            {renderLinks()}
+                            <ul>
+                                <li><a href='#'>{t('common:footer.community')}</a></li>
+                                <li><a href='#'>{t('common:footer.support')}</a></li>
+                            </ul>
                         </Col>
                     </Row>
                 </div>
@@ -47,13 +47,11 @@ export const Footer = withTranslation('common')(function ({t}: WithTranslation) 
                         <Col xs={24} sm={12}>
                             <Trans i18nKey='common:footer.copyright'>
                                 {'' + copyYear}
-                                <a href='/'/>
+                                <a href='#'/>
                             </Trans>
                         </Col>
                         <Col className='right' xs={24} sm={12}>
-                            <a href='/tos' target='_blank'>
-                                {t('common:footer.tos')}
-                            </a>
+                            <a href='#' target='_blank'>{t('common:footer.tos')}</a>
                         </Col>
                     </Row>
                 </div>

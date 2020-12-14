@@ -24,6 +24,18 @@
     "send_money": "Envoyer de l'argent",
     "add_contact": "Ajouter un contact"
   },
+  "footer": {
+    "copyright": "© <0/> <1>PayMyBuddy</1>",
+    "about": "<1>PayMyBuddy</1> permet d'envoyer et de recevoir des paiements en ligne de manière pratique.",
+    "links": "Liens",
+    "help": "Aide",
+    "tos": "Contrats d'utilisation",
+    "prices": "Tarifs",
+    "developers": "Développeurs",
+    "partners": "Partenaires",
+    "community": "Communauté",
+    "support": "Support"
+  },
   "intl": {
     "ok": "OK",
     "cancel": "Annuler",
