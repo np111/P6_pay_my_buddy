@@ -1,6 +1,7 @@
 package com.paymybuddy.server.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.paymybuddy.server.properties.SecurityProperties;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
@@ -16,11 +17,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @EnableWebMvc
 public class WebMvcConfig implements WebMvcConfigurer {
+    private final SecurityProperties securityProps;
     private final ObjectMapper objectMapper;
 
     @Override
     public void addCorsMappings(CorsRegistry cors) {
-        cors.addMapping("/**").allowedOrigins("http://localhost:3000").allowedMethods("*").maxAge(TimeUnit.DAYS.toSeconds(1)); // TODO: add origins properties
+        cors.addMapping("/**")
+                .allowedOrigins(securityProps.getAllowedOrigins().toArray(new String[0]))
+                .allowedMethods("*")
+                .maxAge(TimeUnit.DAYS.toSeconds(1));
     }
 
     @Override

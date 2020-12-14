@@ -2,6 +2,11 @@
 server:
   port: '${SERVER_PORT:8081}'
 
+paymybuddy:
+  security:
+    allowedOrigins:
+      - '${CLIENT_URL:http://localhost:3000}'
+
 spring:
   jpa:
     hibernate:
