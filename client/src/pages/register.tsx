@@ -1,5 +1,6 @@
 import React, {useCallback, useState} from 'react';
 import {apiClient} from '../api/api-client';
+import {currenciesOptions} from '../api/api-constants';
 import {UnhandledApiError} from '../api/api-exception';
 import '../assets/css/pages/register.scss';
 import {pageWithAuth, WithAuth} from '../components/auth/with-auth';
@@ -9,6 +10,7 @@ import {Button} from '../components/ui/button';
 import {Card} from '../components/ui/card';
 import {Form, useForm} from '../components/ui/form';
 import {Input} from '../components/ui/input';
+import {Select} from '../components/ui/select';
 import {Spin} from '../components/ui/spin';
 import {Autofocus} from '../components/utils/autofocus';
 import {setFormError} from '../utils/form-utils';
@@ -30,12 +32,11 @@ function RegisterPage({t}: WithAuth & WithTranslation) {
 
 export default pageWithAuth({preAuthorize: 'isAnonymous'})(pageWithTranslation('register')(RegisterPage));
 
-// TODO: select default currency
 const RegisterForm = withTranslation()(function ({t}: WithTranslation) {
     const catchAsyncError = useCatchAsyncError();
     const [loading, setLoading] = useState(false);
     const [form] = useForm();
-    const register = useCallback(({name, email, password}) => {
+    const register = useCallback(({name, email, password, defaultCurrency}) => {
         setLoading(true);
         return apiClient.fetch({
             authToken: false,
@@ -44,7 +45,7 @@ const RegisterForm = withTranslation()(function ({t}: WithTranslation) {
                 name,
                 email,
                 password,
-                defaultCurrency: 'EUR',
+                defaultCurrency,
             },
         }).then((res): void | Promise<any> => {
             if (res.success === false) {
@@ -117,6 +118,13 @@ const RegisterForm = withTranslation()(function ({t}: WithTranslation) {
                     ]}
                 >
                     <Input.Password maxLength={255}/>
+                </Form.Item>
+                <Form.Item
+                    name='defaultCurrency'
+                    label={t('register:default_currency')}
+                    initialValue={'EUR'}
+                >
+                    <Select options={currenciesOptions}/>
                 </Form.Item>
                 <Form.Item {...tailLayout}>
                     <Button type='primary' htmlType='submit' size='large'>

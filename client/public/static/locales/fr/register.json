@@ -3,6 +3,7 @@
   "email": "Email",
   "password": "Mot de passe",
   "password_confirmation": "Confirmation",
+  "default_currency": "Devise préférée",
   "register": "S'inscrire",
   "registered": "Inscription validée ! Connectez-vous.",
   "require_name": "Veuillez entrer votre nom.",
