@@ -35,7 +35,7 @@ export function noop() {
 }
 
 // eslint-disable-next-line
-export function doBindArgs<T extends Function>(fn: T, ...args: any[]): T {
+export function doBindArgs<T extends Function>(fn: T, ...args: any[]): (...args: any[]) => void {
     return fn.bind.apply(fn, [undefined, ...args]);
 }
 

@@ -2,6 +2,7 @@ import React, {useCallback, useState} from 'react';
 import useSWR from 'swr';
 import {apiClient} from '../api/api-client';
 import {UnhandledApiError} from '../api/api-exception';
+import {CursorResponse, Transaction} from '../api/api-types';
 import {pageWithAuth, WithAuth, withAuth} from '../components/auth/with-auth';
 import {CurrencyAmount} from '../components/business/currency-amount';
 import {pageWithTranslation, withTranslation, WithTranslation} from '../components/i18n';
@@ -52,7 +53,7 @@ const TransactionsList = withAuth()(withTranslation('activity')(function Transac
     const {data: loadingData, error, mutate} = useSWR(
         [authToken, 'user/transaction', tableQuery],
         (authToken, url, tableQuery) => apiClient
-            .fetch({authToken, url: url + queryStringify(tableQuery)})
+            .fetch<CursorResponse<Transaction>>({authToken, url: url + queryStringify(tableQuery)})
             .then((res) => {
                 if (res.success === false) {
                     throw new UnhandledApiError(res.error);
@@ -79,13 +80,13 @@ const TransactionsList = withAuth()(withTranslation('activity')(function Transac
         return <InlineError error={error}/>;
     }
 
-    const columns: ColumnsType<any> = [{
+    const columns: ColumnsType<Transaction> = [{
         key: 'type',
         title: t('activity:type'),
-        render(none, r) {
-            return r.recipient.id === authGuard.user.id
-                ? <><Icon {...iconReceived}/> {t('activity:received_from', r.sender)}</>
-                : <><Icon {...iconSent}/> {t('activity:sent_to', r.recipient)}</>;
+        render(none, tr) {
+            return tr.recipient.id === authGuard.user.id
+                ? <><Icon {...iconReceived}/> {t('activity:received_from', tr.sender)}</>
+                : <><Icon {...iconSent}/> {t('activity:sent_to', tr.recipient)}</>;
         },
     }, {
         dataIndex: 'description',
@@ -99,12 +100,12 @@ const TransactionsList = withAuth()(withTranslation('activity')(function Transac
         dataIndex: 'amount',
         title: t('activity:amount'),
         align: 'right',
-        render(amount, r) {
+        render(amount, tr) {
             let prefix;
-            if (r.recipient.id !== authGuard.user.id) {
+            if (tr.recipient.id !== authGuard.user.id) {
                 prefix = '- ';
             }
-            return <>{prefix}<CurrencyAmount amount={amount} currency={r.currency}/></>;
+            return <>{prefix}<CurrencyAmount amount={amount} currency={tr.currency}/></>;
         },
     }, {
         dataIndex: 'date',
@@ -114,34 +115,34 @@ const TransactionsList = withAuth()(withTranslation('activity')(function Transac
             return <DateFormat date={date} format='lll'/>;
         },
     }];
-    const expandable: ExpandableConfig<any> = {
+    const expandable: ExpandableConfig<Transaction> = {
         expandRowByClick: true,
-        expandedRowRender(r) {
+        expandedRowRender(tr) {
             return (
                 <DescList className='default horizontal secondary-title'>
                     <DescListItem
                         title={titleSep(t, 'activity:sender')}
-                        value={r.sender.name + ' (' + r.sender.email + ')'}
+                        value={tr.sender.name + ' (' + tr.sender.email + ')'}
                     />
                     <DescListItem
                         title={titleSep(t, 'activity:recipient')}
-                        value={r.recipient.name + ' (' + r.recipient.email + ')'}
+                        value={tr.recipient.name + ' (' + tr.recipient.email + ')'}
                     />
                     <DescListItem
                         title={titleSep(t, 'activity:amount')}
-                        value={<CurrencyAmount amount={r.amount} currency={r.currency}/>}
+                        value={<CurrencyAmount amount={tr.amount} currency={tr.currency}/>}
                     />
                     <DescListItem
                         title={titleSep(t, 'activity:fee')}
-                        value={<CurrencyAmount amount={r.fee} currency={r.currency}/>}
+                        value={<CurrencyAmount amount={tr.fee} currency={tr.currency}/>}
                     />
                     <DescListItem
                         title={titleSep(t, 'activity:date')}
-                        value={<DateFormat date={r.date} format='llll'/>}
+                        value={<DateFormat date={tr.date} format='llll'/>}
                     />
                     <DescListItem
                         title={titleSep(t, 'activity:description')}
-                        value={r.description}
+                        value={tr.description}
                     />
                 </DescList>
             );
@@ -154,7 +155,7 @@ const TransactionsList = withAuth()(withTranslation('activity')(function Transac
                     columns={columns}
                     expandable={expandable}
                     rowKey='id'
-                    dataSource={!data ? undefined : data.records}
+                    dataSource={!data ? [undefined] : data.records}
                     loading={loadingData === undefined}
                     pagination={false}
                     showSorterTooltip={false}

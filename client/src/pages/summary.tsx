@@ -2,7 +2,7 @@ import React, {useCallback} from 'react';
 import useSWR from 'swr';
 import {apiClient} from '../api/api-client';
 import {UnhandledApiError} from '../api/api-exception';
-import {Transaction, UserBalance, UserBalancesResponse} from '../api/api-types';
+import {CursorResponse, Transaction, UserBalance, UserBalancesResponse} from '../api/api-types';
 import {pageWithAuth, withAuth, WithAuth} from '../components/auth/with-auth';
 import {CurrencyAmount} from '../components/business/currency-amount';
 import {Link, pageWithTranslation, withTranslation, WithTranslation} from '../components/i18n';
@@ -88,7 +88,7 @@ const RecentActivity = withAuth()(withTranslation('summary')(function RecentActi
     const {data: transactions, error} = useSWR(
         [authGuard.token, 'user/transaction?pageSize=5&pageSort=-id'],
         (authToken, url) => apiClient
-            .fetch({authToken, url})
+            .fetch<CursorResponse<Transaction>>({authToken, url})
             .then((res) => {
                 if (res.success === false) {
                     throw new UnhandledApiError(res.error);

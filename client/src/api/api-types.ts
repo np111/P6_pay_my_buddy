@@ -16,10 +16,6 @@ export interface Contact {
     name: string;
 }
 
-export interface AutocompleteContactResponse {
-    records: Contact[];
-}
-
 export interface Transaction {
     id: number;
     sender: Contact;
@@ -29,4 +25,22 @@ export interface Transaction {
     fee: string;
     description: string;
     date: string;
+}
+
+export interface ListResponse<T> {
+    records: T[];
+}
+
+export interface PageResponse<T> extends ListResponse<T> {
+    page: number;
+    pageSize: number;
+    pageCount: number;
+    totalCount: number;
+}
+
+export interface CursorResponse<T> extends ListResponse<T> {
+    prevCursor: string;
+    hasPrev: boolean;
+    nextCursor: string;
+    hasNext: boolean;
 }

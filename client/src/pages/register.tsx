@@ -38,7 +38,7 @@ const RegisterForm = withTranslation()(function ({t}: WithTranslation) {
     const [form] = useForm();
     const register = useCallback(({name, email, password, defaultCurrency}) => {
         setLoading(true);
-        return apiClient.fetch({
+        return apiClient.fetch<void>({
             authToken: false,
             url: 'auth/register',
             body: {

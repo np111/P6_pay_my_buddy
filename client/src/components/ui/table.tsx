@@ -16,7 +16,8 @@ export type TableProps<RecordType> = AntTableProps<RecordType> & {
 export type ColumnsType<RecordType> = AntColumnsType<RecordType>;
 export type ExpandableConfig<RecordType> = AntExpandableConfig<RecordType>;
 
-export function Table<RecordType extends Record<string, unknown> = any>(props: TableProps<RecordType>) {
+// eslint-disable-next-line
+export function Table<RecordType extends object = any>(props: TableProps<RecordType>) {
     return (
         <ConfigProvider renderEmpty={props.renderEmpty || defaultRenderEmpty}>
             <AntTable {...props}/>

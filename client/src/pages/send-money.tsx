@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {apiClient} from '../api/api-client';
 import {currencies, currenciesOptions} from '../api/api-constants';
 import {UnhandledApiError} from '../api/api-exception';
-import {AutocompleteContactResponse, Contact, Transaction} from '../api/api-types';
+import {Contact, ListResponse, Transaction} from '../api/api-types';
 import '../assets/css/pages/send-money.scss';
 import {pageWithAuth, WithAuth, withAuth} from '../components/auth/with-auth';
 import {CurrencyAmount} from '../components/business/currency-amount';
@@ -94,7 +94,7 @@ const SelectContactForm = withAuth()(withTranslation('send-money')(function Sele
         }
 
         const counter = options.counter;
-        return apiClient.fetch<AutocompleteContactResponse>({
+        return apiClient.fetch<ListResponse<Contact>>({
             authToken,
             url: 'user/autocomplete-contact?input=' + encodeURIComponent(input),
         }).then((res): void | Promise<any> => {

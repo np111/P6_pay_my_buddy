@@ -3,6 +3,7 @@ import React, {useCallback, useRef, useState} from 'react';
 import useSWR from 'swr';
 import {apiClient} from '../api/api-client';
 import {UnhandledApiError} from '../api/api-exception';
+import {Contact, PageResponse} from '../api/api-types';
 import {pageWithAuth, WithAuth, withAuth} from '../components/auth/with-auth';
 import {pageWithTranslation, withTranslation, WithTranslation} from '../components/i18n';
 import {Heading} from '../components/layout/heading';
@@ -99,7 +100,7 @@ const ContactsList = withAuth()(withTranslation('contacts')(function ContactsLis
     const {data: loadingData, error, mutate} = useSWR(
         [authToken, 'user/contact', tableQuery],
         (authToken, url, tableQuery) => apiClient
-            .fetch({authToken, url: url + queryStringify(tableQuery)})
+            .fetch<PageResponse<Contact>>({authToken, url: url + queryStringify(tableQuery)})
             .then((res) => {
                 if (res.success === false) {
                     throw new UnhandledApiError(res.error);
@@ -110,8 +111,8 @@ const ContactsList = withAuth()(withTranslation('contacts')(function ContactsLis
     mutateRef.current = mutate;
     const data = useStickyResult(loadingData);
 
-    const deleteContact = useCallback((contact: any) => {
-        return withNProgress(apiClient.fetch({
+    const deleteContact = useCallback((contact: Contact) => {
+        return withNProgress(apiClient.fetch<void>({
             authToken,
             method: 'DELETE',
             url: 'user/contact/' + encodeURIComponent(contact.id),
@@ -133,7 +134,7 @@ const ContactsList = withAuth()(withTranslation('contacts')(function ContactsLis
         return <InlineError error={error}/>;
     }
 
-    const columns: ColumnsType<any> = [{
+    const columns: ColumnsType<Contact> = [{
         dataIndex: 'name',
         title: t('contacts:name'),
         sorter: true,
@@ -199,7 +200,7 @@ const AddContactForm = withAuth()(withTranslation('contacts')(function AddContac
     const [form] = useForm();
     const addContact = useCallback(({email}) => {
         setLoading(true);
-        return apiClient.fetch({
+        return apiClient.fetch<Contact>({
             authToken,
             url: 'user/contact',
             body: {email},
