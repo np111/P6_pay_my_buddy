@@ -15,6 +15,252 @@
 }
 
 .home-hero {
+  display: flex;
+  padding-top: #{$header-height/2};
+  position: relative;
+  background: #8f48fe;
   background: linear-gradient(-6deg, #4171FF, #8f48fe);
-  min-height: 600px;
+  color: rgba(255, 255, 255, .92);
+  min-height: Max(360px, Min(95vh, 720px));
+
+  .hero-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: .075;
+  }
+
+  .overview {
+    position: relative;
+    z-index: 1;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    .title {
+      text-transform: uppercase;
+      text-align: center;
+      font-size: Min(36px, 7vw);
+      line-height: 1.125;
+      font-weight: $font-light-weight;
+
+      > strong {
+        display: block;
+        font-weight: $font-bold-weight;
+        font-size: 1.72em;
+
+        background: rgba(255, 255, 255, .92);
+        color: $primary-color;
+        padding: 0 0.1em;
+        margin-bottom: 0.1em;
+      }
+    }
+
+    .cta {
+      margin-top: 48px;
+    }
+
+    .cta-btn {
+      display: inline-block;
+      text-align: center;
+      background: #fff;
+      padding: 4px 24px;
+      border-radius: 32px;
+      color: $primary-color;
+      font-size: 20px;
+      font-weight: $font-bold-weight;
+      transition: all ease .5s;
+
+      &:hover {
+        background: transparentize(#fff, 0.2);
+        padding: 4px 32px;
+      }
+
+      &:active {
+        text-decoration: none;
+      }
+    }
+  }
+
+  .bg-bubbles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+
+    li {
+      position: absolute;
+      list-style: none;
+      display: block;
+      font-size: 60px;
+      color: rgba(255, 255, 255, .22);
+      animation: bg-bubble-float 25s infinite;
+      transition-timing-function: linear;
+      bottom: -80px;
+
+      &:nth-child(1) {
+        left: 10%;
+      }
+
+      &:nth-child(2) {
+        left: 20%;
+        font-size: 1.75em;
+        animation-delay: 2s;
+        animation-duration: 17s;
+      }
+
+      &:nth-child(3) {
+        left: 25%;
+        animation-delay: 4s;
+      }
+
+      &:nth-child(4) {
+        left: 40%;
+        font-size: 1.5em;
+        animation-duration: 22s;
+      }
+
+      &:nth-child(5) {
+        left: 70%;
+      }
+
+      &:nth-child(6) {
+        left: 80%;
+        font-size: 2.5em;
+        animation-delay: 3s;
+      }
+
+      &:nth-child(7) {
+        left: 32%;
+        font-size: 3.25em;
+        animation-delay: 7s;
+      }
+
+      &:nth-child(8) {
+        left: 55%;
+        font-size: 0.85em;
+        animation-delay: 15s;
+        animation-duration: 40s;
+      }
+
+      &:nth-child(9) {
+        left: 25%;
+        font-size: 0.75em;
+        animation-delay: 2s;
+        animation-duration: 40s;
+      }
+
+      &:nth-child(10) {
+        left: 90%;
+        font-size: 2.25em;
+        animation-delay: 11s;
+      }
+    }
+  }
+
+  @keyframes bg-bubble-float {
+    0% {
+      bottom: -80px;
+      filter: blur(0);
+      transform: rotate(0deg);
+    }
+    65% {
+      opacity: 1;
+    }
+    100% {
+      bottom: 75%;
+      filter: blur(4px);
+      transform: rotate(600deg);
+      opacity: 0;
+    }
+  }
+}
+
+.home-section {
+  position: relative;
+  padding: 48px 0;
+
+  &.gray {
+    &, .skew-bg.top::before {
+      background: $body-bg-color;
+    }
+  }
+
+  &.blue {
+    text-align: right;
+
+    &, h2 {
+      color: #fff;
+    }
+
+    &, .skew-bg.top::before {
+      background: $primary-color;
+    }
+  }
+
+  &.white {
+    &, .skew-bg.top::before {
+      background: #fff;
+    }
+  }
+
+  .skew-bg {
+    $skew-angle: -2.5deg;
+    $skew-height: 4.36609429vw; // tan(-$skew-angle)*100vw
+
+    &.top {
+      position: absolute;
+      z-index: 1;
+      top: -$skew-height;
+      left: 0;
+      width: 100%;
+      height: $skew-height;
+      overflow: hidden;
+      pointer-events: none;
+
+      &::before {
+        content: '';
+        display: block;
+        position: absolute;
+        top: $skew-height;
+        height: 100%;
+        width: 200%;
+        transform: skewY($skew-angle);
+        transform-origin: top left;
+      }
+    }
+
+    &.bottom {
+      height: $skew-height;
+    }
+  }
+}
+
+.home-content {
+  display: flex;
+  gap: 16px 32px;
+  align-items: center;
+
+  > .icon {
+    font-size: 96px;
+  }
+
+  > .content {
+    flex: 1;
+  }
+
+  @media screen and (max-width: 540px) {
+    flex-direction: column;
+
+    > .icon {
+      font-size: 48px;
+    }
+  }
 }
