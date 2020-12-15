@@ -155,7 +155,7 @@ const TransactionsList = withAuth()(withTranslation('activity')(function Transac
                     columns={columns}
                     expandable={expandable}
                     rowKey='id'
-                    dataSource={!data ? [undefined] : data.records}
+                    dataSource={!data ? undefined : data.records}
                     loading={loadingData === undefined}
                     pagination={false}
                     showSorterTooltip={false}
