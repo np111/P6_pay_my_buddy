@@ -14,6 +14,8 @@ print_usage() {
   echo "${green} docker down${reset}           Stop and remove development containers"
   echo "${green} docker logs${reset}           Print development containers logs"
   echo "${green} db-migration <desc>${reset}   Print database migration filename"
+  echo "${green} docs generate${reset}         Generate docs"
+  echo "${green} docs publish${reset}          Publish docs"
 }
 
 docker_compose() {
@@ -31,6 +33,10 @@ db_migration() {
   echo "V$(echo "$DATE" | cut -d@ -f1).${ELAPSED_SECONDS_UTC}__${DESC}.sql"
 }
 
+docs() {
+  ./.dev/docs.sh "$@"
+}
+
 # main
 if [ $# -lt 1 ]; then
   print_usage
@@ -45,6 +51,9 @@ docker)
   ;;
 db-migration)
   db_migration "$@"
+  ;;
+docs)
+  docs "$@"
   ;;
 *)
   echo "${red2}Error: '${command}' is not a dev command.${reset2}" >&2
