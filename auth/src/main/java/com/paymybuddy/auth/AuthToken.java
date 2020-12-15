@@ -4,6 +4,9 @@ import com.google.common.base.Preconditions;
 import java.util.Collections;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 
+/**
+ * Authentication token, associated with an {@link AuthGuard} when the token is authenticated.
+ */
 public final class AuthToken extends AbstractAuthenticationToken {
     public static AuthToken unauthenticated(String token) {
         return new AuthToken(null, token);

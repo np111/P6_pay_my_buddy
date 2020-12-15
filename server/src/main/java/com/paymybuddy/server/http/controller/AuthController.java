@@ -78,7 +78,7 @@ public class AuthController {
     @PreAuthorize("isAuthenticated()")
     @JsonRequestMapping(method = RequestMethod.POST, value = "/logout")
     public ResponseEntity<Void> logout() {
-        authService.destroyAuthToken((AuthToken) SecurityContextHolder.getContext().getAuthentication());
+        authService.destroyAuthToken(((AuthToken) SecurityContextHolder.getContext().getAuthentication()).getCredentials());
         SecurityContextHolder.clearContext();
         return ResponseEntity.noContent().build();
     }

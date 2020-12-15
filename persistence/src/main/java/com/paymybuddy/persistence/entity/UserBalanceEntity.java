@@ -17,6 +17,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Entity representing a user balances in different currencies.
+ */
 @Entity
 @Table(name = "user_balances")
 @IdClass(UserBalanceEntity.Key.class)

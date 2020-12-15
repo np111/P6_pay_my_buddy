@@ -11,6 +11,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
+/**
+ * An {@link AuthenticationProvider} for {@linkplain UsernamePasswordAuthenticationToken username/password credentials},
+ * using our own {@linkplain AuthService authentication service}.
+ */
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Component
 @Scope("singleton")
@@ -24,6 +28,8 @@ public class CredentialsAuthProvider implements AuthenticationProvider {
     }
 
     private String determineEmail(Authentication authentication) {
+        // Using "NONE_PROVIDED" like spring does. Unfortunately, they do not expose any constant.
+        // See https://github.com/spring-projects/spring-security/blob/f614a8230c84a505597de0bd6380e5e2fea117ea/core/src/main/java/org/springframework/security/authentication/dao/AbstractUserDetailsAuthenticationProvider.java#L172
         return authentication.getPrincipal() == null ? "NONE_PROVIDED" : authentication.getName();
     }
 

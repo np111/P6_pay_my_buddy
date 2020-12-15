@@ -10,6 +10,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
+/**
+ * An {@link AuthenticationProvider} for {@linkplain AuthToken token strings}, using our own
+ * {@linkplain AuthService authentication service}.
+ */
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Component
 @Scope("singleton")
@@ -18,7 +22,7 @@ public class TokenAuthProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        return authService.authenticateAuthToken((AuthToken) authentication);
+        return authService.authenticateAuthToken(((AuthToken) authentication).getCredentials());
     }
 
     @Override

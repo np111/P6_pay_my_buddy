@@ -16,6 +16,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+/**
+ * Entity representing a user.
+ */
 @Entity
 @Table(name = "users")
 @NoArgsConstructor
@@ -30,6 +33,9 @@ public class UserEntity {
     @Column(name = "email")
     private String email;
 
+    /**
+     * Bcrypt encoded password (a "$2" string).
+     */
     @Column(name = "password", columnDefinition = "CHAR", length = 60)
     private String encodedPassword;
 

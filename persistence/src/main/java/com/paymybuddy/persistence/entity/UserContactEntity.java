@@ -13,6 +13,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Entity representing the user contact association table.
+ */
 @Entity
 @Table(name = "user_contacts")
 @IdClass(UserContactEntity.Key.class)

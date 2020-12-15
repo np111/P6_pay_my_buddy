@@ -17,6 +17,9 @@ import javax.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Entity representing a monetary transaction.
+ */
 @Entity
 @Table(name = "transactions")
 @NoArgsConstructor
