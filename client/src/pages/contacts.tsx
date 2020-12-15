@@ -158,7 +158,7 @@ const ContactsList = withAuth()(withTranslation('contacts')(function ContactsLis
     }];
     return (
         <Card>
-            {data && !data.records.length ? (
+            {data && data.totalCount === 0 ? (
                 <div className='text-center'>
                     <p>{t('contacts:no_contact_yet')}</p>
                     <Button type='primary' size='large' onClick={onAddContact}>

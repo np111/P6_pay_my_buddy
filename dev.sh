@@ -14,6 +14,7 @@ print_usage() {
   echo "${green} docker down${reset}           Stop and remove development containers"
   echo "${green} docker logs${reset}           Print development containers logs"
   echo "${green} db-migration <desc>${reset}   Print database migration filename"
+  echo "${green} db-seed${reset}               Seed the database with tests data"
   echo "${green} docs generate${reset}         Generate docs"
   echo "${green} docs publish${reset}          Publish docs"
 }
@@ -31,6 +32,10 @@ db_migration() {
   ELAPSED_SECONDS_UTC=$(printf "%05d" $(echo "$DATE" | cut -d@ -f2 | bc))
   DESC=$(echo "${*}" | sed 's/\s/_/g')
   echo "V$(echo "$DATE" | cut -d@ -f1).${ELAPSED_SECONDS_UTC}__${DESC}.sql"
+}
+
+db_seed() {
+  ./.dev/seed-db.sh "$@"
 }
 
 docs() {
@@ -51,6 +56,9 @@ docker)
   ;;
 db-migration)
   db_migration "$@"
+  ;;
+db-seed)
+  db_seed "$@"
   ;;
 docs)
   docs "$@"
