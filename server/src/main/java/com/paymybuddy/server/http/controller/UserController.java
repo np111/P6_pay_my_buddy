@@ -9,6 +9,7 @@ import com.paymybuddy.api.model.collection.PageResponse;
 import com.paymybuddy.api.model.transaction.Transaction;
 import com.paymybuddy.api.model.user.User;
 import com.paymybuddy.api.model.user.UserBalancesResponse;
+import com.paymybuddy.api.request.auth.RegisterRequest;
 import com.paymybuddy.api.request.transaction.CreateTransactionRequest;
 import com.paymybuddy.api.request.user.AddContactRequest;
 import com.paymybuddy.api.util.jackson.AmountSerializer;
@@ -23,8 +24,10 @@ import com.paymybuddy.business.pageable.CursorRequestParser;
 import com.paymybuddy.business.pageable.PageRequestParser;
 import com.paymybuddy.business.util.DateUtil;
 import com.paymybuddy.server.http.util.JsonRequestMapping;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.constraints.Size;
-import javax.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,12 +40,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
 
 import static com.paymybuddy.server.http.controller.ExceptionController.errorToResponse;
 
+@Tag(name = "user", description = "Users operations")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @RestController
 @RequestMapping("/user")
@@ -69,6 +74,23 @@ public class UserController {
     private final ContactService contactService;
     private final TransactionService transactionService;
 
+    @Operation(
+            summary = "Register a new user."
+    )
+    @PreAuthorize("isAnonymous()")
+    @JsonRequestMapping(method = RequestMethod.POST, value = "/register")
+    public ResponseEntity<Void> register(
+            @RequestBody @Validated RegisterRequest body
+    ) {
+        userService.register(body.getName(), body.getEmail(), body.getPassword(), body.getDefaultCurrency());
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            summary = "Returns the user's balances.",
+            description = "The default currency balance is always included (first)."
+                    + " Others are only included when they are non-zero."
+    )
     @PreAuthorize("isAuthenticated()")
     @JsonRequestMapping(method = RequestMethod.GET, value = "/balance")
     public UserBalancesResponse getBalances(
@@ -77,6 +99,9 @@ public class UserController {
         return userService.getUserBalances(auth.getUserId());
     }
 
+    @Operation(
+            summary = "Returns the user's contact list."
+    )
     @PreAuthorize("isAuthenticated()")
     @JsonRequestMapping(method = RequestMethod.GET, value = "/contact")
     public PageResponse<User> listContacts(
@@ -86,6 +111,9 @@ public class UserController {
         return contactService.listContacts(auth.getUserId(), CONTACT_REQUEST_PARSER.of(webRequest::getParameter));
     }
 
+    @Operation(
+            summary = "Adds a contact to the user."
+    )
     @PreAuthorize("isAuthenticated()")
     @JsonRequestMapping(method = RequestMethod.POST, value = "/contact")
     public User addContact(
@@ -95,10 +123,14 @@ public class UserController {
         return contactService.addContact(auth.getUserId(), body.getEmail());
     }
 
+    @Operation(
+            summary = "Returns a contact of the user."
+    )
     @PreAuthorize("isAuthenticated()")
     @JsonRequestMapping(method = RequestMethod.GET, value = "/contact/{contactSelector}")
     public User getContact(
             @AuthenticationPrincipal AuthGuard auth,
+            @Parameter(description = "Email or name of the contact.")
             @PathVariable("contactSelector") String contactSelector
     ) {
         User contact = contactService.getContact(auth.getUserId(), contactSelector);
@@ -108,24 +140,36 @@ public class UserController {
         return contact;
     }
 
+    @Operation(
+            summary = "Removes a user contact."
+    )
     @PreAuthorize("isAuthenticated()")
     @JsonRequestMapping(method = RequestMethod.DELETE, value = "/contact/{contactId}")
     public User removeContact(
             @AuthenticationPrincipal AuthGuard auth,
+            @Parameter(description = "ID of the contact.")
             @PathVariable("contactId") Long contactId
     ) {
         return contactService.removeContact(auth.getUserId(), contactId);
     }
 
+    @Operation(
+            summary = "Autocomplete the user's contacts."
+    )
     @PreAuthorize("isAuthenticated()")
-    @JsonRequestMapping(method = RequestMethod.GET, value = "/autocomplete-contact")
+    @JsonRequestMapping(method = RequestMethod.GET, value = "/contact-autocomplete")
     public ListResponse<User> autocompleteContact(
             @AuthenticationPrincipal AuthGuard auth,
-            @PathParam("input") @Size(max = 255) String input
+            @Parameter(description = "Partial term to search/autocomplete.")
+            @RequestParam("input") @Size(max = 255) String input
     ) {
         return contactService.searchContacts(auth.getUserId(), input, 10);
     }
 
+    @Operation(
+            summary = "Returns the user's transaction list.",
+            description = "Lists the transactions of which the user is the sender or the recipient."
+    )
     @PreAuthorize("isAuthenticated()")
     @JsonRequestMapping(method = RequestMethod.GET, value = "/transaction")
     public CursorResponse<Transaction> listTransactions(
@@ -135,6 +179,9 @@ public class UserController {
         return transactionService.listTransactions(auth.getUserId(), TRANSACTION_REQUEST_PARSER.of(webRequest::getParameter));
     }
 
+    @Operation(
+            summary = "Create a new transaction."
+    )
     @PreAuthorize("isAuthenticated()")
     @JsonRequestMapping(method = RequestMethod.POST, value = "/transaction")
     public Transaction createTransaction(

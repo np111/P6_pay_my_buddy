@@ -96,7 +96,7 @@ const SelectContactForm = withAuth()(withTranslation('send-money')(function Sele
         const counter = options.counter;
         return apiClient.fetch<ListResponse<Contact>>({
             authToken,
-            url: 'user/autocomplete-contact?input=' + encodeURIComponent(input),
+            url: 'user/contact-autocomplete?input=' + encodeURIComponent(input),
         }).then((res): void | Promise<any> => {
             if (res.success === false) {
                 return;

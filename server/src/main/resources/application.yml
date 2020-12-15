@@ -22,6 +22,20 @@ spring:
     port: '${REDIS_PORT:14374}'
     password: '${REDIS_PASSWORD:pmb}'
 
+management:
+  server:
+    address: "${HTTP_MANAGEMENT_ADDR:127.0.0.1}"
+    port: "${HTTP_MANAGEMENT_PORT:-1}"
+
+springdoc:
+  api-docs:
+    enabled: "${API_DOCS_ENABLED:false}"
+    path: /api-docs
+  swagger-ui:
+    enabled: "${SWAGGER_UI_ENABLED:false}"
+    path: /docs.html
+    operationsSorter: alpha
+
 logging:
   level:
     # Disable useless hibernate warnings

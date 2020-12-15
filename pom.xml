@@ -31,6 +31,7 @@
     <mapstruct.version>1.4.1.Final</mapstruct.version>
     <commons-validator.version>1.7</commons-validator.version>
     <guava.version>30.0-jre</guava.version>
+    <springdoc-openapi.version>1.5.1</springdoc-openapi.version>
   </properties>
 
   <dependencyManagement>

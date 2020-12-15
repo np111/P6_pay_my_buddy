@@ -1,6 +1,7 @@
 package com.paymybuddy.server.http.filter;
 
 import com.paymybuddy.auth.AuthToken;
+import com.paymybuddy.auth.provider.TokenAuthProvider;
 import com.paymybuddy.server.http.controller.ExceptionController;
 import java.io.IOException;
 import javax.servlet.FilterChain;
@@ -20,6 +21,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+/**
+ * A filter to authenticate requests using the {@link AuthToken} passed in the "X-Auth-Token" header value.
+ *
+ * @see AuthToken
+ * @see TokenAuthProvider
+ */
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Component
 @Scope("singleton")
@@ -31,18 +38,32 @@ public class TokenAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws ServletException, IOException {
         String token = req.getHeader("x-auth-token");
-        if (token == null) {
-            throw new CredentialsExpiredException("Missing auth token");
-        } else if (!"anonymous".equals(token)) {
-            try {
+        try {
+            if (token == null) {
+                if (!isBrowserEndpoint(req)) {
+                    throw new CredentialsExpiredException("Missing auth token");
+                }
+            } else if (!"anonymous".equals(token)) {
                 Authentication authResult = authManager.authenticate(AuthToken.unauthenticated(token));
                 SecurityContextHolder.getContext().setAuthentication(authResult);
-            } catch (AuthenticationException ex) {
-                SecurityContextHolder.clearContext();
-                exceptionController.handle(req, res, ex);
-                return;
             }
+        } catch (AuthenticationException ex) {
+            SecurityContextHolder.clearContext();
+            exceptionController.handle(req, res, ex);
+            return;
         }
         chain.doFilter(req, res);
+    }
+
+    private boolean isBrowserEndpoint(HttpServletRequest req) {
+        String path = req.getServletPath();
+        switch (req.getServletPath()) {
+            case "/docs.html":
+            case "/api-docs":
+            case "/api-docs/swagger-config":
+                return true;
+            default:
+                return path.startsWith("/swagger-ui/");
+        }
     }
 }

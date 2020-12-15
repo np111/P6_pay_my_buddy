@@ -16,6 +16,8 @@ import com.paymybuddy.business.exception.IllegalNameException;
 import com.paymybuddy.business.exception.TooLongPasswordException;
 import com.paymybuddy.business.exception.TooShortPasswordException;
 import com.paymybuddy.server.http.util.JsonRequestMapping;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,23 +35,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static com.paymybuddy.server.http.controller.ExceptionController.errorToResponse;
 
+@Tag(name = "auth", description = "Authentication operations")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @RestController
 @RequestMapping("/auth")
 @Validated
 public class AuthController {
-    private final UserService userService;
     private final AuthService authService;
 
-    @PreAuthorize("isAnonymous()")
-    @JsonRequestMapping(method = RequestMethod.POST, value = "/register")
-    public ResponseEntity<Void> register(
-            @RequestBody @Validated RegisterRequest body
-    ) {
-        userService.register(body.getName(), body.getEmail(), body.getPassword(), body.getDefaultCurrency());
-        return ResponseEntity.noContent().build();
-    }
-
+    @Operation(
+            summary = "Authenticate a user using his email and password.",
+            description = "A new auth-token is created and included with the response."
+    )
     @PreAuthorize("isAnonymous()")
     @JsonRequestMapping(method = RequestMethod.POST, value = "/login")
     public LoginResponse login(
@@ -60,6 +57,10 @@ public class AuthController {
         return buildLoginResponse(authResult.getCredentials(), authResult.getPrincipal());
     }
 
+    @Operation(
+            summary = "Returns the currently authenticated user.",
+            description = "It's auth-token is not included with the response."
+    )
     @PreAuthorize("isAuthenticated()")
     @JsonRequestMapping(method = RequestMethod.GET, value = "/remember")
     public LoginResponse remember(
@@ -75,6 +76,9 @@ public class AuthController {
                 .build();
     }
 
+    @Operation(
+            summary = "Destroy the auth-token of the currently authenticated user."
+    )
     @PreAuthorize("isAuthenticated()")
     @JsonRequestMapping(method = RequestMethod.POST, value = "/logout")
     public ResponseEntity<Void> logout() {

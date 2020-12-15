@@ -40,7 +40,7 @@ const RegisterForm = withTranslation()(function ({t}: WithTranslation) {
         setLoading(true);
         return apiClient.fetch<void>({
             authToken: false,
-            url: 'auth/register',
+            url: 'user/register',
             body: {
                 name,
                 email,

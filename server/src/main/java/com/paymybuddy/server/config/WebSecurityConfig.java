@@ -5,6 +5,7 @@ import com.paymybuddy.auth.provider.TokenAuthProvider;
 import com.paymybuddy.server.http.controller.ExceptionController;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,18 +30,25 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // retrieved from the 'X-Auth-Token' header). See https://security.stackexchange.com/a/166798
         http.csrf().disable();
 
+        // Use CORS, configured in WebMvcConfig#addCorsMappings.
         http.cors();
 
+        // Disable spring sessions.
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
+        // Allow all requests by default and disable built-in login/logout pages.
+        // Use @PreAuthorize to manage endpoints authorizations.
         http.authorizeRequests().anyRequest().permitAll();
         http.formLogin().disable();
         http.logout().disable();
         http.exceptionHandling().accessDeniedHandler(exceptionController);
+
+        http.requestMatcher(EndpointRequest.toAnyEndpoint()).authorizeRequests();
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        // Register our authentication providers
         auth.authenticationProvider(credentialsAuthProvider).authenticationProvider(tokenAuthProvider);
     }
 
