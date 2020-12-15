@@ -1,6 +1,9 @@
 package com.paymybuddy.server.springdoc;
 
 import com.paymybuddy.api.model.ApiError;
+import com.paymybuddy.server.springdoc.error.ApiErrorDoc;
+import com.paymybuddy.server.springdoc.param.ParamDoc;
+import com.paymybuddy.server.springdoc.validation.ValidationDoc;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +19,7 @@ import org.springframework.web.method.HandlerMethod;
 @Component
 @Scope("singleton")
 public class SpringdocCustomizer implements OpenApiCustomiser, OperationCustomizer {
+    private final ParamDoc paramDoc;
     private final ValidationDoc validationDoc;
     private final ApiErrorDoc apiErrorDoc;
     private final ContentTypeDoc contentTypeDoc;
@@ -28,6 +32,7 @@ public class SpringdocCustomizer implements OpenApiCustomiser, OperationCustomiz
 
     @Override
     public Operation customize(Operation operation, HandlerMethod handlerMethod) {
+        paramDoc.customize(operation, handlerMethod);
         validationDoc.customize(operation, handlerMethod);
         apiErrorDoc.customize(operation, handlerMethod);
         contentTypeDoc.customize(operation, handlerMethod);

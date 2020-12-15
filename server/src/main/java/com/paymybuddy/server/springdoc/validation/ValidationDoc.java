@@ -1,7 +1,8 @@
-package com.paymybuddy.server.springdoc;
+package com.paymybuddy.server.springdoc.validation;
 
 import com.paymybuddy.api.model.ApiError;
 import com.paymybuddy.api.model.ApiError.ErrorCode;
+import com.paymybuddy.server.springdoc.error.ApiErrorDoc;
 import io.swagger.v3.oas.models.Operation;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

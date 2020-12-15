@@ -10,4 +10,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public class TooLongPasswordException extends FastRuntimeException {
     private final int length;
+
+    public TooLongPasswordException() {
+        this(0);
+    }
 }

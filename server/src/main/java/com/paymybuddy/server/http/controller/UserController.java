@@ -18,12 +18,20 @@ import com.paymybuddy.business.ContactService;
 import com.paymybuddy.business.TransactionService;
 import com.paymybuddy.business.UserService;
 import com.paymybuddy.business.exception.ContactNotFoundException;
+import com.paymybuddy.business.exception.EmailAlreadyRegisteredException;
+import com.paymybuddy.business.exception.IllegalEmailException;
+import com.paymybuddy.business.exception.IllegalNameException;
 import com.paymybuddy.business.exception.IsHimselfException;
 import com.paymybuddy.business.exception.NotEnoughFundsException;
+import com.paymybuddy.business.exception.TooLongPasswordException;
+import com.paymybuddy.business.exception.TooShortPasswordException;
 import com.paymybuddy.business.pageable.CursorRequestParser;
 import com.paymybuddy.business.pageable.PageRequestParser;
 import com.paymybuddy.business.util.DateUtil;
 import com.paymybuddy.server.http.util.JsonRequestMapping;
+import com.paymybuddy.server.springdoc.error.ApiErrorResponse;
+import com.paymybuddy.server.springdoc.param.ApiCursorRequestParameter;
+import com.paymybuddy.server.springdoc.param.ApiPageRequestParameter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -77,6 +85,11 @@ public class UserController {
     @Operation(
             summary = "Register a new user."
     )
+    @ApiErrorResponse(method = "handleIllegalNameException")
+    @ApiErrorResponse(method = "handleIllegalEmailException")
+    @ApiErrorResponse(method = "handleTooShortPasswordException")
+    @ApiErrorResponse(method = "handleTooLongPasswordException")
+    @ApiErrorResponse(method = "handleEmailAlreadyRegisteredException")
     @PreAuthorize("isAnonymous()")
     @JsonRequestMapping(method = RequestMethod.POST, value = "/register")
     public ResponseEntity<Void> register(
@@ -102,6 +115,7 @@ public class UserController {
     @Operation(
             summary = "Returns the user's contact list."
     )
+    @ApiPageRequestParameter
     @PreAuthorize("isAuthenticated()")
     @JsonRequestMapping(method = RequestMethod.GET, value = "/contact")
     public PageResponse<User> listContacts(
@@ -114,6 +128,8 @@ public class UserController {
     @Operation(
             summary = "Adds a contact to the user."
     )
+    @ApiErrorResponse(method = "handleContactNotFoundException")
+    @ApiErrorResponse(method = "handleIsHimselfException")
     @PreAuthorize("isAuthenticated()")
     @JsonRequestMapping(method = RequestMethod.POST, value = "/contact")
     public User addContact(
@@ -126,6 +142,7 @@ public class UserController {
     @Operation(
             summary = "Returns a contact of the user."
     )
+    @ApiErrorResponse(method = "handleContactNotFoundException")
     @PreAuthorize("isAuthenticated()")
     @JsonRequestMapping(method = RequestMethod.GET, value = "/contact/{contactSelector}")
     public User getContact(
@@ -143,6 +160,7 @@ public class UserController {
     @Operation(
             summary = "Removes a user contact."
     )
+    @ApiErrorResponse(method = "handleContactNotFoundException")
     @PreAuthorize("isAuthenticated()")
     @JsonRequestMapping(method = RequestMethod.DELETE, value = "/contact/{contactId}")
     public User removeContact(
@@ -170,6 +188,7 @@ public class UserController {
             summary = "Returns the user's transaction list.",
             description = "Lists the transactions of which the user is the sender or the recipient."
     )
+    @ApiCursorRequestParameter
     @PreAuthorize("isAuthenticated()")
     @JsonRequestMapping(method = RequestMethod.GET, value = "/transaction")
     public CursorResponse<Transaction> listTransactions(
@@ -182,6 +201,8 @@ public class UserController {
     @Operation(
             summary = "Create a new transaction."
     )
+    @ApiErrorResponse(method = "handleContactNotFoundException")
+    @ApiErrorResponse(method = "handleNotEnoughFundsException")
     @PreAuthorize("isAuthenticated()")
     @JsonRequestMapping(method = RequestMethod.POST, value = "/transaction")
     public Transaction createTransaction(
@@ -197,9 +218,67 @@ public class UserController {
                 userId, recipientId, body.getCurrency(), body.getAmount(), body.getDescription(), DateUtil.now());
     }
 
+    @ExceptionHandler(EmailAlreadyRegisteredException.class)
+    @ResponseBody
+    public ResponseEntity<ApiError> handleEmailAlreadyRegisteredException() {
+        return errorToResponse(ApiError.builder()
+                .type(ErrorType.SERVICE)
+                .status(HttpStatus.BAD_REQUEST.value())
+                .code(ErrorCode.INVALID_EMAIL)
+                .message("Email already registered")
+                .metadata("alreadyExists", true)
+                .build());
+    }
+
+    @ExceptionHandler(IllegalEmailException.class)
+    @ResponseBody
+    public ResponseEntity<ApiError> handleIllegalEmailException() {
+        return errorToResponse(ApiError.builder()
+                .type(ErrorType.SERVICE)
+                .status(HttpStatus.BAD_REQUEST.value())
+                .code(ErrorCode.INVALID_EMAIL)
+                .message("Illegal email")
+                .build());
+    }
+
+    @ExceptionHandler(IllegalNameException.class)
+    @ResponseBody
+    public ResponseEntity<ApiError> handleIllegalNameException() {
+        return errorToResponse(ApiError.builder()
+                .type(ErrorType.SERVICE)
+                .status(HttpStatus.BAD_REQUEST.value())
+                .code(ErrorCode.INVALID_NAME)
+                .message("Illegal name")
+                .build());
+    }
+
+    @ExceptionHandler(TooShortPasswordException.class)
+    @ResponseBody
+    public ResponseEntity<ApiError> handleTooShortPasswordException(TooShortPasswordException ex) {
+        return errorToResponse(ApiError.builder()
+                .type(ErrorType.SERVICE)
+                .status(HttpStatus.BAD_REQUEST.value())
+                .code(ErrorCode.INVALID_PASSWORD)
+                .message("Password is too short")
+                .metadata("minLength", ex.getLength())
+                .build());
+    }
+
+    @ExceptionHandler(TooLongPasswordException.class)
+    @ResponseBody
+    public ResponseEntity<ApiError> handleTooLongPasswordException(TooLongPasswordException ex) {
+        return errorToResponse(ApiError.builder()
+                .type(ErrorType.SERVICE)
+                .status(HttpStatus.BAD_REQUEST.value())
+                .code(ErrorCode.INVALID_PASSWORD)
+                .message("Password is too long")
+                .metadata("maxLength", ex.getLength())
+                .build());
+    }
+
     @ExceptionHandler(ContactNotFoundException.class)
     @ResponseBody
-    public ResponseEntity<ApiError> handleContactNotFoundException(ContactNotFoundException ex) {
+    public ResponseEntity<ApiError> handleContactNotFoundException() {
         return errorToResponse(ApiError.builder()
                 .type(ErrorType.SERVICE)
                 .status(HttpStatus.NOT_FOUND.value())
@@ -223,7 +302,7 @@ public class UserController {
 
     @ExceptionHandler(IsHimselfException.class)
     @ResponseBody
-    public ResponseEntity<ApiError> handleIsHimselfException(IsHimselfException ex) {
+    public ResponseEntity<ApiError> handleIsHimselfException() {
         return errorToResponse(ApiError.builder()
                 .type(ErrorType.SERVICE)
                 .status(HttpStatus.PRECONDITION_FAILED.value())

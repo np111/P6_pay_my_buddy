@@ -12,6 +12,10 @@ public class NotEnoughFundsException extends FastRuntimeException {
     private final Currency currency;
     private final BigDecimal missingAmount;
 
+    public NotEnoughFundsException() {
+        this(Currency.USD, BigDecimal.ZERO);
+    }
+
     public NotEnoughFundsException(Currency currency, BigDecimal missingAmount) {
         this.currency = currency;
         this.missingAmount = missingAmount;

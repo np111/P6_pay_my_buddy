@@ -1,6 +1,5 @@
 package com.paymybuddy.server.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paymybuddy.server.properties.SecurityProperties;
 import java.util.List;
 import java.util.concurrent.TimeUnit;

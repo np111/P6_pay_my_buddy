@@ -11,7 +11,7 @@ import lombok.Singular;
  * Parser utility to generate a {@link PageRequest} from users inputs.
  */
 public class PageRequestParser extends AbstractRequestParser<PageRequest> {
-    private static final String PAGE_PARAM_NAME = "page";
+    public static final String PAGE_PARAM_NAME = "page";
 
     @lombok.Builder(builderClassName = "Builder")
     private PageRequestParser(

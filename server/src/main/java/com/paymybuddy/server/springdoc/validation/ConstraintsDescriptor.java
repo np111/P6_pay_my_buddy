@@ -1,4 +1,4 @@
-package com.paymybuddy.server.springdoc;
+package com.paymybuddy.server.springdoc.validation;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;

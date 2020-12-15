@@ -13,8 +13,8 @@ import lombok.NonNull;
 import lombok.Singular;
 
 public abstract class AbstractRequestParser<T extends AbstractRequest> {
-    protected static final String PAGE_SIZE_PARAM_NAME = "pageSize";
-    protected static final String PAGE_SORT_PARAM_NAME = "pageSort";
+    public static final String PAGE_SIZE_PARAM_NAME = "pageSize";
+    public static final String PAGE_SORT_PARAM_NAME = "pageSort";
     protected static final Splitter PAGE_SORT_SPLITTER = Splitter.on(',').limit(20);
 
     protected Supplier<T> requestConstructor;

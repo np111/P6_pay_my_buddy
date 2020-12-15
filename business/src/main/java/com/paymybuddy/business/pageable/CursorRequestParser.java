@@ -10,7 +10,7 @@ import lombok.Singular;
  * Parser utility to generate a {@link CursorRequest} from users inputs.
  */
 public class CursorRequestParser extends AbstractRequestParser<CursorRequest> {
-    private static final String CURSOR_PARAM_NAME = "cursor";
+    public static final String CURSOR_PARAM_NAME = "cursor";
 
     @lombok.Builder(builderClassName = "Builder")
     private CursorRequestParser(
