@@ -36,6 +36,7 @@ public class WebMvcConfig implements WebMvcConfigurer, BeanPostProcessor {
         cors.addMapping("/**")
                 .allowedOrigins(securityProps.getAllowedOrigins().toArray(new String[0]))
                 .allowedMethods("*")
+                .allowedHeaders("*")
                 .maxAge(TimeUnit.DAYS.toSeconds(1));
     }
 

@@ -42,8 +42,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.formLogin().disable();
         http.logout().disable();
         http.exceptionHandling().accessDeniedHandler(exceptionController);
-
-        http.requestMatcher(EndpointRequest.toAnyEndpoint()).authorizeRequests();
     }
 
     @Override
