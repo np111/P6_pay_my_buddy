@@ -34,17 +34,36 @@ import org.springframework.transaction.annotation.Transactional;
 import static com.paymybuddy.persistence.repository.TransactionRepository.isRecipient;
 import static com.paymybuddy.persistence.repository.TransactionRepository.isSender;
 
+/**
+ * Transactions management service.
+ */
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @Service
 @Scope("singleton")
 public class TransactionService {
-    private static final BigDecimal FEE_PERCENTS = new BigDecimal("0.005");
+    /**
+     * Fees charged to the sender during a transactions.
+     */
+    public static final BigDecimal FEE_PERCENTS = new BigDecimal("0.005");
 
     private final UserRepository userRepository;
     private final UserBalanceRepository userBalanceRepository;
     private final TransactionRepository transactionRepository;
     private final TransactionMapper transactionMapper;
 
+    /**
+     * List a user's transactions (where he is a sender or recipient).
+     * <p>
+     * Sortable properties are:
+     * <ul>
+     * <li>- id</li>
+     * <li>- amount</li>
+     * </ul>
+     *
+     * @param userId        ID of the user to returns transactions
+     * @param cursorRequest pagination parameters
+     * @return the transaction list
+     */
     @Transactional(readOnly = true)
     public CursorResponse<Transaction> listTransactions(long userId, CursorRequest cursorRequest) {
         return CursorFetcher.<Transaction, TransactionEntity>create()
@@ -57,12 +76,36 @@ public class TransactionService {
                 .fetch(cursorRequest);
     }
 
+    /**
+     * Create a transaction with the default fees.
+     *
+     * @see #createTransaction(long, long, Currency, BigDecimal, String, BigDecimal, ZonedDateTime)
+     */
     @Transactional
     public Transaction createTransaction(long senderId, long recipientId, Currency currency, BigDecimal amount, String description, ZonedDateTime date) {
         BigDecimal fee = computeFee(currency, amount);
         return createTransaction(senderId, recipientId, currency, amount, description, fee, date);
     }
 
+    /**
+     * Create a transaction.
+     *
+     * @param senderId    ID of the user sending the money
+     * @param recipientId ID of the user receiving the money
+     * @param currency    amount currency
+     * @param amount      amount value
+     * @param description description of the transaction
+     * @param fee         fees to charges to the sender (using the amount currency)
+     * @param date        transaction date
+     * @return the created transaction
+     * @throws IllegalArgumentException   if the amount or fee values have too many decimals for this currency.
+     *                                    if the amount value is less or equal to zero.
+     *                                    if the fee value is less to zero.
+     *                                    if the senderId and recipientId are equals.
+     * @throws SenderNotFoundException    if the no user match the senderId
+     * @throws RecipientNotFoundException if the no user match the recipientId
+     * @throws NotEnoughFundsException    if the sender has not enough funds to cover the amount and fee values (in this currency).
+     */
     @Transactional
     public Transaction createTransaction(long senderId, long recipientId, Currency currency, BigDecimal amount, String description, BigDecimal fee, ZonedDateTime date) {
         // Validate the amount
@@ -111,6 +154,7 @@ public class TransactionService {
         transaction.setDescription(description);
         transaction.setDate(date);
 
+        // Then explicitly save and returns mapped values
         transactionRepository.save(transaction);
         userBalanceRepository.saveAll(Arrays.asList(senderBalance, recipientBalance));
 
@@ -119,10 +163,28 @@ public class TransactionService {
         return transactionMapper.toTransaction(transaction);
     }
 
+    /**
+     * Compute the default fees (using {@link #FEE_PERCENTS}) based on a transaction amount.
+     * <p>
+     * The result is scaled to the currency decimal places (rounded up if needed).
+     *
+     * @param currency amount currency
+     * @param amount   amount value
+     * @return the fee value (using the same currency)
+     */
     public BigDecimal computeFee(Currency currency, BigDecimal amount) {
         return amount.multiply(FEE_PERCENTS).setScale(currency.getDecimals(), RoundingMode.UP);
     }
 
+    /**
+     * Returns a user's balance in the given currency.
+     * <p>
+     * If the balance does not exist, it is created.
+     *
+     * @param userId   ID of the user
+     * @param currency currency of the balance to returns
+     * @return the balance
+     */
     private UserBalanceEntity getBalance(long userId, Currency currency) {
         UserBalanceEntity userBalanceEntity = userBalanceRepository.findByUserIdAndCurrency(userId, currency).orElse(null);
         if (userBalanceEntity == null) {

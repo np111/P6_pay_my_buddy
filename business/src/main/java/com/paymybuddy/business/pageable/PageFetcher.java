@@ -14,19 +14,45 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+/**
+ * An utility to retrieve paginated results, using an OFFSET/LIMIT logic.
+ *
+ * @param <Model>  model
+ * @param <Entity> database entity
+ */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Data
 @Accessors(fluent = true)
-public class PageFetcher<T, E> {
-    public static <T, E> PageFetcher<T, E> create() {
+public class PageFetcher<Model, Entity> {
+    /**
+     * Create a new {@link PageFetcher} instance.
+     * <p>
+     * You must now set {@link #recordsQuery(Function)} and {@link #recordMapper(Function)} before calling
+     * {@link #fetch(com.paymybuddy.business.pageable.PageRequest)}.
+     */
+    public static <Model, Entity> PageFetcher<Model, Entity> create() {
         return new PageFetcher<>();
     }
 
-    private Function<Pageable, Page<E>> recordsQuery;
-    private Function<E, T> recordMapper;
+    /**
+     * Query function, to retrieve {@linkplain #<Entity> entities} records.
+     */
+    private Function<Pageable, Page<Entity>> recordsQuery;
+
+    /**
+     * Mapping function, to transform the fetched {@linkplain #<Entity> entities} records to {@linkplain #<Model> models}.
+     */
+    private Function<Entity, Model> recordMapper;
+
     private Function<String, String> sortPropertyTransformer;
 
-    public PageResponse<T> fetch(com.paymybuddy.business.pageable.PageRequest request) {
+    /**
+     * Perform a request and returns paginated results.
+     *
+     * @param request request parameters
+     * @return the paginated results
+     */
+    public PageResponse<Model> fetch(com.paymybuddy.business.pageable.PageRequest request) {
         Preconditions.checkNotNull(recordsQuery, "recordsQuery cannot be null");
         Preconditions.checkNotNull(recordMapper, "recordMapper cannot be null");
 
@@ -34,10 +60,10 @@ public class PageFetcher<T, E> {
         int pageSize = request.getPageSize();
         Sort sort = Sort.by(PageableUtil.parseSortInstructions(request.getPageSort(), sortPropertyTransformer));
 
-        Page<E> entities = recordsQuery.apply(PageRequest.of(page, pageSize, sort));
+        Page<Entity> entities = recordsQuery.apply(PageRequest.of(page, pageSize, sort));
         int totalCount = Math.toIntExact(entities.getTotalElements());
-        List<T> records = entities.stream().map(recordMapper).collect(Collectors.toList());
-        return PageResponse.<T>builder()
+        List<Model> records = entities.stream().map(recordMapper).collect(Collectors.toList());
+        return PageResponse.<Model>builder()
                 .page(page)
                 .pageSize(pageSize)
                 .pageCount((totalCount + (pageSize - 1)) / pageSize)

@@ -32,29 +32,70 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
 
+/**
+ * An utility to retrieve paginated results, using an CURSOR/COMPARISON logic.
+ * <p>
+ * See: https://medium.com/swlh/why-you-shouldnt-use-offset-and-limit-for-your-pagination-4440e421ba87
+ *
+ * @param <Model>  model
+ * @param <Entity> database entity
+ */
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @Data
 @Accessors(fluent = true)
-public class CursorFetcher<T, E> {
+public class CursorFetcher<Model, Entity> {
     private static final BaseEncoding BASE64_URL = BaseEncoding.base64Url().omitPadding();
     private static final Splitter DOT_SPLITTER = Splitter.on('.');
 
-    public static <T, E> CursorFetcher<T, E> create() {
+    /**
+     * Create a new {@link CursorFetcher} instance.
+     * <p>
+     * You must now set {@link #recordsQuery(Function)}, {@link #recordMapper(Function)} and
+     * at least one {@link #property(String, PropertyType, Function, boolean)} before calling {@link #fetch(CursorRequest)}.
+     */
+    public static <Model, Entity> CursorFetcher<Model, Entity> create() {
         return new CursorFetcher<>();
     }
 
-    private Function<Query<E>, Page<E>> recordsQuery;
-    private Function<E, T> recordMapper;
+    /**
+     * Query function, to retrieve {@linkplain #<Entity> entities} records.
+     */
+    private Function<Query<Entity>, Page<Entity>> recordsQuery;
+
+    /**
+     * Mapping function, to transform the fetched {@linkplain #<Entity> entities} records to {@linkplain #<Model> models}.
+     */
+    private Function<Entity, Model> recordMapper;
+
+    /**
+     * Sortable properties, used by the cursor for comparisons.
+     */
+    private final Map<String, Property<?, Entity>> properties = new HashMap<>();
     private String uniquePropertyName;
-    private final Map<String, Property<?, E>> properties = new HashMap<>();
 
     private Function<String, String> propertyTransformer;
 
-    public <V> CursorFetcher<T, E> property(String propertyName, PropertyType<V> type, Function<E, V> accessor) {
+    /**
+     * Register a non-unique property.
+     *
+     * @return this
+     * @see #property(String, PropertyType, Function, boolean)
+     */
+    public <V> CursorFetcher<Model, Entity> property(String propertyName, PropertyType<V> type, Function<Entity, V> accessor) {
         return property(propertyName, type, accessor, false);
     }
 
-    public <V> CursorFetcher<T, E> property(String propertyName, PropertyType<V> type, Function<E, V> accessor, boolean unique) {
+    /**
+     * Register a property. A property is a sortable entity column (used for the cursor comparisons).
+     * At least one unique property is required to maintains the cursor consistency.
+     *
+     * @param propertyName name of the property, must be the same as the entity column name (eg. "id")
+     * @param type         type of the column (to serialize/deserialize the cursor)
+     * @param accessor     column getter (eg. {@code <code>Entity::getId</code>})
+     * @param unique       whether this column is unique or not
+     * @return this
+     */
+    public <V> CursorFetcher<Model, Entity> property(String propertyName, PropertyType<V> type, Function<Entity, V> accessor, boolean unique) {
         if (uniquePropertyName == null && unique) {
             uniquePropertyName = propertyName;
         }
@@ -62,18 +103,27 @@ public class CursorFetcher<T, E> {
         return this;
     }
 
-    public CursorResponse<T> fetch(CursorRequest request) {
+    /**
+     * Perform a request and returns paginated results.
+     *
+     * @param request request parameters
+     * @return the paginated results
+     */
+    public CursorResponse<Model> fetch(CursorRequest request) {
         Preconditions.checkNotNull(recordsQuery, "recordsQuery cannot be null");
         Preconditions.checkNotNull(recordMapper, "recordMapper cannot be null");
         Preconditions.checkNotNull(uniquePropertyName, "require at least one unique property");
 
-        CursorResponse<T> res = CursorResponse.<T>builder().hasNext(false).hasPrev(false).build();
+        CursorResponse<Model> res = CursorResponse.<Model>builder().hasNext(false).hasPrev(false).build();
         String cursor = request.getCursor();
         int pageSize = request.getPageSize();
+
+        // Parse pageSort, and validate that they belong to a registered property.
+        // Also check that at least one unique property is used, else add the first unique property at end.
         List<Sort.Order> sorts = PageableUtil.parseSortInstructions(request.getPageSort(), propertyTransformer);
         boolean hasUnique = false;
         for (Sort.Order sort : sorts) {
-            Property<?, E> property = properties.get(sort.getProperty());
+            Property<?, Entity> property = properties.get(sort.getProperty());
             if (property == null) {
                 throw new IllegalArgumentException(sort.getProperty() + " is not a supported property");
             }
@@ -85,14 +135,18 @@ public class CursorFetcher<T, E> {
             sorts.add(Sort.Order.asc(uniquePropertyName));
         }
 
+        // Decode/deserialize the cursor
         Cursor c;
         try {
             c = decodeCursor(cursor, sorts);
         } catch (IllegalArgumentException ignored) {
             throw new PreconditionException("cursor", "IsCursor", "must be a valid cursor", Collections.emptyMap());
         }
+
+        // Generate the query specification
+        // TODO: Explain the algorithm (reverse, pre-set cursors, specification comparisons & chaining)
         boolean reverse = false;
-        Specification<E> specification = Specification.where(null);
+        Specification<Entity> specification = Specification.where(null);
         if (c != null) {
             if (c.getType().isBefore()) {
                 reverse = true;
@@ -107,7 +161,7 @@ public class CursorFetcher<T, E> {
                 res.setHasPrev(true);
             }
 
-            Specification<E> prev = null;
+            Specification<Entity> prev = null;
             int valueIndex = 0;
             for (Sort.Order sort : sorts) {
                 String property = sort.getProperty();
@@ -124,7 +178,7 @@ public class CursorFetcher<T, E> {
                     specification = specification.or((root, query, builder) -> comparator.compare(builder, root.get(property), value));
                     prev = (root, query, builder) -> builder.equal(root.get(property), value);
                 } else {
-                    Specification<E> prevF = prev;
+                    Specification<Entity> prevF = prev;
                     specification = specification.or((root, query, builder) -> builder.and(prevF.toPredicate(root, query, builder), comparator.compare(builder, root.get(property), value)));
                     prev = (root, query, builder) -> builder.and(prevF.toPredicate(root, query, builder), builder.equal(root.get(property), value));
                 }
@@ -132,6 +186,7 @@ public class CursorFetcher<T, E> {
             }
         }
 
+        // Generate the query sort (reversing it if needed - see the explanation above)
         Sort sort;
         if (reverse) {
             sort = Sort.by(sorts.stream()
@@ -141,13 +196,18 @@ public class CursorFetcher<T, E> {
             sort = Sort.by(sorts);
         }
 
-        Iterator<E> it = recordsQuery.apply(new Query<>(specification, PageRequest.of(0, pageSize + 1, sort))).iterator();
-        List<E> entities = new ArrayList<>(pageSize);
+        // Perform the query (to retrieve entities)
+        // TODO: Explain the 'pageSize + 1' limit
+        // TODO: Find a way to prevent spring from fetching totalElements (since we are using PageRequest)...
+        //       This is not needed here and costly.
+        Iterator<Entity> it = recordsQuery.apply(new Query<>(specification, PageRequest.of(0, pageSize + 1, sort))).iterator();
+        List<Entity> entities = new ArrayList<>(pageSize);
         int entitiesSize = 0;
         for (; it.hasNext() && entitiesSize < pageSize; ++entitiesSize) {
             entities.add(it.next());
         }
 
+        // Set the future cursor values (reversing them if needed - see the explanation above)
         if (!entities.isEmpty()) {
             if (!reverse) {
                 res.setPrevCursor(encodeCursor(CursorType.BEFORE, entities.get(0), sorts));
@@ -160,11 +220,15 @@ public class CursorFetcher<T, E> {
             }
         }
 
-        List<T> records = entities.stream().map(recordMapper).collect(Collectors.toList());
+        // And finally, map the entities to their models (and reverse the result if needed - see the explanation above)
+        List<Model> records = entities.stream().map(recordMapper).collect(Collectors.toList());
         res.setRecords(reverse ? Lists.reverse(records) : records);
         return res;
     }
 
+    /**
+     * Deserialize the cursor from it's string representation.
+     */
     private Cursor decodeCursor(String cursor, List<Sort.Order> sorts) {
         if (cursor == null || cursor.isEmpty()) {
             return null;
@@ -187,7 +251,7 @@ public class CursorFetcher<T, E> {
             } else {
                 try {
                     byte[] bytes = BASE64_URL.decode(str);
-                    Property<?, E> property = properties.get(sorts.get(valuesIndex).getProperty());
+                    Property<?, Entity> property = properties.get(sorts.get(valuesIndex).getProperty());
                     values.add(property.getType().deserialize(bytes));
                 } catch (Exception e) {
                     throw new IllegalArgumentException("Unreadable cursor property", e);
@@ -201,11 +265,14 @@ public class CursorFetcher<T, E> {
         return new Cursor(type, values);
     }
 
+    /**
+     * Serialize a cursor, to a string representation.
+     */
     @SuppressWarnings("unchecked")
-    private String encodeCursor(CursorType type, E entity, List<Sort.Order> sorts) {
+    private String encodeCursor(CursorType type, Entity entity, List<Sort.Order> sorts) {
         return type.getSymbol() + sorts.stream()
                 .map(sort -> {
-                    Property<Object, E> property = (Property<Object, E>) properties.get(sort.getProperty());
+                    Property<Object, Entity> property = (Property<Object, Entity>) properties.get(sort.getProperty());
                     Object value = property.getAccessor().apply(entity);
                     if (value == null) {
                         return "$";

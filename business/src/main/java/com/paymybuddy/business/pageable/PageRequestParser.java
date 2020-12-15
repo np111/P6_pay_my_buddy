@@ -7,6 +7,9 @@ import java.util.function.Function;
 import lombok.NonNull;
 import lombok.Singular;
 
+/**
+ * Parser utility to generate a {@link PageRequest} from users inputs.
+ */
 public class PageRequestParser extends AbstractRequestParser<PageRequest> {
     private static final String PAGE_PARAM_NAME = "page";
 
