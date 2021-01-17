@@ -151,7 +151,7 @@ public class AuthService implements InitializingBean {
         String userId = tokenParts[0];
         String sessionId = tokenParts.length > 1 ? tokenParts[1] : "";
         if (userId.isEmpty() || sessionId.isEmpty()) {
-            throw new CredentialsExpiredException("Invalid or expired auth token");
+            return null;
         }
 
         return Pair.of(userId, sessionId);
@@ -164,7 +164,7 @@ public class AuthService implements InitializingBean {
     @NoArgsConstructor
     @Data
     @ToString(of = {"userId"})
-    private class AuthGuard implements com.paymybuddy.auth.AuthGuard {
+    class AuthGuard implements com.paymybuddy.auth.AuthGuard {
         /*
          * Persistent fields
          */

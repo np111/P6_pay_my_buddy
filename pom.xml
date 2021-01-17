@@ -32,6 +32,10 @@
     <commons-validator.version>1.7</commons-validator.version>
     <guava.version>30.0-jre</guava.version>
     <springdoc-openapi.version>1.5.1</springdoc-openapi.version>
+    <junit-jupiter.version>5.6.2</junit-jupiter.version>
+    <junit-platform.version>1.6.2</junit-platform.version>
+    <mockito-junit-jupiter.version>3.4.6</mockito-junit-jupiter.version>
+    <jacoco.version>0.8.5</jacoco.version>
   </properties>
 
   <dependencyManagement>
@@ -62,6 +66,7 @@
         <artifactId>paymybuddy-server</artifactId>
         <version>${project.version}</version>
       </dependency>
+
       <!-- Spring Boot dependency management -->
       <dependency>
         <groupId>org.springframework.boot</groupId>
@@ -70,7 +75,8 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-      <!-- -->
+
+      <!-- Utils -->
       <dependency>
         <groupId>org.mapstruct</groupId>
         <artifactId>mapstruct</artifactId>
@@ -97,7 +103,48 @@
       <version>${lombok.version}</version>
       <scope>provided</scope>
     </dependency>
+
+    <!-- Tests -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>${junit-jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-runner</artifactId>
+      <version>${junit-platform.version}</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <version>${mockito-junit-jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+        <version>2.22.2</version>
+      </plugin>
+    </plugins>
+  </reporting>
 
   <build>
     <finalName>${project.name}</finalName>
@@ -151,5 +198,35 @@
         </plugin>
       </plugins>
     </pluginManagement>
+    <plugins>
+      <!-- Jacoco (tests coverage) -->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>${jacoco.version}</version>
+        <configuration>
+          <excludes>
+            <!-- exclude untestable exceptions utils from coverage -->
+            <exclude>**/com/paymybuddy/business/exception/FastRuntimeException</exclude>
+            <!-- exclude documentation utils -->
+            <exclude>**/com/paymybuddy/server/springdoc/*</exclude>
+          </excludes>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>report</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
 </project>
