@@ -3,7 +3,9 @@ package com.paymybuddy.business.util;
 import com.google.common.collect.ImmutableMap;
 import com.paymybuddy.business.exception.PreconditionException;
 import java.util.Collection;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class ValidationUtil {
     /**
      * Perform a {@link javax.validation.constraints.Min} validation.

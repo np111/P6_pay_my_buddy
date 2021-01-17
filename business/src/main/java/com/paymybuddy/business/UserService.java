@@ -43,7 +43,7 @@ public class UserService implements UserProvider {
     /**
      * Pattern that a user name must match (checked at registration/name updates).
      */
-    private static final Pattern NAME_PATTERN = Pattern.compile("^(?>(?>^| )\\p{L}(?>[\\p{L}'\\-]*\\p{L})?)+$");
+    private static final Pattern NAME_PATTERN = Pattern.compile("^(?!.*[^ \\p{L}]{2,})(?>(?>^| )\\p{L}(?>[\\p{L}'\\-]*\\p{L})?)+$");
 
     /**
      * Lengths that a password must match (checked at registration/password updates).
@@ -231,7 +231,7 @@ public class UserService implements UserProvider {
         return name;
     }
 
-    private String validateAndNormalizeNewName(String name) {
+    String validateAndNormalizeNewName(String name) {
         name = normalizeName(name);
         if (name == null || !NAME_PATTERN.matcher(name).matches()) {
             throw new IllegalNameException();
@@ -270,7 +270,7 @@ public class UserService implements UserProvider {
         return email;
     }
 
-    private String validateAndNormalizeNewEmail(String email) {
+    String validateAndNormalizeNewEmail(String email) {
         email = normalizeEmail(email);
         if (email == null || !GenericValidator.isEmail(email)) {
             throw new IllegalEmailException();
@@ -278,7 +278,7 @@ public class UserService implements UserProvider {
         return email;
     }
 
-    private void validateNewPassword(String password) {
+    void validateNewPassword(String password) {
         if (password.length() < PASSWORD_MIN_LEN) {
             throw new TooShortPasswordException(PASSWORD_MIN_LEN);
         }
