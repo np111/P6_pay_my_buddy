@@ -21,7 +21,7 @@ public class TokenAuthProvider implements AuthenticationProvider {
     private final AuthService authService;
 
     @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+    public AuthToken authenticate(Authentication authentication) throws AuthenticationException {
         return authService.authenticateAuthToken(((AuthToken) authentication).getCredentials());
     }
 

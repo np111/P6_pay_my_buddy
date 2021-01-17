@@ -1,11 +1,5 @@
 package com.paymybuddy.auth;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.paymybuddy.api.model.user.User;
 import com.paymybuddy.auth.provider.UserProvider;
 import java.time.ZoneOffset;
@@ -13,19 +7,12 @@ import java.time.ZonedDateTime;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.SerializationException;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.data.util.Pair;
 import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -45,35 +32,19 @@ import org.springframework.stereotype.Service;
 @Scope("singleton")
 public class AuthService implements InitializingBean {
     /**
-     * Prefix of the redis hash-keys used to store authentication sessions.
-     */
-    private static final String AUTH_SESS_BY_ID_HASH_KEY = "authsess.";
-
-    /**
      * Max-length of a token string (used for fast-fail checks).
      * Token is composed of a positive long (as base10 string) and an UUID, joined by a dash.
      */
     private static final int AUTH_TOKEN_MAX_LEN = Long.toString(Long.MAX_VALUE).length() + 1 + new UUID(0, 0).toString().length();
 
-    private final @Getter UserProvider userProvider;
+    private final UserProvider userProvider;
     private final PasswordEncoder passwordEncoder;
+    private final AuthStore authStore;
     private String userNotFoundEncodedPassword;
 
-    private final LettuceConnectionFactory lettuceConFactory;
-    private RedisTemplate<String, ?> authSessTemplate;
-    private HashOperations<String, String, AuthGuard> authSessHashOps;
-
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         userNotFoundEncodedPassword = passwordEncoder.encode(UUID.randomUUID().toString());
-
-        authSessTemplate = new RedisTemplate<>();
-        authSessTemplate.setConnectionFactory(lettuceConFactory);
-        authSessTemplate.setKeySerializer(new StringRedisSerializer());
-        authSessTemplate.setHashKeySerializer(new StringRedisSerializer());
-        authSessTemplate.setHashValueSerializer(new AuthSerializer());
-        authSessTemplate.afterPropertiesSet();
-        authSessHashOps = authSessTemplate.opsForHash();
     }
 
     /**
@@ -110,16 +81,13 @@ public class AuthService implements InitializingBean {
      */
     private AuthToken createAuthToken(User user) {
         AuthGuard auth = new AuthGuard(user);
-        auth.authService = this;
 
         // Generate a secure-random session ID and derive a token from it
         String sessionId = UUID.randomUUID().toString();
         String token = encodeToken(user.getId(), sessionId);
 
         // Store the session in redis (in a per-user hash, which allows us to easily list or delete all of a user's sessions)
-        String redisKey = AUTH_SESS_BY_ID_HASH_KEY + user.getId();
-        authSessHashOps.put(redisKey, sessionId, auth);
-        authSessTemplate.expire(redisKey, 30, TimeUnit.DAYS);
+        authStore.save(auth.toData(), sessionId, 30, TimeUnit.DAYS);
 
         return AuthToken.authenticated(auth, token);
     }
@@ -142,13 +110,12 @@ public class AuthService implements InitializingBean {
         String sessionId = tokenPair.getSecond();
 
         // Load the session from redis
-        AuthGuard auth = authSessHashOps.get(AUTH_SESS_BY_ID_HASH_KEY + userId, sessionId);
-        if (auth == null) {
+        AuthGuardData authData = authStore.load(userId, sessionId);
+        if (authData == null) {
             throw new CredentialsExpiredException("Invalid or expired auth token");
         }
-        // TODO: Add expireDate to AuthGuard and check-it here.
 
-        return AuthToken.authenticated(auth, token);
+        return AuthToken.authenticated(new AuthGuard(authData), token);
     }
 
     /**
@@ -166,7 +133,7 @@ public class AuthService implements InitializingBean {
         String sessionId = tokenPair.getSecond();
 
         // Delete the session from redis
-        authSessHashOps.delete(AUTH_SESS_BY_ID_HASH_KEY + userId, sessionId);
+        authStore.delete(userId, sessionId);
     }
 
     private String encodeToken(long userId, String sessionId) {
@@ -197,7 +164,7 @@ public class AuthService implements InitializingBean {
     @NoArgsConstructor
     @Data
     @ToString(of = {"userId"})
-    static class AuthGuard implements com.paymybuddy.auth.AuthGuard {
+    private class AuthGuard implements com.paymybuddy.auth.AuthGuard {
         /*
          * Persistent fields
          */
@@ -207,13 +174,24 @@ public class AuthService implements InitializingBean {
         /*
          * Runtime accessors/caches (must be marked transient to be excluded from the serialization).
          */
-        private transient AuthService authService;
         private transient User user;
 
         public AuthGuard(User user) {
             this.userId = user.getId();
             this.user = user;
             this.loginDate = ZonedDateTime.now(ZoneOffset.UTC).withNano(0);
+        }
+
+        public AuthGuard(AuthGuardData data) {
+            this.userId = data.getUserId();
+            this.loginDate = data.getLoginDate();
+        }
+
+        public AuthGuardData toData() {
+            AuthGuardData data = new AuthGuardData();
+            data.setUserId(userId);
+            data.setLoginDate(loginDate);
+            return data;
         }
 
         @Override
@@ -223,7 +201,7 @@ public class AuthService implements InitializingBean {
 
         public User getUser() {
             if (user == null && isAuthenticated()) {
-                user = authService.userProvider.getUserById(userId);
+                user = AuthService.this.userProvider.getUserById(userId);
                 if (user == null) {
                     throw new RuntimeException("user not found (id: " + userId + ")");
                 }
@@ -232,29 +210,10 @@ public class AuthService implements InitializingBean {
         }
     }
 
-    /**
-     * Jackson serializer for our above AuthGuard implementation.
-     */
-    class AuthSerializer extends Jackson2JsonRedisSerializer<AuthGuard> {
-        public AuthSerializer() {
-            super(AuthGuard.class);
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
-            mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-            mapper.configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true);
-            mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, true);
-            mapper.configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
-            mapper.registerModule(new JavaTimeModule());
-            setObjectMapper(mapper);
-        }
-
-        @Override
-        public AuthGuard deserialize(byte[] data) throws SerializationException {
-            AuthGuard auth = super.deserialize(data);
-            if (auth != null) {
-                auth.authService = AuthService.this;
-            }
-            return auth;
-        }
+    @NoArgsConstructor
+    @Data
+    public static final class AuthGuardData {
+        private long userId;
+        private ZonedDateTime loginDate;
     }
 }
