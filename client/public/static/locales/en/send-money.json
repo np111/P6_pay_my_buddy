@@ -1,1 +1,17 @@
-{}
+{
+  "send_money": "Send money",
+  "contact": "Email or name",
+  "contact_not_found": "Unable to find this contact",
+  "next": "Next",
+  "to": "To {{name}} ({{email}})",
+  "amount": "Amount",
+  "description": "Description",
+  "send": "Send",
+  "cancel": "Cancel",
+  "amount_must_be_positive": "The amount must be greater than zero.",
+  "description_required": "A description is required.",
+  "not_enough_funds": "You don't have enough funds (you are missing {{missingAmount}} {{currency}}).",
+  "money_sent": "Money sent !",
+  "transaction_details": "You sent <0/> to <1/>.",
+  "send_again": "Send money again"
+}

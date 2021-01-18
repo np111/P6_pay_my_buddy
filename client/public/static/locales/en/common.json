@@ -1,3 +1,46 @@
 {
-  "hello-world": "Hello World!"
+  "name": "PayMyBuddy",
+  "tag": "Money Transfers",
+  "logo_tag": "PayMyBuddy Logo",
+  "page": {
+    "index": "Home",
+    "login": "Login",
+    "register": "Create an account",
+    "logout": "Logout",
+    "summary": "Summary",
+    "activity": "Activity",
+    "contacts": "Contacts"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "login": "Login",
+    "or": "or",
+    "require_email": "Please enter your email.",
+    "require_password": "Please enter your password.",
+    "invalid_credentials": "Your credentials are incorrect. Please try again."
+  },
+  "actions": {
+    "send_money": "Send money",
+    "add_contact": "Add a contact"
+  },
+  "footer": {
+    "copyright": "© <0/> <1>PayMyBuddy</1>",
+    "about": "<1>PayMyBuddy</1> allows you to conveniently send and receive payments online.",
+    "links": "Links",
+    "help": "Help",
+    "tos": "User agreements",
+    "prices": "Prices",
+    "developers": "Developers",
+    "partners": "Partners",
+    "community": "Community",
+    "support": "Support"
+  },
+  "intl": {
+    "ok": "OK",
+    "cancel": "Cancel",
+    "titleSep": "{{title}}:",
+    "groupingSep": ",",
+    "decimalSep": "."
+  }
 }

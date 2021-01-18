@@ -1,2 +1,17 @@
 {
+  "name": "First and last name",
+  "email": "Email",
+  "password": "Password",
+  "password_confirmation": "Confirmation",
+  "default_currency": "Preferred Currency",
+  "register": "Sign Up",
+  "registered": "Registration validated! Please login.",
+  "require_name": "Please enter your name.",
+  "require_email": "Please enter your email.",
+  "require_password": "Please enter your password.",
+  "invalid_password_confirmation": "Passwords do not match.",
+  "invalid_name": "This name is invalid.",
+  "invalid_email": "This email is invalid.",
+  "invalid_password": "Your password is too short.",
+  "email_already_registered": "This email is already registered."
 }
