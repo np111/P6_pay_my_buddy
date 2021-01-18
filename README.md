@@ -3,6 +3,8 @@
 
 PayMyBuddy is a web application to easily send money to your friends!
 
+[![PayMyBuddy Presentation (Youtube)](.readme/video_thumbnail.png?raw=true)](https://www.youtube.com/watch?v=TODO)
+
 ## Documentation
 
 - [REST API](https://np111.github.io/P6_pay_my_buddy/)
