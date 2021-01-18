@@ -1,0 +1,16 @@
+dist: xenial
+language: java
+services:
+  - docker
+jdk:
+  - openjdk8
+before_install:
+  - docker pull mariadb:10.5
+  - docker run -d -p 127.0.0.1:14373:3306 --name mysqld
+    -e MYSQL_RANDOM_ROOT_PASSWORD=yes -e MYSQL_DATABASE=pmb -e MYSQL_USER=pmb -e MYSQL_PASSWORD=pmb
+    mariadb:10.5 --innodb_log_file_size=256MB --innodb_buffer_pool_size=512MB --max_allowed_packet=16MB --local-infile=1
+  - .travis/wait_mysql.sh -u pmb -ppmb
+script:
+  - mvn verify -Dmaven.javadoc.skip=true -B
+after_success:
+  - cd maven-coverage && bash <(curl -s https://codecov.io/bash)
