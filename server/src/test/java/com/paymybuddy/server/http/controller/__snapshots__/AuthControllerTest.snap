@@ -1,0 +1,110 @@
+com.paymybuddy.server.http.controller.AuthControllerTest.login=[
+-
+> POST /auth/login
+> Content-Type: application/json;charset=UTF-8
+> x-auth-token: anonymous
+> Content-Length: 50
+{"email":"email@domain.tld","password":"password"}
+< HTTP 200
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"token":"SECRET","user":{"id":1,"email":"1@domain.tld","name":"#1","defaultCurrency":"USD"}}
+-
+> POST /auth/login
+> Content-Type: application/json;charset=UTF-8
+> x-auth-token: anonymous
+> Content-Length: 54
+{"email":"bad_email@domain.tld","password":"password"}
+< HTTP 403
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"type":"SERVICE","status":403,"code":"INVALID_CREDENTIALS","message":"Authentication failed: Bad credentials","metadata":{}}
+-
+> POST /auth/login
+> Content-Type: application/json;charset=UTF-8
+> x-auth-token: anonymous
+> Content-Length: 54
+{"email":"email@domain.tld","password":"bad password"}
+< HTTP 403
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"type":"SERVICE","status":403,"code":"INVALID_CREDENTIALS","message":"Authentication failed: Bad credentials","metadata":{}}
+]
+
+
+com.paymybuddy.server.http.controller.AuthControllerTest.logout=[
+-
+> POST /auth/logout
+< HTTP 204
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+
+]
+
+
+com.paymybuddy.server.http.controller.AuthControllerTest.rememberLogged=[
+-
+> GET /auth/remember
+< HTTP 200
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"user":{"id":1,"email":"1@domain.tld","name":"#1","defaultCurrency":"USD"}}
+]
+
+
+com.paymybuddy.server.http.controller.AuthControllerTest.rememberNotLogged=[
+-
+> GET /auth/remember
+> x-auth-token: expired-token
+< HTTP 403
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json; charset=utf-8
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"type":"SERVICE","status":403,"code":"INVALID_CREDENTIALS","message":"Authentication failed: Bad credentials","metadata":{}}
+]

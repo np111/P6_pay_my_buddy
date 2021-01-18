@@ -15,6 +15,8 @@
     <module>business</module>
     <module>auth</module>
     <module>server</module>
+
+    <module>maven-coverage</module>
   </modules>
 
   <properties>
@@ -209,7 +211,7 @@
             <!-- exclude untestable exceptions utils from coverage -->
             <exclude>**/com/paymybuddy/business/exception/FastRuntimeException.class</exclude>
             <!-- exclude documentation utils -->
-            <exclude>**/com/paymybuddy/server/springdoc/*</exclude>
+            <exclude>**/com/paymybuddy/server/springdoc/**</exclude>
             <!-- exclude MapStruct generated classes -->
             <exclude>**/com/paymybuddy/business/mapper/*Impl.class</exclude>
           </excludes>

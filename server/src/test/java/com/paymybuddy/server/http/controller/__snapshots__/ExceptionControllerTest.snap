@@ -1,0 +1,16 @@
+com.paymybuddy.server.http.controller.ExceptionControllerTest.handleNoHandlerFoundException=[
+-
+> GET /no-handler-found
+< HTTP 400
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"type":"CLIENT","status":400,"code":"BAD_REQUEST","message":"No handler found for GET /no-handler-found","metadata":{}}
+]

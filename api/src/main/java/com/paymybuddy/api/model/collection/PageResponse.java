@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Singular;
 
 @Builder(builderClassName = "Builder")
 @NoArgsConstructor
@@ -16,5 +17,6 @@ public class PageResponse<T> implements CollectionResponse<T> {
     private Integer pageSize;
     private Integer pageCount;
     private Integer totalCount;
+    @Singular("record")
     private List<T> records;
 }

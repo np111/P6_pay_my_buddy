@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.core.Authentication;
@@ -40,7 +41,7 @@ public class TokenAuthFilter extends OncePerRequestFilter {
         String token = req.getHeader("x-auth-token");
         try {
             if (token == null) {
-                if (!isBrowserEndpoint(req)) {
+                if (!isAuthenticated() && !isBrowserEndpoint(req)) {
                     throw new CredentialsExpiredException("Missing auth token");
                 }
             } else if (!"anonymous".equals(token)) {
@@ -53,6 +54,11 @@ public class TokenAuthFilter extends OncePerRequestFilter {
             return;
         }
         chain.doFilter(req, res);
+    }
+
+    private boolean isAuthenticated() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken);
     }
 
     private boolean isBrowserEndpoint(HttpServletRequest req) {

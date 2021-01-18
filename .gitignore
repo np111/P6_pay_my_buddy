@@ -2,6 +2,7 @@
 .next/
 .next-*/
 .dev/tmp/
+*.snap.debug
 
 ### Maven template
 target/

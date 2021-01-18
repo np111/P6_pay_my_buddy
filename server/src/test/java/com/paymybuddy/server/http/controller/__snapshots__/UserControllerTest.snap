@@ -1,0 +1,478 @@
+com.paymybuddy.server.http.controller.UserControllerTest.addContact=[
+-
+> POST /user/contact
+> Content-Type: application/json;charset=UTF-8
+> Content-Length: 24
+{"email":"2@domain.tld"}
+< HTTP 200
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"id":2,"email":"2@domain.tld","name":"#2","defaultCurrency":"USD"}
+-
+> POST /user/contact
+> Content-Type: application/json;charset=UTF-8
+> Content-Length: 24
+{"email":"1@domain.tld"}
+< HTTP 412
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"type":"SERVICE","status":412,"code":"CANNOT_BE_HIMSELF","message":"You cannot perform this action on yourself","metadata":{}}
+-
+> POST /user/contact
+> Content-Type: application/json;charset=UTF-8
+> Content-Length: 30
+{"email":"unknown@domain.tld"}
+< HTTP 404
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"type":"SERVICE","status":404,"code":"CONTACT_NOT_FOUND","message":"Contact does not exists","metadata":{}}
+]
+
+
+com.paymybuddy.server.http.controller.UserControllerTest.autocompleteContact=[
+-
+> GET /user/contact-autocomplete?input=abc
+< HTTP 200
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"records":[{"id":2,"email":"2@domain.tld","name":"#2","defaultCurrency":"USD"},{"id":3,"email":"3@domain.tld","name":"#3","defaultCurrency":"USD"}]}
+-
+> GET /user/contact-autocomplete?input=def
+< HTTP 200
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"records":[]}
+-
+> GET /user/contact-autocomplete
+< HTTP 400
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"type":"CLIENT","status":400,"code":"VALIDATION_FAILED","message":"Validation failed: input is required","metadata":{"parameter":"input"}}
+]
+
+
+com.paymybuddy.server.http.controller.UserControllerTest.createTransaction=[
+-
+> POST /user/transaction
+> Content-Type: application/json;charset=UTF-8
+> Content-Length: 66
+{"recipientId":2,"currency":"USD","amount":"5","description":"Ok"}
+< HTTP 200
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"id":1,"sender":{"id":1,"email":"1@domain.tld","name":"#1","defaultCurrency":"USD"},"recipient":{"id":2,"email":"2@domain.tld","name":"#2","defaultCurrency":"USD"},"currency":"USD","amount":"33","fee":"0.01","description":"Desc1","date":"2021-01-18T00:36:30Z"}
+-
+> POST /user/transaction
+> Content-Type: application/json;charset=UTF-8
+> Content-Length: 73
+{"recipientId":2,"currency":"USD","amount":"15","description":"Too many"}
+< HTTP 412
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"type":"SERVICE","status":412,"code":"NOT_ENOUGH_FUNDS","message":"You don't have enough funds","metadata":{"currency":"USD","missingAmount":"5"}}
+-
+> POST /user/transaction
+> Content-Type: application/json;charset=UTF-8
+> Content-Length: 75
+{"recipientId":3,"currency":"USD","amount":"5","description":"Not contact"}
+< HTTP 404
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"type":"SERVICE","status":404,"code":"CONTACT_NOT_FOUND","message":"Contact does not exists","metadata":{}}
+]
+
+
+com.paymybuddy.server.http.controller.UserControllerTest.getBalances=[
+-
+> GET /user/balance
+< HTTP 200
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"defaultCurrency":"USD","balances":[{"currency":"USD","amount":"123.45"},{"currency":"EUR","amount":"543.21"}]}
+]
+
+
+com.paymybuddy.server.http.controller.UserControllerTest.getContact=[
+-
+> GET /user/contact/2@domain.tld
+< HTTP 200
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Disposition: inline;filename=f.txt
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"id":2,"email":"2@domain.tld","name":"#2","defaultCurrency":"USD"}
+-
+> GET /user/contact/#2
+< HTTP 200
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"id":2,"email":"2@domain.tld","name":"#2","defaultCurrency":"USD"}
+-
+> GET /user/contact/unknown@domain.tld
+< HTTP 404
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Disposition: inline;filename=f.txt
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"type":"SERVICE","status":404,"code":"CONTACT_NOT_FOUND","message":"Contact does not exists","metadata":{}}
+-
+> GET /user/contact/unknown name
+< HTTP 404
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"type":"SERVICE","status":404,"code":"CONTACT_NOT_FOUND","message":"Contact does not exists","metadata":{}}
+]
+
+
+com.paymybuddy.server.http.controller.UserControllerTest.listContacts=[
+-
+> GET /user/contact
+< HTTP 200
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"page":1,"pageSize":2,"pageCount":20,"totalCount":39,"records":[{"id":2,"email":"2@domain.tld","name":"#2","defaultCurrency":"USD"},{"id":3,"email":"3@domain.tld","name":"#3","defaultCurrency":"USD"}]}
+]
+
+
+com.paymybuddy.server.http.controller.UserControllerTest.listTransactions=[
+-
+> GET /user/transaction
+< HTTP 200
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"prevCursor":"a","hasPrev":false,"nextCursor":"b","hasNext":false,"records":[{"id":1,"sender":{"id":1,"email":"1@domain.tld","name":"#1","defaultCurrency":"USD"},"recipient":{"id":2,"email":"2@domain.tld","name":"#2","defaultCurrency":"USD"},"currency":"USD","amount":"33","fee":"0.01","description":"Desc1","date":"2021-01-18T00:36:30Z"},{"id":2,"sender":{"id":1,"email":"1@domain.tld","name":"#1","defaultCurrency":"USD"},"recipient":{"id":2,"email":"2@domain.tld","name":"#2","defaultCurrency":"USD"},"currency":"USD","amount":"66","fee":"0.01","description":"Desc2","date":"2021-01-18T00:36:30Z"}]}
+]
+
+
+com.paymybuddy.server.http.controller.UserControllerTest.register=[
+-
+> POST /user/register
+> Content-Type: application/json;charset=UTF-8
+> x-auth-token: anonymous
+> Content-Length: 88
+{"name":"name","email":"email@domain.tld","password":"password","defaultCurrency":"USD"}
+< HTTP 204
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+
+-
+> POST /user/register
+> Content-Type: application/json;charset=UTF-8
+> x-auth-token: anonymous
+> Content-Length: 88
+{"name":"name","email":"email@domain.tld","password":"password","defaultCurrency":"USD"}
+< HTTP 400
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"type":"SERVICE","status":400,"code":"INVALID_EMAIL","message":"Email already registered","metadata":{"alreadyExists":true}}
+-
+> POST /user/register
+> Content-Type: application/json;charset=UTF-8
+> x-auth-token: anonymous
+> Content-Length: 93
+{"name":"bad--name","email":"email@domain.tld","password":"password","defaultCurrency":"USD"}
+< HTTP 400
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"type":"SERVICE","status":400,"code":"INVALID_NAME","message":"Illegal name","metadata":{}}
+-
+> POST /user/register
+> Content-Type: application/json;charset=UTF-8
+> x-auth-token: anonymous
+> Content-Length: 81
+{"name":"name","email":"bad@email","password":"password","defaultCurrency":"USD"}
+< HTTP 400
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"type":"SERVICE","status":400,"code":"INVALID_EMAIL","message":"Illegal email","metadata":{}}
+-
+> POST /user/register
+> Content-Type: application/json;charset=UTF-8
+> x-auth-token: anonymous
+> Content-Length: 85
+{"name":"name","email":"email@domain.tld","password":"short","defaultCurrency":"USD"}
+< HTTP 400
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"type":"SERVICE","status":400,"code":"INVALID_PASSWORD","message":"Password is too short","metadata":{"minLength":8}}
+-
+> POST /user/register
+> Content-Type: application/json;charset=UTF-8
+> x-auth-token: anonymous
+> Content-Length: 120
+{"name":"name","email":"email@domain.tld","password":"longlonglonglonglonglonglonglonglonglong","defaultCurrency":"USD"}
+< HTTP 400
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"type":"SERVICE","status":400,"code":"INVALID_PASSWORD","message":"Password is too long","metadata":{"maxLength":40}}
+-
+> POST /user/register
+> x-auth-token: anonymous
+< HTTP 400
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"type":"CLIENT","status":400,"code":"VALIDATION_FAILED","message":"Validation failed: body is required","metadata":{"parameter":"body"}}
+-
+> POST /user/register
+> Content-Type: application/json;charset=UTF-8
+> x-auth-token: anonymous
+> Content-Length: 74
+{"email":"email@domain.tld","password":"password","defaultCurrency":"USD"}
+< HTTP 400
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"type":"CLIENT","status":400,"code":"VALIDATION_FAILED","message":"Validation failed: name must not be null","metadata":{"parameter":"name","constraint":"NotNull"}}
+-
+> POST /user/register
+> Content-Type: application/json;charset=UTF-8
+> x-auth-token: anonymous
+> Content-Length: 6
+{"x":}
+< HTTP 400
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"type":"CLIENT","status":400,"code":"BAD_REQUEST","message":"JSON parse error: Unexpected character ('}' (code 125)): expected a value; nested exception is com.fasterxml.jackson.core.JsonParseException: Unexpected character ('}' (code 125)): expected a value\n at [Source: (PushbackInputStream); line: 1, column: 7]","metadata":{}}
+]
+
+
+com.paymybuddy.server.http.controller.UserControllerTest.removeContact=[
+-
+> DELETE /user/contact/2
+< HTTP 200
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"id":2,"email":"2@domain.tld","name":"#2","defaultCurrency":"USD"}
+-
+> DELETE /user/contact/3
+< HTTP 404
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"type":"SERVICE","status":404,"code":"CONTACT_NOT_FOUND","message":"Contact does not exists","metadata":{}}
+-
+> DELETE /user/contact/xxx
+< HTTP 400
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"type":"CLIENT","status":400,"code":"VALIDATION_FAILED","message":"Validation failed: contactId must be a Long","metadata":{"parameter":"contactId"}}
+]
