@@ -1,6 +1,7 @@
 package com.paymybuddy.business;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Iterables;
 import com.paymybuddy.api.model.Currency;
 import com.paymybuddy.api.model.collection.CursorResponse;
 import com.paymybuddy.api.model.transaction.Transaction;
@@ -22,6 +23,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -161,6 +163,45 @@ public class TransactionService {
         transaction.setSender(sender);
         transaction.setRecipient(recipient);
         return transactionMapper.toTransaction(transaction);
+    }
+
+    /**
+     * Withdraw balance money to a bank account.
+     *
+     * @param userId   ID of the user withdrawing the money
+     * @param currency amount currency
+     * @param amount   amount value
+     * @param iban     bank account IBAN
+     * @throws IllegalArgumentException if the amount value have too many decimals for this currency.
+     *                                  if the amount value is less or equal to zero.
+     * @throws SenderNotFoundException  if the no user match the userId
+     * @throws NotEnoughFundsException  if the sender has not enough funds to cover the amount value (in this currency).
+     */
+    public boolean withdrawToBank(long userId, Currency currency, BigDecimal amount, String iban) {
+        // Validate the amount
+        amount = amount.stripTrailingZeros();
+        Preconditions.checkArgument(amount.scale() <= currency.getDecimals(), "amount has too many decimals");
+        Preconditions.checkArgument(amount.compareTo(BigDecimal.ZERO) > 0, "amount must be strictly positive");
+
+        // Find user and lock him
+        UserEntity user = Iterables.getFirst(userRepository.findAllByIdsForUpdate(Collections.singletonList(userId)), null);
+        if (user == null) {
+            throw new SenderNotFoundException();
+        }
+
+        // Withdraw the amount
+        UserBalanceEntity userBalance = getBalance(user.getId(), currency);
+        userBalance.setAmount(userBalance.getAmount().subtract(amount));
+        if (userBalance.getAmount().compareTo(BigDecimal.ZERO) < 0) {
+            throw new NotEnoughFundsException(currency, userBalance.getAmount().abs());
+        }
+
+        // TODO: Send the money to the `iban` bank account (w/ banking microservice)
+
+        // Then explicitly save and returns mapped values
+        userBalanceRepository.save(userBalance);
+
+        return true;
     }
 
     /**

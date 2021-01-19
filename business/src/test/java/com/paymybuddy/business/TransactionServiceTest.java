@@ -183,6 +183,56 @@ class TransactionServiceTest {
     }
 
     @Test
+    void withdrawToBank() {
+        long userId = 1L;
+        Currency currency = Currency.USD;
+        BigDecimal amount = new BigDecimal("1234.56");
+        String  iban = "NL91ABNA0417164300";
+
+        UserEntity user = MockUsers.newUserEntity(userId);
+        when(userRepository.findAllByIdsForUpdate(any())).thenAnswer(m -> {
+            Collection<Long> ids = m.getArgument(0);
+            return Stream.of(
+                    ids.contains(user.getId()) ? user : null
+            ).filter(Objects::nonNull).collect(Collectors.toList());
+        });
+
+        Table<Long, Currency, UserBalanceEntity> balances = HashBasedTable.create();
+        balances.put(user.getId(), currency, MockUsers.newBalance(new BigDecimal("1000000"), currency, user));
+        when(userBalanceRepository.findByUserIdAndCurrency(anyLong(), any())).thenAnswer(m -> {
+            return Optional.ofNullable(balances.get(m.<Long>getArgument(0), m.<Currency>getArgument(1)));
+        });
+        when(userBalanceRepository.saveAll(any())).thenAnswer(m -> {
+            List<UserBalanceEntity> ret = new ArrayList<>();
+            m.<Iterable<UserBalanceEntity>>getArgument(0).forEach(e -> {
+                e.setUser(Iterables.getFirst(userRepository.findAllByIdsForUpdate(Collections.singleton(e.getUserId())), null));
+                balances.put(e.getUserId(), e.getCurrency(), e);
+                ret.add(e);
+            });
+            return ret;
+        });
+
+        // Validate the amount
+        transactionService.withdrawToBank(userId, currency, new BigDecimal("10.000"), iban);
+        assertThrows(IllegalArgumentException.class, () -> transactionService.withdrawToBank(userId, currency, new BigDecimal("10.001"), iban));
+        assertThrows(IllegalArgumentException.class, () -> transactionService.withdrawToBank(userId, currency, new BigDecimal("0"), iban));
+        assertThrows(IllegalArgumentException.class, () -> transactionService.withdrawToBank(userId, currency, new BigDecimal("-1"), iban));
+
+        // Check SenderNotFoundException
+        assertThrows(SenderNotFoundException.class, () -> transactionService.withdrawToBank(3L, currency, amount, iban));
+
+        // Check NotEnoughFundsException
+        assertThrows(NotEnoughFundsException.class, () -> transactionService.withdrawToBank(userId, currency, new BigDecimal("100000000.00"), iban));
+
+        // Check success
+        balances.clear();
+        balances.put(userId, currency, MockUsers.newBalance(new BigDecimal("1000000"), currency, user));
+
+        transactionService.withdrawToBank(userId, currency, amount, iban);
+        assertEquals(ImmutableMap.of(Currency.USD, MockUsers.newBalance(new BigDecimal("998765.44"), currency, user)), balances.row(userId));
+    }
+
+    @Test
     void computeFee() {
         assertEquals(new BigDecimal("5.00"), transactionService.computeFee(Currency.USD, new BigDecimal("1000")));
         assertEquals(new BigDecimal("0.03"), transactionService.computeFee(Currency.USD, new BigDecimal("4.99")));

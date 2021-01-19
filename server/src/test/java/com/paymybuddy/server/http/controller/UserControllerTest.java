@@ -12,6 +12,7 @@ import com.paymybuddy.api.model.user.UserBalance;
 import com.paymybuddy.api.model.user.UserBalancesResponse;
 import com.paymybuddy.api.request.auth.RegisterRequest;
 import com.paymybuddy.api.request.transaction.CreateTransactionRequest;
+import com.paymybuddy.api.request.transaction.WithdrawToBankRequest;
 import com.paymybuddy.api.request.user.AddContactRequest;
 import com.paymybuddy.auth.AuthService;
 import com.paymybuddy.auth.provider.CredentialsAuthProvider;
@@ -354,6 +355,39 @@ class UserControllerTest {
                                 .currency(Currency.USD)
                                 .amount(new BigDecimal("5.00"))
                                 .description("Not contact")
+                                .build())))
+                        .andReturn()
+        );
+    }
+
+    @Test
+    @MockAuthGuard.WithAuthToken
+    void withdrawToBankAccount() throws Exception {
+        User user = MockAuthGuard.get().getUser();
+        BigDecimal userAmount = new BigDecimal("10.00");
+        when(transactionService.withdrawToBank(eq(user.getId()), any(), any(), any())).thenAnswer(m -> {
+            Currency currency = m.getArgument(1);
+            BigDecimal amount = m.getArgument(2);
+            if (amount.compareTo(userAmount) > 0) {
+                throw new NotEnoughFundsException(currency, amount.subtract(userAmount));
+            }
+            return true;
+        });
+        toMatchSnapshot(
+                mockMvc.perform(post("/user/withdraw-to-bank")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(WithdrawToBankRequest.builder()
+                                .currency(Currency.USD)
+                                .amount(new BigDecimal("5.00"))
+                                .iban("NL91ABNA0417164300")
+                                .build())))
+                        .andReturn(),
+                mockMvc.perform(post("/user/withdraw-to-bank")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(WithdrawToBankRequest.builder()
+                                .currency(Currency.USD)
+                                .amount(new BigDecimal("15.00"))
+                                .iban("NL91ABNA0417164300")
                                 .build())))
                         .andReturn()
         );

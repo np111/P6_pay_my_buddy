@@ -476,3 +476,40 @@ com.paymybuddy.server.http.controller.UserControllerTest.removeContact=[
 < X-Frame-Options: DENY
 {"type":"CLIENT","status":400,"code":"VALIDATION_FAILED","message":"Validation failed: contactId must be a Long","metadata":{"parameter":"contactId"}}
 ]
+
+
+com.paymybuddy.server.http.controller.UserControllerTest.withdrawToBankAccount=[
+-
+> POST /user/withdraw-to-bank
+> Content-Type: application/json;charset=UTF-8
+> Content-Length: 59
+{"currency":"USD","amount":"5","iban":"NL91ABNA0417164300"}
+< HTTP 204
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+
+-
+> POST /user/withdraw-to-bank
+> Content-Type: application/json;charset=UTF-8
+> Content-Length: 60
+{"currency":"USD","amount":"15","iban":"NL91ABNA0417164300"}
+< HTTP 412
+< Vary: Origin
+< Vary: Access-Control-Request-Method
+< Vary: Access-Control-Request-Headers
+< Content-Type: application/json
+< X-Content-Type-Options: nosniff
+< X-XSS-Protection: 1; mode=block
+< Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+< Pragma: no-cache
+< Expires: 0
+< X-Frame-Options: DENY
+{"type":"SERVICE","status":412,"code":"NOT_ENOUGH_FUNDS","message":"You don't have enough funds","metadata":{"currency":"USD","missingAmount":"5"}}
+]

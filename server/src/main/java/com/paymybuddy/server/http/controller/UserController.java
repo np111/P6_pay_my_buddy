@@ -11,6 +11,7 @@ import com.paymybuddy.api.model.user.User;
 import com.paymybuddy.api.model.user.UserBalancesResponse;
 import com.paymybuddy.api.request.auth.RegisterRequest;
 import com.paymybuddy.api.request.transaction.CreateTransactionRequest;
+import com.paymybuddy.api.request.transaction.WithdrawToBankRequest;
 import com.paymybuddy.api.request.user.AddContactRequest;
 import com.paymybuddy.api.util.jackson.AmountSerializer;
 import com.paymybuddy.auth.AuthGuard;
@@ -216,6 +217,20 @@ public class UserController {
         }
         return transactionService.createTransaction(
                 userId, recipientId, body.getCurrency(), body.getAmount(), body.getDescription(), DateUtil.now());
+    }
+
+    @Operation(
+            summary = "Withdraw balance to a bank account."
+    )
+    @ApiErrorResponse(method = "handleNotEnoughFundsException")
+    @PreAuthorize("isAuthenticated()")
+    @JsonRequestMapping(method = RequestMethod.POST, value = "/withdraw-to-bank")
+    public ResponseEntity<Void> withdrawToBankAccount(
+            @AuthenticationPrincipal AuthGuard auth,
+            @RequestBody @Validated WithdrawToBankRequest body
+    ) {
+        transactionService.withdrawToBank(auth.getUserId(), body.getCurrency(), body.getAmount(), body.getIban());
+        return ResponseEntity.noContent().build();
     }
 
     @ExceptionHandler(EmailAlreadyRegisteredException.class)
