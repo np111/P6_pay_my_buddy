@@ -23,19 +23,20 @@ local machine for development.
 ### Running App
 
 Start the docker development environment:
-```
+```bash
 ./dev.sh docker up -d
+./dev.sh db-seed  #(optional: feed the database with tests data)
 ```
 
 Compile the server with maven and run it:
-```
+```bash
 mvn package
 cd server/target/
 java -jar paymybuddy-server.jar
 ```
 
 Then compile the client and run it:
-```
+```bash
 cd client/
 npm i
 npm run build
@@ -45,7 +46,7 @@ npm run start
 ### Testing
 
 To run the tests, type:
-```
+```bash
 mvn verify
 ```
 
