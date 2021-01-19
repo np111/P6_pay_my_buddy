@@ -2,5 +2,7 @@
   "welcome": "Bonjour {{name}},",
   "balance": "Solde",
   "recent_activity": "Activité récente",
-  "more_activities": "Voir plus"
+  "more_activities": "Voir plus",
+  "add_money": "Ajouter des fonds",
+  "withdraw_money": "Retirer des fonds"
 }

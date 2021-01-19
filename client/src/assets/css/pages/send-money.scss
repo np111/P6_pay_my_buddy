@@ -19,3 +19,27 @@
     text-align: center;
   }
 }
+
+.add-money-card {
+  max-width: 620px;
+  margin: auto;
+  text-align: center;
+}
+
+table.add-money-table {
+  margin: auto;
+  border-spacing: 5px;
+
+  th, td {
+    text-align: left;
+    padding: 0 8px;
+  }
+
+  tr {
+    border-bottom: 1px solid $separator-color;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}

@@ -14,6 +14,8 @@ export const routes = {
     summary: () => ({href: '/summary'}),
     activity: () => ({href: '/activity'}),
     sendMoney: () => ({href: '/send-money'}),
+    addMoney: () => ({href: '/add-money'}),
+    withdrawMoney: () => ({href: '/withdraw-money'}),
     contacts: ({showAdd}: { showAdd?: boolean } = {}) => ({
         href: '/contacts' + queryStringify({showAdd}),
     }),

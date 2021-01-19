@@ -184,7 +184,7 @@ const SendMoneyForm = withAuth()(withTranslation('send-money')(function SendMone
 
     const normalizeAmount = useCallback((value: string) => {
         const decimals = currencies[currency].decimals;
-        value = value.replaceAll(/[^0-9]/g, '').replace(/^0+/, '');
+        value = value.replace(/[^0-9]/g, '').replace(/^0+/, '');
         if (value.length < decimals + 1) {
             value = '0'.repeat(decimals + 1 - value.length) + value;
         }

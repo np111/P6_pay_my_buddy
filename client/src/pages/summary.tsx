@@ -80,6 +80,15 @@ const Balances = withAuth()(withTranslation('summary')(function Balances({authGu
                     {userBalance.balances.map(renderBalance)}
                 </ul>
             )}
+            <div className='sm-t'>
+                <Link {...routes.addMoney()}>
+                    <a>{t('summary:add_money')}</a>
+                </Link>
+                {' • '}
+                <Link {...routes.withdrawMoney()}>
+                    <a>{t('summary:withdraw_money')}</a>
+                </Link>
+            </div>
         </Card>
     );
 }));

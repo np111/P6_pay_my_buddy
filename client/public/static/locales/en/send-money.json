@@ -11,7 +11,20 @@
   "amount_must_be_positive": "The amount must be greater than zero.",
   "description_required": "A description is required.",
   "not_enough_funds": "You don't have enough funds (you are missing {{missingAmount}} {{currency}}).",
-  "money_sent": "Money sent !",
+  "money_sent": "Money sent!",
   "transaction_details": "You sent <0/> to <1/>.",
-  "send_again": "Send money again"
+  "send_again": "Send money again",
+  "withdraw_money": "Withdraw money",
+  "iban": "IBAN",
+  "iban_required": "An IBAN is required.",
+  "withdraw": "Withdraw",
+  "money_withdrawn": "Money withdrawn!",
+  "withdraw_details": "You have withdrawn your money.",
+  "withdraw_again": "Withdraw money again",
+  "add_money": "Add money",
+  "add_money_transfer_desc": "To add money, make a SEPA transfer as shown below. Be sure to indicate the exact reference number.",
+  "reference_number": "Reference number",
+  "recipient_iban": "Recipient IBAN",
+  "recipient_name": "Recipient name",
+  "swift_bic": "SWIFT / BIC"
 }

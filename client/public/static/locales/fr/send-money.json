@@ -13,5 +13,18 @@
   "not_enough_funds": "Vous n'avez pas assez de fonds (il vous manque {{missingAmount}} {{currency}}).",
   "money_sent": "Argent envoyé !",
   "transaction_details": "Vous avez envoyé <0/> à <1/>.",
-  "send_again": "Envoyer de l'argent à nouveau"
+  "send_again": "Envoyer de l'argent à nouveau",
+  "withdraw_money": "Retirer des fonds",
+  "iban": "IBAN",
+  "iban_required": "Un IBAN est nécessaire.",
+  "withdraw": "Retirer",
+  "money_withdrawn": "Fonds retiré !",
+  "withdraw_details": "Vous avez retiré vos fonds.",
+  "withdraw_again": "Retirer des fonds à nouveau",
+  "add_money": "Ajouter des fonds",
+  "add_money_transfer_desc": "Pour ajouter de l'argent, effectuez un virement SEPA comme indiqué ci-dessous. Veillez à indiquer le numéro de référence exact.",
+  "reference_number": "Numéro de référence",
+  "recipient_iban": "IBAN du destinataire",
+  "recipient_name": "Nom du destinataire",
+  "swift_bic": "SWIFT / BIC"
 }

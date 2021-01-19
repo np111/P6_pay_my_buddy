@@ -177,6 +177,7 @@ public class TransactionService {
      * @throws SenderNotFoundException  if the no user match the userId
      * @throws NotEnoughFundsException  if the sender has not enough funds to cover the amount value (in this currency).
      */
+    @Transactional
     public boolean withdrawToBank(long userId, Currency currency, BigDecimal amount, String iban) {
         // Validate the amount
         amount = amount.stripTrailingZeros();
