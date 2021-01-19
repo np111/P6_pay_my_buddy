@@ -21,7 +21,7 @@ generate() {
     --exclude 'absolute-path.js' \
     --exclude '*-es-*' \
     --exclude '*.map'
-  sed -i 's#url: "https://petstore.swagger.io/v2/swagger.json",#url: "openapi.json", readOnly: true,#' "${docs_dir}/index.html"
+  sed -i 's#url: "https://petstore.swagger.io/v2/swagger.json",#url: "openapi.json?'"$(git rev-parse HEAD)"'", readOnly: true,#' "${docs_dir}/index.html"
   sed -i 's#layout: "StandaloneLayout"#layout: "BaseLayout"#' "${docs_dir}/index.html"
   popd
 
