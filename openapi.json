@@ -1,0 +1,1114 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "PayMyBuddy API",
+    "version": "1.0",
+    "description": "<a href=\"https://github.com/np111/P6_pay_my_buddy\">View Source on GitHub</a>"
+  },
+  "servers": [],
+  "tags": [
+    {
+      "name": "auth",
+      "description": "Authentication operations"
+    },
+    {
+      "name": "user",
+      "description": "Users operations"
+    }
+  ],
+  "paths": {
+    "/user/withdraw-to-bank": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Withdraw balance to a bank account.",
+        "operationId": "withdrawToBankAccount",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WithdrawToBankRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "`CLIENT`/`VALIDATION_FAILED` - A request parameter validation failed:\n- *body*: NotNull",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "type": "CLIENT",
+                  "status": 400,
+                  "code": "VALIDATION_FAILED",
+                  "message": "Validation failed",
+                  "metadata": {}
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "`SERVICE`/`NOT_ENOUGH_FUNDS` - You don't have enough funds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "type": "SERVICE",
+                  "status": 412,
+                  "code": "NOT_ENOUGH_FUNDS",
+                  "message": "You don't have enough funds",
+                  "metadata": {
+                    "currency": "USD",
+                    "missingAmount": "0"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/transaction": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Returns the user's transaction list.",
+        "description": "Lists the transactions of which the user is the sender or the recipient.",
+        "operationId": "listTransactions",
+        "parameters": [
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "Number of records to return per page.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSort",
+            "in": "query",
+            "description": "Property to sort. Prefix the property with \"-\" to reverse. Multiple values can be separated by a comma.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "description": "Cursor of the page to return (empty for the first page, then use the prevCursor/nextCursor values returned in the previous response).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CursorResponseTransaction"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Create a new transaction.",
+        "operationId": "createTransaction",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTransactionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Transaction"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`CLIENT`/`VALIDATION_FAILED` - A request parameter validation failed:\n- *body*: NotNull\n  - *description*: NotBlank, Size",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "type": "CLIENT",
+                  "status": 400,
+                  "code": "VALIDATION_FAILED",
+                  "message": "Validation failed",
+                  "metadata": {}
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`SERVICE`/`CONTACT_NOT_FOUND` - Contact does not exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "type": "SERVICE",
+                  "status": 404,
+                  "code": "CONTACT_NOT_FOUND",
+                  "message": "Contact does not exists",
+                  "metadata": {}
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "`SERVICE`/`NOT_ENOUGH_FUNDS` - You don't have enough funds",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "type": "SERVICE",
+                  "status": 412,
+                  "code": "NOT_ENOUGH_FUNDS",
+                  "message": "You don't have enough funds",
+                  "metadata": {
+                    "currency": "USD",
+                    "missingAmount": "0"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/register": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Register a new user.",
+        "operationId": "register",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "`CLIENT`/`VALIDATION_FAILED` - A request parameter validation failed:\n- *body*: NotNull\n  - *name*: NotNull, IsName\n  - *email*: NotNull, IsEmail\n  - *password*: NotNull, IsPassword\n  - *defaultCurrency*: NotNull",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "type": "CLIENT",
+                  "status": 400,
+                  "code": "VALIDATION_FAILED",
+                  "message": "Validation failed",
+                  "metadata": {}
+                }
+              }
+            }
+          },
+          "400'": {
+            "description": "`SERVICE`/`INVALID_NAME` - Illegal name",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "type": "SERVICE",
+                  "status": 400,
+                  "code": "INVALID_NAME",
+                  "message": "Illegal name",
+                  "metadata": {}
+                }
+              }
+            }
+          },
+          "400''": {
+            "description": "`SERVICE`/`INVALID_EMAIL` - Illegal email",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "type": "SERVICE",
+                  "status": 400,
+                  "code": "INVALID_EMAIL",
+                  "message": "Illegal email",
+                  "metadata": {}
+                }
+              }
+            }
+          },
+          "400'''": {
+            "description": "`SERVICE`/`INVALID_PASSWORD` - Password is too short",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "type": "SERVICE",
+                  "status": 400,
+                  "code": "INVALID_PASSWORD",
+                  "message": "Password is too short",
+                  "metadata": {
+                    "minLength": 0
+                  }
+                }
+              }
+            }
+          },
+          "400''''": {
+            "description": "`SERVICE`/`INVALID_PASSWORD` - Password is too long",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "type": "SERVICE",
+                  "status": 400,
+                  "code": "INVALID_PASSWORD",
+                  "message": "Password is too long",
+                  "metadata": {
+                    "maxLength": 0
+                  }
+                }
+              }
+            }
+          },
+          "400'''''": {
+            "description": "`SERVICE`/`INVALID_EMAIL` - Email already registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "type": "SERVICE",
+                  "status": 400,
+                  "code": "INVALID_EMAIL",
+                  "message": "Email already registered",
+                  "metadata": {
+                    "alreadyExists": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/contact": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Returns the user's contact list.",
+        "operationId": "listContacts",
+        "parameters": [
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "Number of records to return per page.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSort",
+            "in": "query",
+            "description": "Property to sort. Prefix the property with \"-\" to reverse. Multiple values can be separated by a comma.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Index of the page to return (zero for the first page).",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageResponseUser"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Adds a contact to the user.",
+        "operationId": "addContact",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddContactRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`CLIENT`/`VALIDATION_FAILED` - A request parameter validation failed:\n- *body*: NotNull\n  - *email*: NotNull, IsEmail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "type": "CLIENT",
+                  "status": 400,
+                  "code": "VALIDATION_FAILED",
+                  "message": "Validation failed",
+                  "metadata": {}
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`SERVICE`/`CONTACT_NOT_FOUND` - Contact does not exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "type": "SERVICE",
+                  "status": 404,
+                  "code": "CONTACT_NOT_FOUND",
+                  "message": "Contact does not exists",
+                  "metadata": {}
+                }
+              }
+            }
+          },
+          "412": {
+            "description": "`SERVICE`/`CANNOT_BE_HIMSELF` - You cannot perform this action on yourself",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "type": "SERVICE",
+                  "status": 412,
+                  "code": "CANNOT_BE_HIMSELF",
+                  "message": "You cannot perform this action on yourself",
+                  "metadata": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Destroy the auth-token of the currently authenticated user.",
+        "operationId": "logout",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Authenticate a user using his email and password.",
+        "description": "A new auth-token is created and included with the response.",
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`CLIENT`/`VALIDATION_FAILED` - A request parameter validation failed:\n- *body*: NotNull\n  - *email*: NotNull, IsEmail\n  - *password*: NotNull, IsPassword",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "type": "CLIENT",
+                  "status": 400,
+                  "code": "VALIDATION_FAILED",
+                  "message": "Validation failed",
+                  "metadata": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/contact/{contactSelector}": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Returns a contact of the user.",
+        "operationId": "getContact",
+        "parameters": [
+          {
+            "name": "contactSelector",
+            "in": "path",
+            "description": "Email or name of the contact.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`CLIENT`/`VALIDATION_FAILED` - A request parameter validation failed:\n- *contactSelector*: NotNull",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "type": "CLIENT",
+                  "status": 400,
+                  "code": "VALIDATION_FAILED",
+                  "message": "Validation failed",
+                  "metadata": {}
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`SERVICE`/`CONTACT_NOT_FOUND` - Contact does not exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "type": "SERVICE",
+                  "status": 404,
+                  "code": "CONTACT_NOT_FOUND",
+                  "message": "Contact does not exists",
+                  "metadata": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/contact-autocomplete": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Autocomplete the user's contacts.",
+        "operationId": "autocompleteContact",
+        "parameters": [
+          {
+            "name": "input",
+            "in": "query",
+            "description": "Partial term to search/autocomplete.",
+            "required": true,
+            "schema": {
+              "maxLength": 255,
+              "minLength": 0,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponseUser"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`CLIENT`/`VALIDATION_FAILED` - A request parameter validation failed:\n- *input*: NotNull, Size",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "type": "CLIENT",
+                  "status": 400,
+                  "code": "VALIDATION_FAILED",
+                  "message": "Validation failed",
+                  "metadata": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/balance": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Returns the user's balances.",
+        "description": "The default currency balance is always included (first). Others are only included when they are non-zero.",
+        "operationId": "getBalances",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserBalancesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/remember": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Returns the currently authenticated user.",
+        "description": "It's auth-token is not included with the response.",
+        "operationId": "remember",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/contact/{contactId}": {
+      "delete": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Removes a user contact.",
+        "operationId": "removeContact",
+        "parameters": [
+          {
+            "name": "contactId",
+            "in": "path",
+            "description": "ID of the contact.",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "`CLIENT`/`VALIDATION_FAILED` - A request parameter validation failed:\n- *contactId*: NotNull",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "type": "CLIENT",
+                  "status": 400,
+                  "code": "VALIDATION_FAILED",
+                  "message": "Validation failed",
+                  "metadata": {}
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "`SERVICE`/`CONTACT_NOT_FOUND` - Contact does not exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                },
+                "example": {
+                  "type": "SERVICE",
+                  "status": 404,
+                  "code": "CONTACT_NOT_FOUND",
+                  "message": "Contact does not exists",
+                  "metadata": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "WithdrawToBankRequest": {
+        "type": "object",
+        "properties": {
+          "currency": {
+            "type": "string",
+            "enum": [
+              "USD",
+              "EUR",
+              "JPY",
+              "GBP",
+              "CHF",
+              "CAD",
+              "AUD",
+              "HKD"
+            ]
+          },
+          "amount": {
+            "type": "number"
+          },
+          "iban": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateTransactionRequest": {
+        "required": [
+          "description"
+        ],
+        "type": "object",
+        "properties": {
+          "recipientId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "USD",
+              "EUR",
+              "JPY",
+              "GBP",
+              "CHF",
+              "CAD",
+              "AUD",
+              "HKD"
+            ]
+          },
+          "amount": {
+            "type": "number"
+          },
+          "description": {
+            "maxLength": 200,
+            "minLength": 0,
+            "type": "string"
+          }
+        }
+      },
+      "Transaction": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "sender": {
+            "$ref": "#/components/schemas/User"
+          },
+          "recipient": {
+            "$ref": "#/components/schemas/User"
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "USD",
+              "EUR",
+              "JPY",
+              "GBP",
+              "CHF",
+              "CAD",
+              "AUD",
+              "HKD"
+            ]
+          },
+          "amount": {
+            "type": "number"
+          },
+          "fee": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "email": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "defaultCurrency": {
+            "type": "string",
+            "enum": [
+              "USD",
+              "EUR",
+              "JPY",
+              "GBP",
+              "CHF",
+              "CAD",
+              "AUD",
+              "HKD"
+            ]
+          }
+        }
+      },
+      "RegisterRequest": {
+        "required": [
+          "defaultCurrency",
+          "email",
+          "name",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "defaultCurrency": {
+            "type": "string",
+            "enum": [
+              "USD",
+              "EUR",
+              "JPY",
+              "GBP",
+              "CHF",
+              "CAD",
+              "AUD",
+              "HKD"
+            ]
+          }
+        }
+      },
+      "AddContactRequest": {
+        "required": [
+          "email"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "LoginRequest": {
+        "required": [
+          "email",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          }
+        }
+      },
+      "CursorResponseTransaction": {
+        "type": "object",
+        "properties": {
+          "prevCursor": {
+            "type": "string"
+          },
+          "hasPrev": {
+            "type": "boolean"
+          },
+          "nextCursor": {
+            "type": "string"
+          },
+          "hasNext": {
+            "type": "boolean"
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Transaction"
+            }
+          }
+        }
+      },
+      "PageResponseUser": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            }
+          }
+        }
+      },
+      "ListResponseUser": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            }
+          }
+        }
+      },
+      "UserBalance": {
+        "type": "object",
+        "properties": {
+          "currency": {
+            "type": "string",
+            "enum": [
+              "USD",
+              "EUR",
+              "JPY",
+              "GBP",
+              "CHF",
+              "CAD",
+              "AUD",
+              "HKD"
+            ]
+          },
+          "amount": {
+            "type": "number"
+          }
+        }
+      },
+      "UserBalancesResponse": {
+        "type": "object",
+        "properties": {
+          "defaultCurrency": {
+            "type": "string",
+            "enum": [
+              "USD",
+              "EUR",
+              "JPY",
+              "GBP",
+              "CHF",
+              "CAD",
+              "AUD",
+              "HKD"
+            ]
+          },
+          "balances": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserBalance"
+            }
+          }
+        }
+      },
+      "ApiError": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "CLIENT",
+              "SERVICE",
+              "UNKNOWN"
+            ]
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "SERVER_EXCEPTION",
+              "BAD_REQUEST",
+              "VALIDATION_FAILED",
+              "ACCESS_DENIED",
+              "INVALID_EMAIL",
+              "INVALID_NAME",
+              "INVALID_PASSWORD",
+              "INVALID_CREDENTIALS",
+              "CONTACT_NOT_FOUND",
+              "NOT_ENOUGH_FUNDS",
+              "CANNOT_BE_HIMSELF"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    }
+  }
+}
