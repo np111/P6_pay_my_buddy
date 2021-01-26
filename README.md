@@ -54,6 +54,11 @@ mvn verify
 
 See [DEPLOYMENT.md](./DEPLOYMENT.md).
 
+## UML Diagrams
+
+- [Domain Class Diagram](.readme/uml_class_diagram.jpg)
+- [Database Implementation Diagram](.readme/uml_db_implementation_diagram.jpg)
+
 ## Notes
 
 This is a school project (for OpenClassrooms).
